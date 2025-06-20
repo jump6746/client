@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
+import { NaverMapInstance } from '../types/naver-maps';
 
-const useLocationMarker = (map: any) => {
+const useLocationMarker = (map: NaverMapInstance | null) => {
   const addLocationMarker = useCallback((lat: number, lng: number, title = "현재 위치") => {
     if (!map) return null;
 
