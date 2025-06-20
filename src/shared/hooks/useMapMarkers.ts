@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { Marker } from '../types/types';
+import { NaverMapInstance, NaverMarker } from '../types/naver-maps';
 
-const useMapMarkers = (map: any, initialMarkers: Marker[] = []) => {
+const useMapMarkers = (map: NaverMapInstance | null, initialMarkers: Marker[] = []) => {
   const [markers, setMarkers] = useState<Marker[]>(initialMarkers);
-  const [naverMarkers, setNaverMarkers] = useState<any[]>([]);
+  const [naverMarkers, setNaverMarkers] = useState<NaverMarker[]>([]);
 
   const createMarker = useCallback((lat: number, lng: number, title: string, isCurrentLocation = false) => {
     if (!map) return null;
@@ -50,12 +51,19 @@ const useMapMarkers = (map: any, initialMarkers: Marker[] = []) => {
   }, [naverMarkers]);
 
   // 초기 마커들 렌더링
-  const renderInitialMarkers = useCallback(() => {
+  const renderInitialMarkersSimple = useCallback(() => {
     if (!map || initialMarkers.length === 0) return;
 
-    const newNaverMarkers = initialMarkers.map(marker => 
-      createMarker(marker.lat, marker.lng, marker.title)
-    ).filter(Boolean);
+    const newNaverMarkers: NaverMarker[] = [];
+    
+    initialMarkers.forEach(marker => {
+      if (marker) {
+        const naverMarker = createMarker(marker.lat, marker.lng, marker.title);
+        if (naverMarker) {
+          newNaverMarkers.push(naverMarker);
+        }
+      }
+    });
 
     setNaverMarkers(newNaverMarkers);
   }, [map, initialMarkers, createMarker]);
@@ -65,7 +73,7 @@ const useMapMarkers = (map: any, initialMarkers: Marker[] = []) => {
     addMarker,
     removeMarker,
     clearMarkers,
-    renderInitialMarkers,
+    renderInitialMarkersSimple,
   };
 };
 

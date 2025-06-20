@@ -1,6 +1,7 @@
 "use client";
 
-import { loadNaverMaps } from "@/shared";
+import { loadNaverMaps } from "@/shared/lib";
+import { NaverMapInstance } from "@/shared/types/naver-maps";
 import { useCallback, useEffect, useState } from "react";
 
 interface NaverMapProps {
@@ -17,7 +18,7 @@ const NaverMap = ({
   height = "400px",
 }: NaverMapProps) => {
   const [mapElement, setMapElement] = useState<HTMLDivElement | null>(null);
-  const [map, setMap] = useState<any>(null);
+  const [map, setMap] = useState<NaverMapInstance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const mapCallbackRef = useCallback((element: HTMLDivElement | null) => {

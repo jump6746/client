@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    naver: any;
-  }
-}
-
 const loadNaverMaps = ():Promise<void> => {
 
   return new Promise((resolve, reject) => {
