@@ -3,7 +3,6 @@ import { apiURL, getRedisClient } from "@/shared/lib";
 import { nanoid } from "nanoid";
 import { ErrorResponse, ResponseDTO } from "@/shared/types/api-structure";
 import { LoginResponse } from "@/entities/auth/model";
-import { cookies } from "next/headers";
 
 export async function POST(request: NextRequest): Promise<NextResponse<ResponseDTO<LoginResponse> | ErrorResponse>> {
 
@@ -39,8 +38,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     console.log("응답 데이터: ", data);
     const { accessToken } = data.data;
     
-    const cookieStore = cookies();
-    const refreshToken = (await cookieStore).get("refreshToken")?.value;
+    const setCookieHeader = response.headers.get("set-cookie");
+
+    let refreshToken = null;
+
+    if (setCookieHeader) {
+      // refreshToken 값만 추출
+      const match = setCookieHeader.match(/refreshToken=([^;]+)/);
+      refreshToken = match ? match[1] : null;
+    }
+
     console.log("받은 리프레쉬 토큰: ", refreshToken);
 
     if (!refreshToken) {
