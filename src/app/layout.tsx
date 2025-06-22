@@ -24,9 +24,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
+      <head>
+        <link
+          rel="stylesheet"
+          as="style"
+          crossOrigin=""
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased w-[390px] h-dvh`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased w-[390px] h-dvh mx-auto`}
       >
         <Providers>{children}</Providers>
       </body>
