@@ -6,10 +6,68 @@ declare global {
         LatLng: new (lat: number, lng: number) => NaverLatLng;
         Marker: new (options: NaverMarkerOptions) => NaverMarker;
         Point: new (x: number, y: number) => NaverPoint;
+        Event: NaverMapsEvent; // Event 타입 추가
+        
+        // 추가적인 네이버 지도 상수들
+        MapTypeId?: {
+          NORMAL: string;
+          TERRAIN: string;
+          SATELLITE: string;
+          HYBRID: string;
+        };
+        
+        Position?: {
+          TOP_LEFT: string;
+          TOP_CENTER: string;
+          TOP_RIGHT: string;
+          LEFT_CENTER: string;
+          CENTER: string;
+          RIGHT_CENTER: string;
+          BOTTOM_LEFT: string;
+          BOTTOM_CENTER: string;
+          BOTTOM_RIGHT: string;
+        };
+        
+        ZoomControlStyle?: {
+          LARGE: string;
+          SMALL: string;
+        };
       };
     };
   }
 }
+
+export interface NaverMapsEvent {
+  addListener(
+    target: NaverMapInstance | NaverMarker,
+    eventName: string,
+    listener: (...args: any[]) => void
+  ): NaverMapEventListener;
+  
+  removeListener(listener: NaverMapEventListener): void;
+  
+  addDOMListener(
+    element: HTMLElement,
+    eventName: string,
+    listener: (event: Event) => void
+  ): NaverMapEventListener;
+  
+  removeDOMListener(listener: NaverMapEventListener): void;
+  
+  trigger(
+    target: NaverMapInstance | NaverMarker,
+    eventName: string,
+    ...args: any[]
+  ): void;
+  
+  clearListeners(target: NaverMapInstance | NaverMarker, eventName?: string): void;
+  
+  hasListener(
+    target: NaverMapInstance | NaverMarker,
+    eventName: string
+  ): boolean;
+}
+
 
 export interface NaverMapOptions {
   center: NaverLatLng;

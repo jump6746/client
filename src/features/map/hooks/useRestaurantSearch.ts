@@ -3,7 +3,15 @@ import { useDebounce } from "@/shared/hooks";
 import { useState } from "react";
 import { useQuery } from '@tanstack/react-query';
 
-const useRestaurantSearch = () => {
+interface UseRestaurantSearchOptions {
+  currentLocation?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+const useRestaurantSearch = (options: UseRestaurantSearchOptions = {}) => {
+  const { currentLocation } = options;
 
   const [search, setSearch] = useState<string>("");
   
@@ -17,8 +25,12 @@ const useRestaurantSearch = () => {
     error,
     isFetching 
   } = useQuery({
-    queryKey: ['restaurant-search', debouncedSearch],
-    queryFn: () => searchRestaurantAPI(debouncedSearch),
+    queryKey: ['restaurant-search', debouncedSearch, currentLocation?.lat, currentLocation?.lng],
+    queryFn: () => searchRestaurantAPI({
+      query: debouncedSearch,
+      lat: currentLocation?.lat,
+      lng: currentLocation?.lng,
+    }),
     enabled: !!debouncedSearch && debouncedSearch.length > 0,
   });
 
@@ -34,7 +46,8 @@ const useRestaurantSearch = () => {
     list: list || [], 
     error: error?.message || null,
     isFetching,
-    clearResults
+    clearResults,
+    hasLocation: !!currentLocation,
   };
 }
 

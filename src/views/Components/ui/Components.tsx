@@ -1,4 +1,5 @@
 import { NaverMap } from "@/features/map";
+import { MapSearch } from "@/features/map/ui";
 import { Badge } from "@/shared/ui/Badge/Badge";
 import { Button } from "@/shared/ui/Button";
 
@@ -12,6 +13,10 @@ const Components = () => {
       <div className="flex flex-col gap-5">
         <h3 className="py-5 border-b-2">Badge</h3>
         <Badge>음식점</Badge>
+      </div>
+      <div className="flex flex-col gap-5">
+        <h3 className="py-5 border-b-2">Search</h3>
+        <MapSearch />
       </div>
       <div className="flex flex-col gap-5 w-[370px] h-[500px]">
         <h3 className="py-5 border-b-2">Map</h3>

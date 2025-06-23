@@ -1,13 +1,30 @@
 import { Restaurant } from "@/entities/map/model";
 
-const searchRestaurantAPI = async (query: string): Promise<Restaurant[]> => {
+interface SearchRestaurantOptions {
+  query: string;
+  lat?: number;
+  lng?: number;
+  display?: number;
+}
 
-  if(!query.trim()) return [];
+const searchRestaurantAPI = async (options: SearchRestaurantOptions): Promise<Restaurant[]> => {
+  const { query, lat, lng, display = 15 } = options;
 
-  console.log(`Restaurant API 검색 시작: ${query}`);
+  if (!query.trim()) return [];
+
+  console.log(`🔍 검색 시작: ${query}${lat && lng ? ` (현재 위치: ${lat}, ${lng})` : ''}`);
 
   try {
-    const response = await fetch(`/api/search/restaurants?query=${encodeURIComponent(query)}&display=15`);
+    const params = new URLSearchParams({
+      query: query,
+      display: display.toString(),
+      ...(lat && lng && {
+        lat: lat.toString(),
+        lng: lng.toString()
+      })
+    });
+
+    const response = await fetch(`/api/map/search?${params}`);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: '알 수 없는 오류' }));
@@ -21,7 +38,7 @@ const searchRestaurantAPI = async (query: string): Promise<Restaurant[]> => {
     // console.log(`📊 총 ${data.data.restaurants.length}개 음식점 발견`);
     // console.log(`🍽️ 음식점 목록:`, data.data.restaurants);
 
-    return data.data.restaurants;
+    return data.items;
 
   } catch (error) {
     console.error('❌ Restaurant API 전체 에러:', error);

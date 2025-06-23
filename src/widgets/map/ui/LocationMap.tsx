@@ -1,13 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
-import { useGeolocation, useNaverMap, useLocationMarker } from "@/shared/hooks";
+import { useEffect, useRef } from "react";
+import {
+  useGeolocation,
+  useNaverMap,
+  useLocationMarker,
+  useMapCenter,
+} from "@/shared/hooks";
+import { NaverMapInstance } from "@/shared/types/naver-maps";
 
 interface LocationMapProps {
   width?: string;
   height?: string;
   zoom?: number;
   autoGetLocation?: boolean; // 자동으로 현재 위치 가져올지 여부
+  // 지도 중심 좌표 변경 콜백 추가
+  onCenterChange?: (center: { lat: number; lng: number }) => void;
+  // 지도 준비 완료 콜백 추가
+  onMapReady?: (mapInstance: NaverMapInstance) => void;
+  // 현재 위치 변경 콜백 추가
+  onLocationChange?: (location: { lat: number; lng: number }) => void;
 }
 
 const LocationMap = ({
@@ -15,9 +27,15 @@ const LocationMap = ({
   height = "400px",
   zoom = 15,
   autoGetLocation = true,
+  onCenterChange,
+  onMapReady,
+  onLocationChange,
 }: LocationMapProps) => {
   // 기본 중심점 (서울시청)
   const defaultCenter = { lat: 37.5665, lng: 126.978 };
+
+  // 지도 준비 완료 추적
+  const mapReadyRef = useRef(false);
 
   // 커스텀 훅들
   const {
@@ -26,11 +44,28 @@ const LocationMap = ({
     locationError,
     getCurrentLocation,
   } = useGeolocation();
+
   const { mapCallbackRef, map, isLoading, moveToLocation } = useNaverMap({
     center: currentLocation || defaultCenter,
     zoom,
   });
+
   const { addLocationMarker } = useLocationMarker(map);
+
+  // 지도 중심 관리 훅
+  const { mapCenter } = useMapCenter(map, {
+    onCenterChange,
+    debounceMs: 300,
+  });
+
+  // 지도 준비 완료 처리
+  useEffect(() => {
+    if (map && !mapReadyRef.current) {
+      console.log("지도 준비 완료");
+      onMapReady?.(map);
+      mapReadyRef.current = true;
+    }
+  }, [map, onMapReady]);
 
   // 컴포넌트 마운트 시 자동으로 현재 위치 가져오기
   useEffect(() => {
@@ -45,8 +80,17 @@ const LocationMap = ({
       console.log(`위도 ${currentLocation.lat} 경도 ${currentLocation.lng}`);
       moveToLocation(currentLocation.lat, currentLocation.lng);
       addLocationMarker(currentLocation.lat, currentLocation.lng);
+
+      // 현재 위치 변경 콜백 호출 추가
+      onLocationChange?.(currentLocation);
     }
-  }, [currentLocation, map, moveToLocation, addLocationMarker]);
+  }, [
+    currentLocation,
+    map,
+    moveToLocation,
+    addLocationMarker,
+    onLocationChange,
+  ]);
 
   // 현재 위치로 이동 버튼 핸들러
   const handleMoveToCurrentLocation = async () => {
@@ -97,10 +141,10 @@ const LocationMap = ({
       </button>
 
       {/* 현재 위치 좌표 표시 */}
-      {currentLocation && (
+      {mapCenter && (
         <div className="absolute bottom-2 left-2 bg-white px-3 py-2 rounded shadow text-sm">
           <div className="text-gray-600 text-xs">
-            {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
+            {mapCenter.lat.toFixed(6)}, {mapCenter.lng.toFixed(6)}
           </div>
         </div>
       )}
