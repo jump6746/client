@@ -1,1 +1,1 @@
-export type { Restaurant, SearchResponse } from "./map.d";
+export type { SearchOptions, SearchResponse, KakaoPlace, KakaoSearchResponse } from "./map.d";

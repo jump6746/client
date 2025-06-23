@@ -208,14 +208,12 @@ export default function Home() {
       />
 
       {/* 검색 패널 */}
-      <div className="absolute top-4 left-4 w-80 z-10">
-        <div className="bg-white rounded-lg shadow-lg p-4">
-          <MapSearch
-            currentLocation={mapCenter}
-            onRestaurantSelect={handleRestaurantSelect}
-            onSearchResults={handleSearchResults}
-          />
-        </div>
+      <div className="absolute top-4 left-4 w-80 z-10 bg-white">
+        <MapSearch
+          currentLocation={mapCenter}
+          onRestaurantSelect={handleRestaurantSelect}
+          onSearchResults={handleSearchResults}
+        />
       </div>
 
       {/* 지도 정보 표시 */}

@@ -1,1 +1,1 @@
-export { default as useRestaurantSearch } from "./useRestaurantSearch";
+export { default as usePlaceSearch } from "./usePlaceSearch";

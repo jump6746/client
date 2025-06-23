@@ -1,1 +1,1 @@
-export { default as searchRestaurantAPI } from "./searchRestaurantAPI";
+export { default as searchPlacesAPI } from "./searchPlacesAPI";
