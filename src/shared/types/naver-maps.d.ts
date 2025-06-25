@@ -37,11 +37,56 @@ declare global {
   }
 }
 
+// 일반적인 이벤트 핸들러 타입들
+export type MapEventHandler = (event: NaverMapEvent) => void;
+export type MarkerEventHandler = (event: NaverMarkerEvent) => void;
+export type GenericEventHandler<T = unknown> = (event: T) => void;
+
+// 네이버 지도 이벤트 객체 타입들
+export interface NaverMapEvent {
+  coord?: NaverLatLng;
+  point?: NaverPoint;
+  pointerEvent?: PointerEvent;
+}
+
+export interface NaverMarkerEvent {
+  overlay: NaverMarker;
+  coord?: NaverLatLng;
+  point?: NaverPoint;
+  pointerEvent?: PointerEvent;
+}
+
 export interface NaverMapsEvent {
+  // 지도/마커 이벤트 리스너 추가 (타입별로 오버로드)
   addListener(
+    target: NaverMapInstance,
+    eventName: 'click' | 'dblclick' | 'rightclick' | 'mouseover' | 'mouseout' | 'mousemove' | 'mousedown' | 'mouseup',
+    listener: MapEventHandler
+  ): NaverMapEventListener;
+  
+  addListener(
+    target: NaverMapInstance,
+    eventName: 'zoom_changed' | 'center_changed' | 'bounds_changed' | 'dragstart' | 'drag' | 'dragend',
+    listener: () => void
+  ): NaverMapEventListener;
+  
+  addListener(
+    target: NaverMarker,
+    eventName: 'click' | 'dblclick' | 'rightclick' | 'mouseover' | 'mouseout' | 'mousemove' | 'mousedown' | 'mouseup',
+    listener: MarkerEventHandler
+  ): NaverMapEventListener;
+  
+  addListener(
+    target: NaverMarker,
+    eventName: 'dragstart' | 'drag' | 'dragend',
+    listener: MarkerEventHandler
+  ): NaverMapEventListener;
+  
+  // 일반적인 이벤트 리스너 (fallback)
+  addListener<T = unknown>(
     target: NaverMapInstance | NaverMarker,
     eventName: string,
-    listener: (...args: any[]) => void
+    listener: GenericEventHandler<T>
   ): NaverMapEventListener;
   
   removeListener(listener: NaverMapEventListener): void;
@@ -54,10 +99,29 @@ export interface NaverMapsEvent {
   
   removeDOMListener(listener: NaverMapEventListener): void;
   
+  // trigger 메서드도 타입별로 오버로드
   trigger(
+    target: NaverMapInstance,
+    eventName: 'click' | 'dblclick' | 'rightclick',
+    event: NaverMapEvent
+  ): void;
+  
+  trigger(
+    target: NaverMapInstance,
+    eventName: 'zoom_changed' | 'center_changed' | 'bounds_changed'
+  ): void;
+  
+  trigger(
+    target: NaverMarker,
+    eventName: 'click' | 'dblclick' | 'rightclick',
+    event: NaverMarkerEvent
+  ): void;
+  
+  // 일반적인 trigger (fallback)
+  trigger<T = unknown>(
     target: NaverMapInstance | NaverMarker,
     eventName: string,
-    ...args: any[]
+    ...args: T[]
   ): void;
   
   clearListeners(target: NaverMapInstance | NaverMarker, eventName?: string): void;

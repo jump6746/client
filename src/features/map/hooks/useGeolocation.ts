@@ -6,16 +6,16 @@ interface LocationData {
 }
 
 const useGeolocation = () => {
-  
-  const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<LocationData>({ lat: 37.5665, lng: 126.978 });
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
-  // 사용자의 현재 위치를 가져오는 Promise 반환 함수
   const getCurrentLocation = useCallback((): Promise<LocationData> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("브라우저에서 위치 서비스를 지원하지 않습니다."));
+        const error = "브라우저에서 위치 서비스를 지원하지 않습니다.";
+        setLocationError(error);
+        reject(new Error(error));
         return;
       }
 
@@ -60,34 +60,12 @@ const useGeolocation = () => {
     });
   }, []);
 
-  // // 실시간 위치 구독
-  // const watchLocation = useCallback((callback: (location: LocationData) => void) => {
-  //   if (!navigator.geolocation) return null;
-
-  //   const watchId = navigator.geolocation.watchPosition(
-  //     (position) => {
-  //       const location = {
-  //         lat: position.coords.latitude,
-  //         lng: position.coords.longitude,
-  //       };
-  //       setCurrentLocation(location);
-  //       callback(location);
-  //     },
-  //     (error) => setLocationError(error.message),
-  //     { enableHighAccuracy: true }
-  //   );
-
-  //   return () => navigator.geolocation.clearWatch(watchId);
-  // }, []);
-
   return {
     currentLocation,
     isGettingLocation,
     locationError,
     getCurrentLocation,
-    // watchLocation,
   };
-
-}
+};
 
 export default useGeolocation;

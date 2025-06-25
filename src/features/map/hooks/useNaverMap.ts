@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { loadNaverMaps } from '@/shared/lib';
-import { MapOptions } from '../types/types';
-import { NaverMapInstance } from '../types/naver-maps';
+import { MapOptions } from '@/shared/types/types';
+import { NaverMapInstance } from "@/shared/types/naver-maps";
 
 const useNaverMap = (options: MapOptions) => {
   const [mapElement, setMapElement] = useState<HTMLDivElement | null>(null);
@@ -26,6 +26,8 @@ const useNaverMap = (options: MapOptions) => {
 
     throw new Error(`네이버 지도 API 로딩 실패 (${timeout}ms 타임아웃)`);
   };
+
+  useEffect(() => {},[options.center.lng, options.center.lat]);
 
   useEffect(() => {
     if (!mapElement) return;

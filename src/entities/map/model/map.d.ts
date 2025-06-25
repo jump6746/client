@@ -6,9 +6,11 @@ export interface KakaoPlace {
   road_address_name: string;
   phone: string;
   place_url: string;
-  distance: string;
-  x: string; // 경도
-  y: string; // 위도
+  distance: number;
+  lat: number;
+  lng: number;
+  mapx: number; // 경도
+  mapy: number; // 위도
 }
 
 export interface KakaoSearchResponse {

@@ -39,7 +39,10 @@ const useLogin = () => {
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('sessionId', data.sessionId);
 
+      // 로그인 확인 화면 필요
       alert("로그인 성공");
+
+      router.push("/home");
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인 실패');
     } finally {
