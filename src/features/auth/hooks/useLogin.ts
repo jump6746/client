@@ -1,4 +1,6 @@
 // features/auth/model/useLogin.ts
+"use client";
+
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 

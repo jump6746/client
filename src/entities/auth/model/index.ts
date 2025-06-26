@@ -1,1 +1,1 @@
-export type { SessionData, LoginCredentials, LoginResponse } from "./auth";
+export type { SessionData, LoginCredentials, LoginResponse, SignUpResponse } from "./auth";

@@ -59,7 +59,7 @@ export async function GET(request: NextRequest) {
       address_name: place.road_address_name || place.address_name,
       category_name: place.category_name.split(">")[0],
       phone: place.phone || '',
-      lat: parseFloat(place.y),
+      lat: parseFloat(place.x),
       lng: parseFloat(place.x),
       distance: place.distance ? parseInt(place.distance) : undefined,
       mapx: Math.round(parseFloat(place.x) * 1000000).toString(),

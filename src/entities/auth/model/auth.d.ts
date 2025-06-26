@@ -12,3 +12,8 @@ export interface LoginResponse {
   sessionId: string;
   accessToken: string;
 }
+
+export interface SignUpResponse {
+  userId: number;
+  email: string;
+}

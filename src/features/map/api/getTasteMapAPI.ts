@@ -1,3 +1,4 @@
+import { TasteMap } from "@/entities/map/model";
 import { apiURL } from "@/shared/lib";
 import { ResponseDTO } from "@/shared/types/api-structure";
 
@@ -7,7 +8,7 @@ interface Props {
   userMapy: number;
 }
 
-const getTasteMapAPI = async ({tasteMapId, userMapx, userMapy}: Props): Promise<ResponseDTO<any>>=> {
+const getTasteMapAPI = async ({tasteMapId, userMapx, userMapy}: Props): Promise<ResponseDTO<TasteMap>>=> {
 
   const accessToken = localStorage.getItem("accessToken");
 

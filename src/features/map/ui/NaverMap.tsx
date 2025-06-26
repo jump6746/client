@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { loadNaverMaps } from "@/shared/lib";
-import { KakaoPlace } from "@/entities/map/model";
+import { KakaoPlace, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import { getTasteMapAPI } from "@/features/map/api";
 
@@ -33,7 +33,7 @@ const NaverMap = ({
   const currentLocationMarkerRef = useRef<NaverMarker | null>(null); // 현재 위치 마커 참조
   const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
 
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<TasteMap | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,6 +87,9 @@ const NaverMap = ({
         console.log(response.data);
 
         setData(response.data); // ResponseDTO의 data 부분
+        console.log(data);
+        console.log(loading);
+        console.log(error);
       } catch (err) {
         setError(
           err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다."
