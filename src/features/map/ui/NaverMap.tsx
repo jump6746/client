@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { loadNaverMaps } from "@/shared/lib";
-import { KakaoPlace, TasteMap } from "@/entities/map/model";
+import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import { getTasteMapAPI } from "@/features/map/api";
 
@@ -13,7 +13,7 @@ interface Location {
 
 interface NaverMapProps {
   center?: Location; // 외부에서 받는 중심 위치
-  place: KakaoPlace | null;
+  place: KaokaoResponse | null;
   zoom?: number; // 줌 레벨
   width?: string; // 너비
   height?: string; // 높이
@@ -132,6 +132,26 @@ const NaverMap = ({
     }
   }, [map, center]);
 
+  useEffect(() => {
+    if (map && data) {
+      data.placeList.forEach((item) => {
+        new window.naver.maps.Marker({
+          position: new window.naver.maps.LatLng(item.mapy, item.mapx),
+          map: map,
+          icon: {
+            content: `
+            <div style="position: relative;">
+              <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
+              <div style="position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: white; border-radius: 50%; transform: rotate(45deg);"></div>
+            </div>
+            `,
+            anchor: new window.naver.maps.Point(12, 32),
+          },
+        });
+      });
+    }
+  }, [map, data]);
+
   // 검색된 장소 마커 생성/업데이트
   useEffect(() => {
     if (map && place) {
@@ -144,7 +164,7 @@ const NaverMap = ({
       }
 
       // 새로운 검색 마커 생성 (빨간색 핀)
-      const searchPosition = new window.naver.maps.LatLng(place.lat, place.lng);
+      const searchPosition = new window.naver.maps.LatLng(place.y, place.x);
 
       const searchMarker = new window.naver.maps.Marker({
         position: searchPosition,
@@ -164,6 +184,7 @@ const NaverMap = ({
 
       // 검색된 장소로 지도 중심 이동
       map.setCenter(searchPosition);
+      console.log("선택된 장소로 이동", searchPosition);
     }
   }, [map, place]);
 

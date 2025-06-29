@@ -1,6 +1,6 @@
-import { KakaoPlace, SearchOptions } from "@/entities/map/model";
+import { KaokaoResponse, SearchOptions } from "@/entities/map/model";
 
-const searchPlacesAPI = async (options: SearchOptions): Promise<KakaoPlace[]> => {
+const searchPlacesAPI = async (options: SearchOptions): Promise<KaokaoResponse[]> => {
   const { query, lat, lng, size = 15 } = options;
 
   if (!query.trim()) return [];
@@ -28,7 +28,7 @@ const searchPlacesAPI = async (options: SearchOptions): Promise<KakaoPlace[]> =>
     
     console.log(`카카오 Place API 응답:`, data);
 
-    return data.places || [];
+    return data.places.documents || [];
 
   } catch (error) {
     console.error('검색 API 오류:', error);

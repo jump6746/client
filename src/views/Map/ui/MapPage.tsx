@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { KakaoPlace } from "@/entities/map/model";
+import { KaokaoResponse } from "@/entities/map/model";
 import { PlaceInfo, SearchComponent } from "@/widgets/map/ui";
 import { NaverMap } from "@/features/map";
 import { useGeolocation } from "@/features/map/hooks";
@@ -9,7 +9,7 @@ import { useGeolocation } from "@/features/map/hooks";
 const MapPage = () => {
   const { currentLocation, getCurrentLocation } = useGeolocation();
   const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.978 });
-  const [place, setPlace] = useState<KakaoPlace | null>(null);
+  const [place, setPlace] = useState<KaokaoResponse | null>(null);
 
   // 컴포넌트 마운트 시 현재 위치 가져오기
   useEffect(() => {
@@ -24,7 +24,7 @@ const MapPage = () => {
   }, [currentLocation]);
 
   // 장소 선택 핸들러
-  const handlePlaceSelect = useCallback((place: KakaoPlace) => {
+  const handlePlaceSelect = useCallback((place: KaokaoResponse) => {
     console.log("선택된 장소:", place);
     setPlace(place);
   }, []);

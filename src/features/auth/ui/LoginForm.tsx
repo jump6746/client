@@ -39,6 +39,7 @@ const LoginForm = () => {
             setPassword(e.currentTarget.value);
           }}
           id="password"
+          type="password"
           className="px-3 py-2.5 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm"
         ></Input>
       </div>

@@ -52,25 +52,12 @@ export async function GET(request: NextRequest) {
     const data: KakaoSearchResponse = await response.json();
     console.log('카카오 API 응답:', data.meta);
 
-    // 카카오 응답을 기존 형식으로 변환
-    const places = data.documents.map((place) => ({
-      id: place.id,
-      place_name: place.place_name,
-      address_name: place.road_address_name || place.address_name,
-      category_name: place.category_name.split(">")[0],
-      phone: place.phone || '',
-      lat: parseFloat(place.x),
-      lng: parseFloat(place.x),
-      distance: place.distance ? parseInt(place.distance) : undefined,
-      mapx: Math.round(parseFloat(place.x) * 1000000).toString(),
-      mapy: Math.round(parseFloat(place.y) * 1000000).toString(),
-      place_url: place.place_url,
-    }));
+    console.log("장소 데이터", data);
 
     return NextResponse.json({
       total: data.meta.total_count,
-      count: places.length,
-      places: places,
+      count: data.documents.map.length,
+      places: data,
     });
 
   } catch (error) {
