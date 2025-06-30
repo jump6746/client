@@ -83,7 +83,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       timestamp: new Date().toISOString()
     };
 
-    return NextResponse.json(successResponse);
+    const nextRes = NextResponse.json(successResponse);
+
+    nextRes.cookies.set("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
+      maxAge: 60 * 20,
+      path: "/"
+    })
+
+    
+    nextRes.cookies.set("sessionId", sessionId, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: "strict",
+      maxAge: 60 * 20,
+      path: "/"
+    })
+
+    return nextRes;
 
   }catch(error){
     console.error("Login error: ", error);

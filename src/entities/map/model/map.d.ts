@@ -16,13 +16,13 @@ interface KaokaoResponse {
   /** 전체 도로명 주소 */
   road_address_name: string;
   /** X 좌표값, 경위도인 경우 longitude (경도) */
-  x: string;
+  x: number;
   /** Y 좌표값, 경위도인 경우 latitude (위도) */
-  y: string;
+  y: number;
   /** 장소 상세페이지 URL */
   place_url: string;
   /** 중심좌표까지의 거리 (단위: meter) - x,y 파라미터를 준 경우에만 존재 */
-  distance: string;
+  distance: number;
 }
 
 export interface KakaoPlace {
@@ -75,8 +75,8 @@ export interface TastePlace {
   placeId: string;
   placeName: string;
   placeCategoryName: string;
-  placeMapx: number;
-  placeMapy: number;
+  mapy: number;
+  mapx: number;
   priceRange: number;
   distance: number;
 }
