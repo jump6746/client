@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { loadNaverMaps } from "@/shared/lib";
+import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
-import { getTasteMapAPI } from "@/features/map/api";
+import { getTasteMapAPI } from "@/entities/map/api";
 
 interface Location {
   lat: number;
@@ -84,9 +84,14 @@ const NaverMap = ({
           userMapy: center?.lat ?? 126.978,
         });
 
-        console.log(response.data);
+        if (isSuccessResponse(response)) {
+          console.log(response.data);
 
-        setData(response.data); // ResponseDTO의 data 부분
+          setData(response.data); // ResponseDTO의 data 부분
+        } else {
+          setError(response.message);
+        }
+
         console.log(data);
         console.log(loading);
         console.log(error);

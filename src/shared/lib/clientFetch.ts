@@ -1,15 +1,17 @@
 import { ErrorResponse } from '../types/api-structure';
 import { ResponseDTO } from "../types/api-structure";
 
-interface FetchProps <T, H extends Record<string, string>>{
+interface FetchProps <T = undefined, H extends Record<string, string> = Record<string, never>>{
   url: string;
   method: "GET" | "POST" | "PUT" | "PATCH";
   credentials? : RequestCredentials;
   data?: T;
-  headers?: H
+  headers?: H;
 }
 
-const clientFetch = async <T, P, H extends Record<string, string>>({
+// T = 바디에 넣을 데이터, P = Response 형식, H = 헤더에 추가로 넣을 데이터 타입
+
+const clientFetch = async <T = undefined, P = unknown, H extends Record<string, string> = Record<string, never>>({
   url,
   method,
   data,

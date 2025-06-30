@@ -1,5 +1,6 @@
-import { ResponseDTO } from "@/shared/types/api-structure";
+import { ErrorResponse, ResponseDTO } from "@/shared/types/api-structure";
 import { ImageFile, PresignedUrlResponse, UploadResult } from "../model/review";
+import { isSuccessResponse } from "@/shared/lib";
 
 const uploadToS3API = async (image: ImageFile, presigned: PresignedUrlResponse): Promise<UploadResult> => {
 
@@ -22,7 +23,7 @@ const uploadToS3API = async (image: ImageFile, presigned: PresignedUrlResponse):
   };
 }
 
-const uploadAllImages = async ( files: ImageFile[], presigned: ResponseDTO<PresignedUrlResponse>[]): Promise<UploadResult[]> => {
+const uploadAllImages = async ( files: ImageFile[], presigned: (ResponseDTO<PresignedUrlResponse>| ErrorResponse)[]): Promise<UploadResult[]> => {
 
   if(files.length !== presigned.length){
     throw new Error("파일 개수와 url 개수가 일치하지 않습니다.");
@@ -32,7 +33,11 @@ const uploadAllImages = async ( files: ImageFile[], presigned: ResponseDTO<Presi
     const presign = presigned[index];
     
     try{
-      return await uploadToS3API(file, presign.data);
+      if(isSuccessResponse(presign)){
+        return await uploadToS3API(file, presign.data);
+      }else{
+        throw Error(presign.message);
+      }
     }catch(error){
       console.error(`파일 업로드 실패 = ${file.name}: `, error);
 

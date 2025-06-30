@@ -19,6 +19,13 @@ export interface ReviewRequest {
   tasteMapId: number;
 }
 
+export interface ReviewResponse {
+  reviewId: number;
+  placeId: string;
+  tasteMapId: number;
+  updatedPinCount: number;
+}
+
 export interface PresignedUrlResponse {
   presignedUrl: string;
   s3Key: string;
@@ -37,3 +44,4 @@ export interface ImageFile {
   preview: string;
   name: string;
 }
+

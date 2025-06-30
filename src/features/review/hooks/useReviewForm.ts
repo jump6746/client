@@ -3,7 +3,7 @@
 import { getPresignedUrls, uploadAllImages } from "@/entities/review/api";
 import postReviewAPI from "@/entities/review/api/postReviewAPI";
 import { ImageFile, ReviewRequest } from "@/entities/review/model";
-import { convertToWebP } from "@/shared/lib";
+import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore } from "@/shared/stores";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
@@ -110,7 +110,7 @@ const useReviewForm = () => {
       console.log('내용:', content);
       console.log('이미지 개수:', images.length);
       
-      const response = await getPresignedUrls(images);
+      const response = await getPresignedUrls({imageFiles: images});
       
       const data = await response;
 
@@ -133,7 +133,13 @@ const useReviewForm = () => {
           mapx: selectedPlace.x,
           mapy: selectedPlace.y,
         },
-        photos: data.map(item => item.data.s3Key),
+        photos: data.map(item => {
+          if(isSuccessResponse(item)){
+            return item.data.s3Key;
+          }else {
+            return "";
+          }
+        }),
         score: 4.5,
         content: content,
         recommendedMenus: menuList.map(menu => menu.name),
@@ -141,7 +147,7 @@ const useReviewForm = () => {
         tasteMapId: 1,
       }
       
-      const postResponse = await postReviewAPI(reviewData);
+      const postResponse = await postReviewAPI({data: reviewData});
 
       const postData = await postResponse;
 

@@ -38,7 +38,7 @@ const ReviewForm = () => {
   }, []);
 
   if (!selectedPlace) {
-    alert("정보없음!");
+    console.error("정보없음!");
     router.push("/home");
     return;
   }
