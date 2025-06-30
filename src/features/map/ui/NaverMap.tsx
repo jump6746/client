@@ -37,6 +37,16 @@ const NaverMap = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const markerTag = {
+    음식점: "restaurant",
+    카페: "coffee",
+    술집: "wine",
+    한식: "",
+    일식: "",
+    중식: "",
+    양식: "",
+  };
+
   // 네이버 지도 초기화
   useEffect(() => {
     const initMap = async () => {
@@ -145,12 +155,32 @@ const NaverMap = ({
           map: map,
           icon: {
             content: `
-            <div style="position: relative;">
-              <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
-              <div style="position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: white; border-radius: 50%; transform: rotate(45deg);"></div>
+            <div style="position: relative; text-align: center;">
+              <!-- 마커 아이콘 -->
+              <img src="/icons/${markerTag[item.placeCategoryName]}.svg" 
+                   style="width: 24px; height: 32px; display: block; margin: 0 auto;" 
+                   alt="marker" />
+              
+              <!-- 텍스트 라벨 -->
+              <div style="
+                position: absolute;
+                top: 30px;
+                left: 50%;
+                transform: translateX(-50%);
+                color: #000000;
+                padding: 2px 6px;
+                background-color: white;
+                font-size: 12px;
+                font-weight: 500;
+                white-space: nowrap;
+                font-family: pretendard ,sans-serif;
+                z-index: 10;
+              ">
+                ${item.placeName}
+              </div>
             </div>
-            `,
-            anchor: new window.naver.maps.Point(12, 32),
+          `,
+            anchor: new window.naver.maps.Point(10, 10),
           },
         });
       });

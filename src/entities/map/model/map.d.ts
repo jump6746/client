@@ -74,7 +74,7 @@ export interface TastePlace {
   jjim: true;
   placeId: string;
   placeName: string;
-  placeCategoryName: string;
+  placeCategoryName: "음식점" | "카페" | "술집" | "한식" | "일식" | "양식" | "중식";
   mapy: number;
   mapx: number;
   priceRange: number;
