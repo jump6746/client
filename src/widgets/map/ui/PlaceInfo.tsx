@@ -13,6 +13,7 @@ interface Props {
 
 const PlaceInfo = ({ place }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const router = useRouter();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
@@ -62,7 +63,7 @@ const PlaceInfo = ({ place }: Props) => {
         transition-transform duration-500 ease-in-out
         ${isOpen ? "translate-y-0" : "translate-y-full"}
       `}
-      style={{ height: "600px" }}
+      style={{ height: placeData?.review ? "450px" : "300px" }}
     >
       {/* 상단 핸들 */}
       <div className="w-full flex justify-center py-2">
@@ -101,21 +102,58 @@ const PlaceInfo = ({ place }: Props) => {
               </div>
             </div>
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col justify-between h-full">
+            <div className="relative">
+              <button
+                onClick={() => setShowMoreMenu(!showMoreMenu)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 cursor-pointer"
+              >
+                <Image
+                  src="/icons/more_circle.svg"
+                  alt="더보기"
+                  width={26}
+                  height={9}
+                />
+              </button>
+
+              {/* 드롭다운 메뉴 */}
+              {showMoreMenu && (
+                <>
+                  {/* 배경 오버레이 (클릭시 닫기) */}
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setShowMoreMenu(false)}
+                  />
+
+                  {/* 메뉴 */}
+                  <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
+                    <button
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        // 수정 로직
+                        console.log("수정하기");
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg"
+                    >
+                      수정하기
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowMoreMenu(false);
+                        // 삭제 로직
+                        console.log("삭제하기");
+                      }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-red-600 rounded-b-lg"
+                    >
+                      삭제하기
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
             <button
               onClick={() => {}}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 cursor-pointer"
-            >
-              <Image
-                src="/icons/more_circle.svg"
-                alt="더보기"
-                width={26}
-                height={9}
-              />
-            </button>
-            <button
-              onClick={() => {}}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-200 cursor-pointer"
+              className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col"
             >
               {placeData &&
                 (placeData.jjim ? (
@@ -133,33 +171,49 @@ const PlaceInfo = ({ place }: Props) => {
                     height={28}
                   />
                 ))}
+              <span className="text-xs font-medium">찜</span>
             </button>
           </div>
         </div>
-        <div className="flex flex-1 w-full items-center justify-center">
+        <div className="flex flex-1 w-full items-center justify-center py-3">
           {error ? (
             <span className="text-gray-400 font-semibold">{error}</span>
           ) : placeData?.review ? (
-            <div>
-              {placeData.review.recommendedMenuList.map((item) => (
-                <div
-                  key={item.recommendedMenuId}
-                  className="px-2 rounded-full py-1 text-xs"
-                >
-                  {item.recommendedMenuName}
-                </div>
-              ))}
-              {placeData.review.reviewPhotoList.map((item) => (
-                <Image
-                  src={item.reviewPhotoUrl.replace(/&amp;/g, "&")}
-                  alt={item.reviewPhotoCaption ?? "음식"}
-                  key={item.reviewPhotoId}
-                  width={100}
-                  height={100}
-                  unoptimized={true}
-                />
-              ))}
-              <p>{placeData.review.reviewContent}</p>
+            <div className="w-full flex flex-col gap-3">
+              <div className="w-full flex gap-2">
+                {placeData.review.recommendedMenuList.map((item) => (
+                  <div
+                    key={item.recommendedMenuId}
+                    className="px-2 rounded-full py-1 text-xs shadow-md flex gap-1"
+                  >
+                    <span>{item.recommendedMenuName}</span>
+                    <Image
+                      src="/icons/heart.svg"
+                      alt="하트"
+                      width={13}
+                      height={11}
+                    />
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {placeData.review.reviewPhotoList.map((item) => (
+                  <div
+                    key={item.reviewPhotoId}
+                    className="w-25 h-25 overflow-hidden rounded-2xl"
+                  >
+                    <Image
+                      src={item.reviewPhotoUrl.replace(/&amp;/g, "&")}
+                      alt={item.reviewPhotoCaption ?? "음식"}
+                      width={100}
+                      height={100}
+                      unoptimized={true}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="p-2">{placeData.review.reviewContent}</p>
             </div>
           ) : (
             <button
