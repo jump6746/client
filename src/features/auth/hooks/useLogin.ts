@@ -3,6 +3,8 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { loginAPI } from "@/entities/auth/api";
+import { isSuccessResponse } from "@/shared/lib";
 
 const useLogin = () => {
   const [email, setEmail] = useState<string>('');
@@ -24,27 +26,21 @@ const useLogin = () => {
     setError(null);
     
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        cache: 'no-store',
-        credentials: "include",
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await loginAPI({ email, password })
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || '로그인 실패');
+      if(isSuccessResponse(response)){
+        const { data } = response;
+        localStorage.setItem('accessToken', data.accessToken);
+        localStorage.setItem('sessionId', data.sessionId);
+        localStorage.setItem("userId", String(data.userId));
+
+        // 로그인 확인 화면 필요
+        alert("로그인 성공");
+
+        router.push("/home");
+      }else{
+        setError(response.message);
       }
-
-      const { data } = await response.json();
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('sessionId', data.sessionId);
-
-      // 로그인 확인 화면 필요
-      alert("로그인 성공");
-
-      router.push("/home");
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인 실패');
     } finally {
@@ -55,6 +51,7 @@ const useLogin = () => {
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('sessionId');
+    localStorage.removeItem("userId");
     router.push('/login');
   };
 

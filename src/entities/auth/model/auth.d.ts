@@ -11,6 +11,7 @@ export interface LoginCredentials {
 export interface LoginResponse {
   sessionId: string;
   accessToken: string;
+  userId: number;
 }
 
 export interface SignUpResponse {
