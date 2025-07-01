@@ -8,12 +8,15 @@ import { useGeolocation } from "@/features/map/hooks";
 
 const MapPage = () => {
   const { currentLocation, getCurrentLocation } = useGeolocation();
-  const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.978 });
+  const [mapCenter, setMapCenter] = useState<{lat: number, lng:number} | null>(null);
   const [place, setPlace] = useState<KaokaoResponse | null>(null);
 
   // 컴포넌트 마운트 시 현재 위치 가져오기
   useEffect(() => {
-    getCurrentLocation().catch(console.error);
+    getCurrentLocation().catch(() => {
+      // 실패하면 디폴트 좌표
+      setMapCenter({ lat: 37.5665, lng: 126.978 });
+    });
   }, [getCurrentLocation]);
 
   // 현재 위치가 변경되면 지도 중심도 업데이트
@@ -35,11 +38,13 @@ const MapPage = () => {
         currentLocation={mapCenter}
         onPlaceSelect={handlePlaceSelect}
       />
-      <NaverMap
-        place={place}
-        center={mapCenter} // 현재 위치를 props로 전달
-        zoom={16}
-      />
+      {mapCenter && (
+          <NaverMap
+              place={place}
+              center={mapCenter}
+              zoom={16}
+          />
+      )}
       <PlaceInfo place={place} />
     </div>
   );
