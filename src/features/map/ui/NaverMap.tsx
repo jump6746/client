@@ -41,10 +41,10 @@ const NaverMap = ({
     음식점: "restaurant",
     카페: "coffee",
     술집: "wine",
-    한식: "",
-    일식: "",
-    중식: "",
-    양식: "",
+    한식: "restaurant",
+    일식: "restaurant",
+    중식: "restaurant",
+    양식: "restaurant",
   };
 
   // 네이버 지도 초기화
