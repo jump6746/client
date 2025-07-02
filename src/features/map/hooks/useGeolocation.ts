@@ -6,7 +6,7 @@ interface LocationData {
 }
 
 const useGeolocation = () => {
-  const [currentLocation, setCurrentLocation] = useState<LocationData>({ lat: 37.5665, lng: 126.978 });
+  const [currentLocation, setCurrentLocation] = useState<LocationData | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
 
