@@ -5,6 +5,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginAPI } from "@/entities/auth/api";
 import { isSuccessResponse } from "@/shared/lib";
+import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 
 const useLogin = () => {
   const [email, setEmail] = useState<string>('');
@@ -12,6 +13,7 @@ const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
 
   const handleLogin = async (e:FormEvent<HTMLFormElement>) => {
 
@@ -33,6 +35,8 @@ const useLogin = () => {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('sessionId', data.sessionId);
         localStorage.setItem("userId", String(data.userId));
+
+        setGuestMode(false);
 
         // 로그인 확인 화면 필요
         alert("로그인 성공");

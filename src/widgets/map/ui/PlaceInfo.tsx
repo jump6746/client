@@ -6,6 +6,7 @@ import { usePlaceStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 
 interface Props {
   place: KaokaoResponse | null;
@@ -16,6 +17,7 @@ const PlaceInfo = ({ place }: Props) => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const router = useRouter();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +49,11 @@ const PlaceInfo = ({ place }: Props) => {
   }
 
   const handleWriteReview = () => {
+    if (isGuestMode) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
     if (!place) {
       console.log("데이터 없음");
       return;
@@ -129,6 +136,10 @@ const PlaceInfo = ({ place }: Props) => {
                   <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
                     <button
                       onClick={() => {
+                        if (isGuestMode) {
+                          alert("로그인이 필요합니다.");
+                          return;
+                        }
                         setShowMoreMenu(false);
                         // 수정 로직
                         console.log("수정하기");
@@ -139,6 +150,10 @@ const PlaceInfo = ({ place }: Props) => {
                     </button>
                     <button
                       onClick={() => {
+                        if (isGuestMode) {
+                          alert("로그인이 필요합니다.");
+                          return;
+                        }
                         setShowMoreMenu(false);
                         // 삭제 로직
                         console.log("삭제하기");
@@ -152,7 +167,12 @@ const PlaceInfo = ({ place }: Props) => {
               )}
             </div>
             <button
-              onClick={() => {}}
+              onClick={() => {
+                if (isGuestMode) {
+                  alert("로그인이 필요합니다.");
+                  return;
+                }
+              }}
               className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col"
             >
               {placeData &&
