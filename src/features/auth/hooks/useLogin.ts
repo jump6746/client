@@ -1,17 +1,29 @@
 // features/auth/model/useLogin.ts
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { loginAPI } from "@/entities/auth/api";
 import { isSuccessResponse } from "@/shared/lib";
+import { customToast } from "@/shared/ui/CustomToast";
 
 const useLogin = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFormValid, setIsFormValid] = useState<boolean>(true);
   const router = useRouter();
+
+  useEffect(()=>{
+
+    if(email.length > 5 && password.length > 0){
+      setIsFormValid(false);
+    }else{
+      setIsFormValid(true);
+    }
+
+  },[email, password])
 
   const handleLogin = async (e:FormEvent<HTMLFormElement>) => {
 
@@ -35,11 +47,11 @@ const useLogin = () => {
         localStorage.setItem("userId", String(data.userId));
 
         // 로그인 확인 화면 필요
-        alert("로그인 성공");
+        customToast.success("로그인 성공");
 
         router.push("/home");
       }else{
-        setError(response.message);
+        customToast.error(response.message);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : '로그인 실패');
@@ -60,6 +72,7 @@ const useLogin = () => {
     password,
     isLoading,
     error,
+    isFormValid,
     setEmail,
     setPassword,
     handleLogin,

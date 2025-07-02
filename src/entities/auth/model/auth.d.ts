@@ -18,3 +18,17 @@ export interface SignUpResponse {
   userId: number;
   email: string;
 }
+
+export interface SignUpRequest {
+  email: string;
+  nickname: string;
+  password: string;
+  passwordConfirm: string;
+  agreements: {
+    service: boolean;
+    privacy: boolean;
+    thirdParty: boolean;
+    consignment: boolean;
+    marketing: boolean;
+  }
+}
