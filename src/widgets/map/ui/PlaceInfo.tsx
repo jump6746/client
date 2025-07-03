@@ -9,6 +9,7 @@ import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 
 interface Props {
   place: KaokaoResponse | null;
@@ -17,6 +18,7 @@ interface Props {
 const PlaceInfo = ({ place }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -54,6 +56,11 @@ const PlaceInfo = ({ place }: Props) => {
   }
 
   const handleWriteReview = () => {
+    if (isGuestMode) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
     if (!place) {
       console.log("데이터 없음");
       return;
@@ -136,9 +143,16 @@ const PlaceInfo = ({ place }: Props) => {
                   <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
                     <button
                       onClick={() => {
+
                         if (!placeData?.review) return;
 
                         setReviewData(placeData?.review);
+
+                        if (isGuestMode) {
+                          alert("로그인이 필요합니다.");
+                          return;
+                        }
+
                         setShowMoreMenu(false);
                         router.push(
                           `/review/modify/${placeData?.review?.reviewId}`
@@ -150,6 +164,10 @@ const PlaceInfo = ({ place }: Props) => {
                     </button>
                     <button
                       onClick={() => {
+                        if (isGuestMode) {
+                          alert("로그인이 필요합니다.");
+                          return;
+                        }
                         setShowMoreMenu(false);
                         handleDeleteReview();
                       }}
@@ -162,7 +180,12 @@ const PlaceInfo = ({ place }: Props) => {
               )}
             </div>
             <button
-              onClick={() => {}}
+              onClick={() => {
+                if (isGuestMode) {
+                  alert("로그인이 필요합니다.");
+                  return;
+                }
+              }}
               className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col"
             >
               {placeData &&

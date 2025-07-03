@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import GuestButton from "@/views/Landing/ui/GuestButton";
 
 const LandingPage = () => {
   return (
@@ -34,15 +35,7 @@ const LandingPage = () => {
         >
           아이디로 로그인하기
         </Link>
-        <Link
-          href="/signup"
-          className="text-xl py-5 w-full border-brand-primary-600 border text-brand-primary-600 font-medium rounded-xl flex items-center justify-center"
-        >
-          3초만에 회원가입하기
-        </Link>
-        <Link href="/home" className="px-2 border-b py-0.5">
-          게스트로 보기
-        </Link>
+        <GuestButton />
       </section>
     </div>
   );
