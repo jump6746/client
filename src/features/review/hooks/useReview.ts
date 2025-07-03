@@ -4,7 +4,6 @@ import { ImageFile } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
 
@@ -17,7 +16,7 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
 
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
-  const router = useRouter();
+  // const router = useRouter();
 
   useEffect(() => {
     // if (!reviewData) {
