@@ -3,7 +3,7 @@ import { ResponseDTO } from "../types/api-structure";
 
 interface FetchProps <T = undefined, H extends Record<string, string> = Record<string, never>>{
   url: string;
-  method: "GET" | "POST" | "PUT" | "PATCH";
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   credentials? : RequestCredentials;
   data?: T;
   headers?: H;
@@ -51,6 +51,16 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
       error.name = responseData.name;
 
       throw error;
+    }
+
+    // 204 No Content 처리
+    if (response.status === 204) {
+      return {
+        status: 204,
+        message: "Success",
+        data: null, // 또는 undefined
+        timestamp: new Date().toISOString()
+      } as ResponseDTO<P>;
     }
 
     const responseData:ResponseDTO<P> = await response.json();

@@ -39,8 +39,8 @@ export default function RootLayout({
       >
         <Providers>
           <main className="w-[390px] h-dvh mx-auto">{children}</main>
-          <Toaster />
         </Providers>
+        <Toaster />
       </body>
     </html>
   );

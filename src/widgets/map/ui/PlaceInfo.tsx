@@ -1,8 +1,11 @@
+"use client";
+
 import { KaokaoResponse } from "@/entities/map/model";
 import { getTasteMapThumbnailAPI } from "@/entities/review/api";
 import { PlaceThumbnail } from "@/entities/review/model";
+import { useReview } from "@/features/review/hooks";
 import { isSuccessResponse } from "@/shared/lib";
-import { usePlaceStore } from "@/shared/stores";
+import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,10 +17,14 @@ interface Props {
 const PlaceInfo = ({ place }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const router = useRouter();
-  const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
+  const setReviewData = useReviewStore((state) => state.setReviewData);
+  const { handleDeleteReview } = useReview({
+    reviewId: placeData?.review?.reviewId,
+  });
 
   useEffect(() => {
     if (!place) return;
@@ -129,9 +136,13 @@ const PlaceInfo = ({ place }: Props) => {
                   <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
                     <button
                       onClick={() => {
+                        if (!placeData?.review) return;
+
+                        setReviewData(placeData?.review);
                         setShowMoreMenu(false);
-                        // 수정 로직
-                        console.log("수정하기");
+                        router.push(
+                          `/review/modify/${placeData?.review?.reviewId}`
+                        );
                       }}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg"
                     >
@@ -140,8 +151,7 @@ const PlaceInfo = ({ place }: Props) => {
                     <button
                       onClick={() => {
                         setShowMoreMenu(false);
-                        // 삭제 로직
-                        console.log("삭제하기");
+                        handleDeleteReview();
                       }}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50 text-red-600 rounded-b-lg"
                     >

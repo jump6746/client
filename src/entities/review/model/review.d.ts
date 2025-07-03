@@ -26,6 +26,17 @@ export interface ReviewResponse {
   updatedPinCount: number;
 }
 
+export interface PatchReviewRequest {
+  photos: string[];
+  content: string;
+  recommendedMenus: string[];
+  priceRange: number;
+}
+
+export interface PatchReviewResponse {
+  id: number;
+}
+
 export interface PresignedUrlResponse {
   presignedUrl: string;
   s3Key: string;
@@ -51,6 +62,9 @@ export interface PlaceThumbnail {
 }
 
 export interface PlaceReviewThumbnail {
+  placeGroupName: string;
+  placeName: string;
+  placeAddressName: string;
   reviewId: number;
   reviewContent: string;
   reviewScore: number;
