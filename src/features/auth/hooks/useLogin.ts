@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { loginAPI } from "@/entities/auth/api";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
+import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+
 
 const useLogin = () => {
   const [email, setEmail] = useState<string>('');
@@ -14,6 +16,7 @@ const useLogin = () => {
   const [error, setError] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState<boolean>(true);
   const router = useRouter();
+  const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
 
   useEffect(()=>{
 
@@ -45,6 +48,8 @@ const useLogin = () => {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('sessionId', data.sessionId);
         localStorage.setItem("userId", String(data.userId));
+
+        setGuestMode(false);
 
         // 로그인 확인 화면 필요
         customToast.success("로그인 성공");
