@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { loginAPI } from "@/entities/auth/api";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
-import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+import { useGuestModeStore } from "@/shared/stores";
+import { useUserStore } from "@/shared/stores";
 
 
 const useLogin = () => {
@@ -17,6 +18,8 @@ const useLogin = () => {
   const [isFormValid, setIsFormValid] = useState<boolean>(true);
   const router = useRouter();
   const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
+  const setUser = useUserStore((state) => state.setUser);
+  const clearUser = useUserStore((state) => state.clearUser);
 
   useEffect(()=>{
 
@@ -37,10 +40,10 @@ const useLogin = () => {
       setError('이메일과 비밀번호를 입력해주세요');
       return;
     }
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await loginAPI({ email, password })
 
@@ -48,7 +51,11 @@ const useLogin = () => {
         const { data } = response;
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('sessionId', data.sessionId);
-        localStorage.setItem("userId", String(data.userId));
+
+        setUser({
+          userId: data.userId,
+          defaultTasteMapId: data.defaultTasteMapId,
+        })
 
         setGuestMode(false);
 
@@ -70,7 +77,9 @@ const useLogin = () => {
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('sessionId');
-    localStorage.removeItem("userId");
+
+    clearUser();
+
     router.push('/login');
   };
 
