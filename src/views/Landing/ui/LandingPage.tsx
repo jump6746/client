@@ -35,6 +35,12 @@ const LandingPage = () => {
         >
           아이디로 로그인하기
         </Link>
+        <Link
+          href="/signup"
+          className="text-xl py-5 w-full border border-brand-primary-600 text-brand-primary-600 bg-white font-medium rounded-xl flex items-center justify-center"
+        >
+          3초만에 회원가입하기
+        </Link>
         <GuestButton />
       </section>
     </div>

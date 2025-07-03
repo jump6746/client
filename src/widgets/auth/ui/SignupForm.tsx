@@ -71,7 +71,7 @@ const SignUpForm = () => {
                 : "border-gray-300 text-gray-600"
             } cursor-pointer px-3 py-2.5 disabled:cursor-default`}
             onClick={handleNickNameCheck}
-            disabled={nickname.length > 2}
+            disabled={nickname.length < 2}
             type="button"
           >
             {nicknameCheck ? "사용가능" : "중복확인"}

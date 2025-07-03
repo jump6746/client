@@ -33,6 +33,7 @@ const useLogin = () => {
     e.preventDefault();
 
     if (!email || !password) {
+      customToast.error("이메일과 비밀번호를 입력해주세요.");
       setError('이메일과 비밀번호를 입력해주세요');
       return;
     }
@@ -59,6 +60,7 @@ const useLogin = () => {
         customToast.error(response.message);
       }
     } catch (err) {
+      customToast.error(err instanceof Error ? err.message : '로그인 실패');
       setError(err instanceof Error ? err.message : '로그인 실패');
     } finally {
       setIsLoading(false);
