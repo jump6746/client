@@ -5,6 +5,7 @@ import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import { getTasteMapAPI } from "@/entities/map/api";
+import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 
 interface Location {
   lat: number;
@@ -28,6 +29,8 @@ const NaverMap = ({
 }: NaverMapProps) => {
   const [map, setMap] = useState<NaverMapInstance | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const currentLocationMarkerRef = useRef<NaverMarker | null>(null); // 현재 위치 마커 참조
@@ -83,6 +86,11 @@ const NaverMap = ({
   }, []); // 초기화는 한 번만
 
   useEffect(() => {
+    if (isGuestMode) {
+      console.log('게스트 모드');
+      return;
+    }
+
     const fetchTasteMap = async () => {
       try {
         setLoading(true);
@@ -116,7 +124,7 @@ const NaverMap = ({
     };
 
     fetchTasteMap();
-  }, [center]); // 의존성 배열
+  }, [center, isGuestMode]); // 의존성 배열
 
   // 현재 위치 마커 생성 (center가 있을 때만)
   useEffect(() => {
