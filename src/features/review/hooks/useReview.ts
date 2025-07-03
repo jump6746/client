@@ -1,41 +1,28 @@
 
-import { deleteReviewAPI } from "@/entities/review/api";
-import { ImageFile } from "@/entities/review/model";
+import { deleteReviewAPI, getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
+import { ImageFile, PatchReviewRequest } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 
 interface Menu {
-  id: number;
-  name: string;
+  recommendedMenuId: number;
+  recommendedMenuName: string;
 }
 
 const useReview = ({reviewId}:{reviewId?: number}) => {
-
+  const router = useRouter();
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
-  // const router = useRouter();
-
-  useEffect(() => {
-    // if (!reviewData) {
-    //  setTimeout(() => {
-    //    customToast.error("데이터를 전달받지 못했습니다.");
-
-    //    setTimeout(() => {
-    //      router.push("/home");
-    //    }, 2000);
-    //  }, 100); // 짧은 지연
-    // }
-  }, []);
-
   const [content, setContent] = useState<string>(reviewData?.reviewContent ?? "");
   const [images, setImages] = useState<ImageFile[]>([]);
   const [menu, setMenu] = useState<string>("");
-  const [menuList, setMenuList] = useState<Menu[]>([]);
+  const [menuList, setMenuList] = useState<Menu[]>(reviewData?.recommendedMenuList ?? []);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [selectedPrice, setSelectedPrice] = useState<number>(-1);
+  const [selectedPrice, setSelectedPrice] = useState<number>(reviewData?.reviewPriceRange ?? -1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const priceOptions = [
     { id: 1, label: '~5,000원' },
@@ -62,6 +49,7 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
       }
 
     }catch(error){
+      console.error(error);
       customToast.error(error instanceof Error ? error.message : "리뷰 삭제에 서버 에러가 발생했습니다.");
     }
   }
@@ -105,114 +93,102 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
     setImages(prev => prev.filter(img => img.id !== imageId));
   };
 
-  // const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
-  //   e.preventDefault();
-  //   setIsSubmitting(true);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-  //   if(selectedPlace == null){
-  //     console.log("장소 정보가 없습니다.")
-  //     return;
-  //   }
-    
+    if(reviewData?.reviewId == null){
+      console.log("장소 정보가 없습니다.")
+      return;
+    }
 
-  //   try {
-  //     // 여기서 실제 API 호출을 수행
-  //     console.log('내용:', content);
-  //     console.log('이미지 개수:', images.length);
+    try {
+      // 여기서 실제 API 호출을 수행
+      console.log('내용:', content);
+      console.log('이미지 개수:', images.length);
       
-  //     const response = await getPresignedUrls({imageFiles: images});
+      const response = await getPresignedUrls({imageFiles: images});
       
-  //     const data = await response;
+      const data = await response;
 
-  //     console.log("presigned url 입력 성공", data);
+      console.log("presigned url 입력 성공", data);
 
-  //     const uploadResponse = await uploadAllImages(images, data);
+      const uploadResponse = await uploadAllImages(images, data);
       
-  //     const uplaodData = await uploadResponse;
+      const uplaodData = await uploadResponse;
 
-  //     console.log("이미지 업로드 성공", uplaodData);
+      console.log("이미지 업로드 성공", uplaodData);
 
-  //     const reviewData:ReviewRequest = {
-  //       place: {
-  //         placeId: selectedPlace.id,
-  //         title: selectedPlace.place_name,
-  //         address: selectedPlace.address_name,
-  //         roadAddress: selectedPlace.road_address_name,
-  //         category:selectedPlace.category_name,
-  //         telePhone: selectedPlace.phone,
-  //         mapx: selectedPlace.x,
-  //         mapy: selectedPlace.y,
-  //       },
-  //       photos: data.map(item => {
-  //         if(isSuccessResponse(item)){
-  //           return item.data.s3Key;
-  //         }else {
-  //           return "";
-  //         }
-  //       }),
-  //       score: 4.5,
-  //       content: content,
-  //       recommendedMenus: menuList.map(menu => menu.name),
-  //       priceRange: selectedPrice,
-  //       tasteMapId: 1,
-  //     }
+      const patchData: PatchReviewRequest = {
+        content,
+        recommendedMenus: menuList.map((menu) => menu.recommendedMenuName),
+        photos: data.map((item) => {
+          if(isSuccessResponse(item)){
+            return item.data.s3Key
+          }else{
+            return ""
+          }
+        }),
+        priceRange: selectedPrice,
+      }
       
-  //     const postResponse = await postReviewAPI({data: reviewData});
+      const postResponse = await patchReviewAPI({reviewId:reviewData?.reviewId, data: patchData})
 
-  //     const postData = await postResponse;
 
-  //     console.log(postData);
-
-  //     alert('글이 성공적으로 등록되었습니다!');
-
-  //     // 폼 초기화
-  //     setContent('');
-  //     setImages([]);
-  //   } catch (error) {
-  //     console.error('글 등록 오류:', error);
-  //     alert('글 등록 중 오류가 발생했습니다.');
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
+      if(isSuccessResponse(postResponse)){
+        customToast.success("리뷰 수정을 완료했습니다.");
+      }else{
+        customToast.error("리뷰 수정에 실패했습니다.");
+      }
+      // 폼 초기화
+      setContent('');
+      setImages([]);
+      router.push("/home");
+    } catch (error) {
+      customToast.error("리뷰 수정에 실패했습니다.");
+      console.error('글 등록 오류:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleFileInputClick = (): void => {
     fileInputRef.current?.click();
   };
 
-  // const handlePriceSelect = (priceValue: number) => {
-  //   if(Number.isNaN(priceValue)){
-  //     return;
-  //   }
-  //   setSelectedPrice(priceValue);
-  //   console.log('선택된 가격대 id:', priceValue);
-  // };
+  const handlePriceSelect = (priceValue: number) => {
+    if(Number.isNaN(priceValue)){
+      return;
+    }
+    setSelectedPrice(priceValue);
+    console.log('선택된 가격대 id:', priceValue);
+   };
 
-  // const addMenu = () => {
-  //   if (menu.trim() === '') {
-  //     alert('메뉴 이름을 입력해주세요!');
-  //     return;
-  //   }
+  const addMenu = () => {
+    if (menu.trim() === '') {
+      alert('메뉴 이름을 입력해주세요!');
+      return;
+    }
+    const newMenu: Menu = {
+      recommendedMenuId: Date.now(),
+      recommendedMenuName: menu.trim()
+    };
 
-  //   const newMenu: Menu = {
-  //     id: Date.now(),
-  //     name: menu.trim()
-  //   };
+    setMenuList(prev => [...prev, newMenu]);
+    setMenu(''); // 입력 필드 초기화
+  };
 
-  //   setMenuList(prev => [...prev, newMenu]);
-  //   setMenu(''); // 입력 필드 초기화
-  // };
+  const removeMenu = (id: number) => {
+    setMenuList(prev => prev.filter(menu => menu.recommendedMenuId !== id));
+  };
 
-  // const removeMenu = (id: number) => {
-  //   setMenuList(prev => prev.filter(menu => menu.id !== id));
-  // };
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      addMenu();
+    }
+  };
 
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter') {
-  //     addMenu();
-  //   }
-  // };
-
+  
   return {
     reviewData,
     content,
@@ -233,7 +209,12 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
     handleDeleteReview,
     handleImageUpload,
     handleFileInputClick,
+    handleKeyPress,
+    handlePriceSelect,
+    handleSubmit,
     removeImage,
+    removeMenu,
+    addMenu,
   }
 }
 

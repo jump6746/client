@@ -61,10 +61,12 @@ export interface PlaceThumbnail {
   review: PlaceReviewThumbnail | null;
 }
 
-export interface PlaceReviewThumbnail {
+export interface PlaceReivewData extends PlaceReviewThumbnail {
   placeGroupName: string;
   placeName: string;
   placeAddressName: string;
+}
+export interface PlaceReviewThumbnail {
   reviewId: number;
   reviewContent: string;
   reviewScore: number;

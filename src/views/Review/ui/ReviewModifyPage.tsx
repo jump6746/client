@@ -1,11 +1,7 @@
 import { ReviewModifyForm } from "@/widgets/reivew/ui";
 
 const ReviewModifyPage = () => {
-  return (
-    <div>
-      <ReviewModifyForm />
-    </div>
-  );
+  return <ReviewModifyForm />;
 };
 
 export default ReviewModifyPage;
