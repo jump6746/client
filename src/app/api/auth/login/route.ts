@@ -28,10 +28,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       const errorResponse: ErrorResponse = {
         status: 401,
         name: "LOGIN_FAILED",
-        message: "로그인 실패",
+        message: "아이디 또는 비밀번호가 올바르지 않습니다.",
         timestamp: new Date().toISOString()
       };
-      return NextResponse.json(errorResponse, {status: 401});
+      return NextResponse.json(errorResponse);
     }
 
     const data = await response.json();
@@ -55,11 +55,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       const errorResponse: ErrorResponse = {
         status: 401,
         name: "LOGIN_FAILED",
-        message: "리프레쉬 토큰 없음",
+        message: "리프레쉬 토큰을 전달받지 못했습니다.",
         timestamp: new Date().toISOString()
       };
 
-      return NextResponse.json(errorResponse, { status: 401 });
+      return NextResponse.json(errorResponse);
     }
     
     const sessionId = nanoid();
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       timestamp: new Date().toISOString()
     };
 
-    return NextResponse.json(errorResponse, {status: 500});
+    return NextResponse.json(errorResponse);
   }
 }
 

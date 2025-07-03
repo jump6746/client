@@ -138,7 +138,7 @@ const useSignUp = () => {
 
   useEffect(() => {
 
-    if(password === passwordConfirm){
+    if(password.length > 0 && password === passwordConfirm){
       setPasswordCheck(true);
     }else{
       setPasswordCheck(false);
