@@ -4,7 +4,7 @@ import { getPresignedUrls, uploadAllImages } from "@/entities/review/api";
 import postReviewAPI from "@/entities/review/api/postReviewAPI";
 import { ImageFile, ReviewRequest } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
-import { usePlaceStore } from "@/shared/stores";
+import {usePlaceStore, useUserStore} from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
@@ -34,6 +34,7 @@ const useReviewForm = () => {
     { id: 7, label: '~100,000원' },
     { id: 8, label: '100,000원 이상' },
   ]
+  const defaultTasteMapId = useUserStore((state) => state.defaultTasteMapId);
 
   const [selectedPrice, setSelectedPrice] = useState<number>(-1);
 
@@ -145,7 +146,7 @@ const useReviewForm = () => {
         content: content,
         recommendedMenus: menuList.map(menu => menu.name),
         priceRange: selectedPrice,
-        tasteMapId: 1,
+        tasteMapId: defaultTasteMapId,
       }
       
       const postResponse = await postReviewAPI({data: reviewData});

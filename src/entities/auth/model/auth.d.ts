@@ -12,6 +12,7 @@ export interface LoginResponse {
   sessionId: string;
   accessToken: string;
   userId: number;
+  defaultTasteMapId: number;
 }
 
 export interface SignUpResponse {

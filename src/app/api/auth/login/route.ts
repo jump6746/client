@@ -36,7 +36,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
 
     const data = await response.json();
     console.log("응답 데이터: ", data);
-    const { accessToken, userId } = data.data;
+    const { accessToken, userId, defaultTasteMapId } = data.data;
     
     const setCookieHeader = response.headers.get("set-cookie");
 
@@ -74,7 +74,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     const loginData = {
       sessionId: sessionId,
       accessToken: accessToken,
-      userId
+      userId: userId,
+      defaultTasteMapId: defaultTasteMapId
     }
 
     const successResponse: ResponseDTO<LoginResponse> = {
