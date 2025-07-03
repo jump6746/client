@@ -3,6 +3,7 @@
 import useReviewForm from "@/features/review/hooks/useReviewForm";
 import { usePlaceStore } from "@/shared/stores";
 import { Button } from "@/shared/ui/Button";
+import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/Carousel";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -31,17 +32,20 @@ const ReviewForm = () => {
   } = useReviewForm();
 
   const selectedPlace = usePlaceStore((state) => state.selectedPlace);
+  const clearSelectedPlace = usePlaceStore((state) => state.clearSelectedPlace);
   const router = useRouter();
 
   useEffect(() => {
     console.log(selectedPlace);
-  }, []);
 
-  if (!selectedPlace) {
-    console.error("정보없음!");
-    router.push("/home");
-    return;
-  }
+    if (!selectedPlace) {
+      console.error("정보없음!");
+      router.push("/home");
+      return;
+    }
+  }, [selectedPlace, router]);
+
+  if (!selectedPlace) return;
 
   return (
     <form
@@ -51,7 +55,15 @@ const ReviewForm = () => {
     >
       {/* 버튼란 */}
       <div className="w-full flex justify-between">
-        <Button type="button">취소</Button>
+        <Button
+          type="button"
+          onClick={() => {
+            clearSelectedPlace();
+            router.push("/home");
+          }}
+        >
+          취소
+        </Button>
         <Button
           type="submit"
           className="px-2 py-0.5 bg-brand-primary-600 text-white rounded-lg"
@@ -68,11 +80,11 @@ const ReviewForm = () => {
         </div>
       </div>
       {/* 이미지 업로드 */}
-      <div className="flex gap-2">
-        <div className="flex gap-2">
+      <Carousel>
+        <CarouselContent className="pl-4">
           {/* 이미지 프리뷰 */}
           {images.map((image) => (
-            <div
+            <CarouselItem
               key={image.id}
               className="w-25 h-25 rounded-2xl overflow-hidden relative"
             >
@@ -97,34 +109,36 @@ const ReviewForm = () => {
                   height={8}
                 />
               </button>
-            </div>
+            </CarouselItem>
           ))}
-        </div>
-        <label
-          htmlFor="file"
-          className="w-25 h-25 rounded-2xl border cursor-pointer border-brand-primary-600 flex flex-col gap-1 items-center justify-center"
-        >
-          <Image
-            src="/icons/photo_camera.svg"
-            alt="사진 추가"
-            width={20}
-            height={18}
-            className="text-brand-primary-600"
-          />
-          <span className="text-xs text-brand-primary-600 font-semibold">
-            사진 추가하기
-          </span>
-        </label>
-        <input
-          id="file"
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleImageUpload}
-          className="hidden"
-          ref={fileInputRef}
-        />
-      </div>
+          <CarouselItem>
+            <label
+              htmlFor="file"
+              className="w-25 h-25 rounded-2xl border cursor-pointer border-brand-primary-600 flex flex-col gap-1 items-center justify-center"
+            >
+              <Image
+                src="/icons/photo_camera.svg"
+                alt="사진 추가"
+                width={20}
+                height={18}
+                className="text-brand-primary-600"
+              />
+              <span className="text-xs text-brand-primary-600 font-semibold">
+                사진 추가하기
+              </span>
+            </label>
+            <input
+              id="file"
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+              ref={fileInputRef}
+            />
+          </CarouselItem>
+        </CarouselContent>
+      </Carousel>
       <div>
         <label htmlFor="content"></label>
         <textarea

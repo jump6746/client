@@ -5,6 +5,7 @@ import postReviewAPI from "@/entities/review/api/postReviewAPI";
 import { ImageFile, ReviewRequest } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore } from "@/shared/stores";
+import { customToast } from "@/shared/ui/CustomToast";
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 
 
@@ -153,14 +154,14 @@ const useReviewForm = () => {
 
       console.log(postData);
 
-      alert('글이 성공적으로 등록되었습니다!');
+      customToast.success("글이 성공적으로 등록됐습니다!");
 
       // 폼 초기화
       setContent('');
       setImages([]);
     } catch (error) {
       console.error('글 등록 오류:', error);
-      alert('글 등록 중 오류가 발생했습니다.');
+      customToast.error('글 등록 중 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }

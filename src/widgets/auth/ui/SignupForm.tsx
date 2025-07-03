@@ -45,6 +45,7 @@ const SignUpForm = () => {
             } cursor-pointer px-3 py-2.5 disabled:cursor-default`}
             onClick={handleEmailCheck}
             disabled={!emailRegex.test(email)}
+            type="button"
           >
             {emailCheck ? "사용가능" : "중복확인"}
           </Button>
@@ -71,6 +72,7 @@ const SignUpForm = () => {
             } cursor-pointer px-3 py-2.5 disabled:cursor-default`}
             onClick={handleNickNameCheck}
             disabled={nickname.length > 2}
+            type="button"
           >
             {nicknameCheck ? "사용가능" : "중복확인"}
           </Button>

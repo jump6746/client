@@ -1,6 +1,8 @@
 "use client";
 
-import { apiURL } from "@/shared/lib";
+import { SignUpRequest, SignUpResponse } from "@/entities/auth/model";
+import { apiURL, clientFetch, isSuccessResponse } from "@/shared/lib";
+import { customToast } from "@/shared/ui/CustomToast";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
@@ -20,141 +22,118 @@ const useSignUp = () => {
   const router = useRouter();
 
   const handleEmailCheck = async () => {
-
     if(!email){
+      customToast.error("이메일을 입력해주세요.");
       setError("이메일을 입력해주세요.");
       return;
     }
 
     try{
+      const response = await clientFetch<undefined, boolean>({
+        url: apiURL(`/users/check/email?email=${email}`),
+        method: "GET"
+      });
 
-      const response = await fetch(apiURL(`/users/check/email?email=${email}`),
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          }
+      if(isSuccessResponse(response)){
+
+        if(response.data){
+          // 이미 존재하는 이메일
+          setEmailCheckError(true);
+          customToast.error("이미 존재하는 이메일입니다.");
+        }else{
+          // 사용 가능
+          setEmailCheckError(false);
+          setEmailCheck(true);
         }
-      )
-
-      if(!response.ok){
-        const errorData = await response.json();
-        throw new Error(errorData);
-      }
-
-      const { status } = await response.json();
-
-      if(status == 200){
-
-        setEmailCheck(true);
-
       }else{
-
-        setEmailCheckError(true);
-      
+        setError(response.message);
       }
-
-    }catch(error){
-
+    } catch(error){
+      customToast.error(error instanceof Error ? error.message : "이메일 중복확인 실패");
       setError(error instanceof Error ? error.message : "이메일 중복확인 실패");
     }
-
   }
 
   const handleNickNameCheck = async () => {
 
     if(!nickname){
+      customToast.error("닉네임을 입력해주세요.");
       setError("닉네임을 입력해주세요.");
       return;
     }
 
     try{
+      const response = await clientFetch<undefined, boolean>({
+        url: apiURL(`/users/check/nickname?nickname=${nickname}`),
+        method: "GET"
+      });
 
-      const response = await fetch(apiURL(`/users/check/nickname?nickname=${nickname}`),
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json"
-          }
+      if(isSuccessResponse(response)){
+        if(response.data){
+          // 이미 존재하는 닉네임
+          setNickNameCheckError(true);
+          customToast.error("이미 존재하는 닉네임입니다.");
+        }else{
+          // 사용 가능
+          setNickNameCheckError(false);
+          setNickNameCheck(true);
         }
-      )
-
-      if(!response.ok){
-        const errorData = await response.json();
-        throw new Error(errorData);
-      }
-
-      const { status } = await response.json();
-
-      if(status == 200){
-
-        setNickNameCheck(true);
-
       }else{
-
-       setNickNameCheckError(true);
-      
+        customToast.error(response.message);
+        setError(response.message);
       }
 
-    }catch(error){
-
-      setError(error instanceof Error ? error.message : "이메일 중복확인 실패");
+    } catch(error){
+      customToast.error(error instanceof Error ? error.message : "닉네임 중복확인 실패");
+      setError(error instanceof Error ? error.message : "닉네임 중복확인 실패");
     }
-
   }
 
   const handleSignUp = async (e:FormEvent<HTMLFormElement>) => {
   
-      e.preventDefault();
+    e.preventDefault();
   
-      if (!email || !password) {
-        setError('이메일과 비밀번호를 입력해주세요');
-        return;
-      }
-      
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        const response = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          cache: 'no-store',
-          body: JSON.stringify({ 
-            email, 
-            nickname,
-            password, 
-            passwordConfirm, 
-            "agreements": {
-              "service": true,
-              "privacy": true,
-              "thirdParty": true,
-              "consignment": true,
-            "marketing": false
-          }}),
-        });
-  
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || '로그인 실패');
+    if (!email || !password) {
+      customToast.error('이메일과 비밀번호를 입력해주세요');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const signUpData: SignUpRequest = {
+        email, 
+        nickname,
+        password, 
+        passwordConfirm, 
+        agreements: {
+          service: true,
+          privacy: true,
+          thirdParty: true,
+          consignment: true,
+          marketing: false
         }
-  
-        const { status } = await response.json();
+      };
 
-        if(status == 201){
+      const response = await clientFetch<SignUpRequest, SignUpResponse>({
+        url: '/api/auth/signup',
+        method: 'POST',
+        data: signUpData,
+        credentials: 'same-origin'
+      });
 
-          // 로그인 확인 화면 필요
-          alert("회원가입 성공");
-  
-          router.push("/home");
-        }
-  
-        
-      } catch (err) {
-        setError(err instanceof Error ? err.message : '회원가입 실패');
-      } finally {
-        setIsLoading(false);
+      if(isSuccessResponse(response)){
+        customToast.success("회원가입에 성공하였습니다.")
+        router.push("/login");
+      }else{
+        customToast.error(response.message);
       }
+    } catch (err) {
+      customToast.error(err instanceof Error ? err.message : '회원가입에 실패하였습니다.');
+      setError(err instanceof Error ? err.message : '회원가입 실패');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {

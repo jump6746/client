@@ -8,6 +8,7 @@ const LoginForm = () => {
   const {
     email,
     password,
+    isFormValid,
     // isLoading,
     // isError,
     // error,
@@ -27,6 +28,7 @@ const LoginForm = () => {
             setEmail(e.currentTarget.value);
           }}
           id="email"
+          type="email"
           className="px-3 py-2.5 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm"
         ></Input>
       </div>
@@ -44,8 +46,9 @@ const LoginForm = () => {
         ></Input>
       </div>
       <Button
-        className="w-full bg-brand-primary-600 font-medium text-xl py-5 text-white cursor-pointer rounded-[10px] mt-auto"
+        className="w-full bg-brand-primary-600 font-medium text-xl py-5 text-white cursor-pointer rounded-[10px] mt-auto disabled:cursor-default disabled:bg-gray-200 disabled:text-gray-400"
         type="submit"
+        disabled={isFormValid}
       >
         로그인
       </Button>
