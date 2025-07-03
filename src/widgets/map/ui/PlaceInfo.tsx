@@ -10,6 +10,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+import { PlaceReivewData } from "@/entities/review/model/review";
+import { customToast } from "@/shared/ui/CustomToast";
 
 interface Props {
   place: KaokaoResponse | null;
@@ -143,15 +145,21 @@ const PlaceInfo = ({ place }: Props) => {
                   <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
                     <button
                       onClick={() => {
-
-                        if (!placeData?.review) return;
-
-                        setReviewData(placeData?.review);
-
                         if (isGuestMode) {
-                          alert("로그인이 필요합니다.");
+                          customToast.error("로그인이 필요합니다.");
                           return;
                         }
+
+                        if (!placeData?.review || !place) return;
+
+                        const data: PlaceReivewData = {
+                          placeName: place?.place_name,
+                          placeGroupName: place?.category_group_name,
+                          placeAddressName: place?.address_name,
+                          ...placeData.review,
+                        };
+
+                        setReviewData(data);
 
                         setShowMoreMenu(false);
                         router.push(

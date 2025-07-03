@@ -3,7 +3,7 @@ import { apiURL, clientFetch } from "@/shared/lib";
 import { ErrorResponse, ResponseDTO } from "@/shared/types/api-structure";
 
 interface Props {
-  reviewId: string;
+  reviewId: number;
   data: PatchReviewRequest;
 }
 

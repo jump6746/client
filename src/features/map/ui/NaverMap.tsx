@@ -87,7 +87,7 @@ const NaverMap = ({
 
   useEffect(() => {
     if (isGuestMode) {
-      console.log('게스트 모드');
+      console.log("게스트 모드");
       return;
     }
 
@@ -158,7 +158,7 @@ const NaverMap = ({
   useEffect(() => {
     if (map && data) {
       data.placeList.forEach((item) => {
-        new window.naver.maps.Marker({
+        const marker = new window.naver.maps.Marker({
           position: new window.naver.maps.LatLng(item.mapy, item.mapx),
           map: map,
           icon: {
@@ -190,6 +190,10 @@ const NaverMap = ({
           `,
             anchor: new window.naver.maps.Point(10, 10),
           },
+        });
+
+        window.naver.maps.Event.addListener(marker, "click", () => {
+          console.log("핀 클릭", item);
         });
       });
     }
