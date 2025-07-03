@@ -20,15 +20,15 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (!reviewData) {
-      setTimeout(() => {
-        customToast.error("데이터를 전달받지 못했습니다.");
+    // if (!reviewData) {
+    //  setTimeout(() => {
+    //    customToast.error("데이터를 전달받지 못했습니다.");
 
-        setTimeout(() => {
-          router.push("/home");
-        }, 2000);
-      }, 100); // 짧은 지연
-    }
+    //    setTimeout(() => {
+    //      router.push("/home");
+    //    }, 2000);
+    //  }, 100); // 짧은 지연
+    // }
   }, []);
 
   const [content, setContent] = useState<string>(reviewData?.reviewContent ?? "");
