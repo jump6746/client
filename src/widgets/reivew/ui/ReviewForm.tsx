@@ -39,7 +39,7 @@ const ReviewForm = () => {
     console.log(selectedPlace);
 
     if (!selectedPlace) {
-      console.error("정보없음!");
+      console.error("장소 정보 없이 리뷰페이지 접근");
       router.push("/home");
       return;
     }

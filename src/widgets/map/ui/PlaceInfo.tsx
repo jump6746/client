@@ -15,9 +15,10 @@ import { customToast } from "@/shared/ui/CustomToast";
 
 interface Props {
   place: KaokaoResponse | null;
+  setPlace: React.Dispatch<React.SetStateAction<KaokaoResponse | null>>;
 }
 
-const PlaceInfo = ({ place }: Props) => {
+const PlaceInfo = ({ place, setPlace }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   // 드래그 기능을 위한 state 추가
@@ -114,6 +115,7 @@ const PlaceInfo = ({ place }: Props) => {
       setIsExpanded(false);
     } else if (deltaY < -100) {
       setIsOpen(false);
+      setPlace(null);
     }
   };
 
@@ -246,7 +248,10 @@ const PlaceInfo = ({ place }: Props) => {
                           return;
                         }
 
-                        if (!placeData?.review || !place) return;
+                        if (!placeData?.review || !place) {
+                          customToast.error("리뷰 혹은 장소 정보가 없습니다.");
+                          return;
+                        }
 
                         const data: PlaceReivewData = {
                           placeName: place?.place_name,

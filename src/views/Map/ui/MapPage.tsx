@@ -49,7 +49,7 @@ const MapPage = () => {
           zoom={16}
         />
       )}
-      <PlaceInfo place={place} />
+      <PlaceInfo place={place} setPlace={setPlace} />
     </div>
   );
 };

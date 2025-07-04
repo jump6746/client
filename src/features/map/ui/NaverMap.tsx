@@ -28,7 +28,7 @@ const NaverMap = ({
   setPlace,
   zoom = 15,
   width = "100%",
-  height = "100vh",
+  height = "100%",
 }: NaverMapProps) => {
   const [map, setMap] = useState<NaverMapInstance | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -225,7 +225,7 @@ const NaverMap = ({
 
   // 검색된 장소 마커 생성/업데이트
   useEffect(() => {
-    if (map && place) {
+    if (map) {
       console.log("검색된 장소:", place);
 
       // 기존 검색 마커 제거
@@ -234,28 +234,30 @@ const NaverMap = ({
         searchMarkerRef.current = null;
       }
 
-      // 새로운 검색 마커 생성 (빨간색 핀)
-      const searchPosition = new window.naver.maps.LatLng(place.y, place.x);
+      // place가 있을 때만 새로운 마커 생성
+      if (place) {
+        // 새로운 검색 마커 생성 (빨간색 핀)
+        const searchPosition = new window.naver.maps.LatLng(place.y, place.x);
 
-      const searchMarker = new window.naver.maps.Marker({
-        position: searchPosition,
-        map: map,
-        icon: {
-          content: `
+        const searchMarker = new window.naver.maps.Marker({
+          position: searchPosition,
+          map: map,
+          icon: {
+            content: `
             <div style="position: relative;">
               <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
-              <div style="position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: white; border-radius: 50%; transform: rotate(45deg);"></div>
             </div>
           `,
-          anchor: new window.naver.maps.Point(12, 32),
-        },
-      });
+            anchor: new window.naver.maps.Point(12, 32),
+          },
+        });
 
-      searchMarkerRef.current = searchMarker;
+        searchMarkerRef.current = searchMarker;
 
-      // 검색된 장소로 지도 중심 이동
-      map.setCenter(searchPosition);
-      console.log("선택된 장소로 이동", searchPosition);
+        // 검색된 장소로 지도 중심 이동
+        map.setCenter(searchPosition);
+        console.log("선택된 장소로 이동", searchPosition);
+      }
     }
   }, [map, place]);
 
