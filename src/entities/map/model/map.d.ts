@@ -78,8 +78,8 @@ export interface TastePlace {
   placeName: string;
   // "음식점" | "카페" | "술집" | "한식" | "일식" | "양식" | "중식"
   placeCategoryName: string;
-  placeMapy: number;
-  placeMapx: number;
+  mapy: number;
+  mapx: number;
   priceRange: number;
   distance: number;
 }

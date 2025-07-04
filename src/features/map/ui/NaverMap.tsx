@@ -161,10 +161,7 @@ const NaverMap = ({
     if (map && data) {
       data.placeList.forEach((item) => {
         const marker = new window.naver.maps.Marker({
-          position: new window.naver.maps.LatLng(
-            item.placeMapy,
-            item.placeMapx
-          ),
+          position: new window.naver.maps.LatLng(item.mapy, item.mapx),
           map: map,
           icon: {
             content: `
@@ -213,8 +210,8 @@ const NaverMap = ({
             id: item.placeId,
             place_name: item.placeName,
             category_group_name: item.placeCategoryName,
-            x: item.placeMapx,
-            y: item.placeMapy,
+            x: item.mapx,
+            y: item.mapy,
             place_url: item.placeUrl,
             road_address_name: item.roadAddress,
             distance: item.distance,
