@@ -21,6 +21,8 @@ const useSignUp = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
+ 
+
   const handleEmailCheck = async () => {
     if(!email){
       customToast.error("이메일을 입력해주세요.");

@@ -152,16 +152,6 @@ const ReviewForm = () => {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <label htmlFor="score" className="font-bold text-2xl">
-          평점
-        </label>
-        <input
-          type="text"
-          placeholder="평점을 입력해주세요."
-          className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
-        />
-      </div>
-      <div className="flex flex-col gap-2">
         <h3 className="font-bold text-2xl">추천 메뉴</h3>
         <label htmlFor="">메뉴 이름</label>
         <input

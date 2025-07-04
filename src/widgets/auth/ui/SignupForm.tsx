@@ -50,6 +50,11 @@ const SignUpForm = () => {
             {emailCheck ? "사용가능" : "중복확인"}
           </Button>
         </div>
+        {!emailRegex.test(email) && email.length > 2 ? (
+          <span className="text-red-600 text-sm">
+            이메일 형식으로 입력해주세요.
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="nickname">닉네임</label>
@@ -77,6 +82,11 @@ const SignUpForm = () => {
             {nicknameCheck ? "사용가능" : "중복확인"}
           </Button>
         </div>
+        {nickname.length > 0 && nickname.length < 3 ? (
+          <span className="text-red-600 text-sm">
+            닉네임을 3자 이상 입력해주세요.
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="password">비밀번호</label>
@@ -90,6 +100,11 @@ const SignUpForm = () => {
           type="password"
           className="px-3 py-2.5 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm"
         ></Input>
+        {password.length > 0 && password.length < 8 ? (
+          <span className="text-red-600 text-sm">
+            비밀번호를 8자 이상 입력해주세요.
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-col gap-2">
         <label htmlFor="passwordConfirm">비밀번호 확인</label>
@@ -103,6 +118,11 @@ const SignUpForm = () => {
           type="password"
           className="px-3 py-2.5 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm"
         ></Input>
+        {!passwordCheck && passwordConfirm.length > 0 ? (
+          <span className="text-red-600 text-sm">
+            비밀번호가 일치하지 않습니다.
+          </span>
+        ) : null}
       </div>
       <Button
         className="w-full bg-brand-primary-600 font-medium text-xl py-5 text-white cursor-pointer rounded-[10px] mt-auto disabled:bg-gray-200 disabled:text-gray-600 disabled:cursor-default"

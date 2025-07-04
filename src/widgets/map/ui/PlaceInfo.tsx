@@ -8,7 +8,7 @@ import { isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 import { PlaceReivewData } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
@@ -20,6 +20,18 @@ interface Props {
 const PlaceInfo = ({ place }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  // 드래그 기능을 위한 state 추가
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragOffset, setDragOffset] = useState<number>(0);
+
+  // useRef로 드래그 상태 추적 (state 업데이트 지연 문제 해결)
+  const dragState = useRef({
+    isDragging: false,
+    startY: 0,
+    currentOffset: 0,
+  });
+
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -30,11 +42,19 @@ const PlaceInfo = ({ place }: Props) => {
     reviewId: placeData?.review?.reviewId,
   });
 
+  // 높이 계산 - 드래그 중일 때는 실시간 반영
+  const baseHeight = placeData?.review ? (isExpanded ? 750 : 450) : 300;
+  const currentHeight = isDragging
+    ? Math.max(300, Math.min(800, baseHeight + dragOffset * 0.7))
+    : baseHeight;
+  const canDrag = !!placeData?.review;
+
   useEffect(() => {
     if (!place) return;
 
     if (place != null) {
       setIsOpen(true);
+      setIsExpanded(false); // 항상 450px로 시작
     }
 
     const fetchData = async () => {
@@ -51,6 +71,71 @@ const PlaceInfo = ({ place }: Props) => {
 
     fetchData();
   }, [place]);
+
+  // 드래그 시작
+  const startDrag = (clientY: number) => {
+    if (!canDrag) return;
+
+    console.log("Starting drag at:", clientY);
+    dragState.current = {
+      isDragging: true,
+      startY: clientY,
+      currentOffset: 0,
+    };
+    setIsDragging(true);
+    setDragOffset(0);
+  };
+
+  // 드래그 중
+  const updateDrag = (clientY: number) => {
+    if (!dragState.current.isDragging || !canDrag) return;
+
+    const deltaY = dragState.current.startY - clientY;
+    dragState.current.currentOffset = deltaY;
+    setDragOffset(deltaY);
+  };
+
+  // 드래그 종료
+  const endDrag = (clientY: number) => {
+    if (!dragState.current.isDragging || !canDrag) return;
+
+    console.log("Ending drag");
+    const deltaY = dragState.current.startY - clientY;
+
+    // 상태 리셋
+    dragState.current.isDragging = false;
+    setIsDragging(false);
+    setDragOffset(0);
+
+    // 30px 이상 드래그하면 상태 변경
+    if (deltaY > 50) {
+      setIsExpanded(true);
+    } else if (deltaY < -50 && deltaY >= -100) {
+      setIsExpanded(false);
+    } else if (deltaY < -100) {
+      setIsOpen(false);
+    }
+  };
+
+  // 통합 이벤트 핸들러
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startDrag(e.clientY);
+
+    const handlePointerMove = (moveEvent: PointerEvent) => {
+      updateDrag(moveEvent.clientY);
+    };
+
+    const handlePointerUp = (upEvent: PointerEvent) => {
+      endDrag(upEvent.clientY);
+      document.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("pointerup", handlePointerUp);
+    };
+
+    document.addEventListener("pointermove", handlePointerMove);
+    document.addEventListener("pointerup", handlePointerUp);
+  };
 
   // place가 null이고 isOpen이 false면 컴포넌트를 렌더링하지 않음
   if (!place && !isOpen) {
@@ -76,15 +161,26 @@ const PlaceInfo = ({ place }: Props) => {
     <div
       className={`
         absolute w-full bottom-0 bg-white shadow-lg border-t h-full rounded-t-2xl overflow-hidden border-gray-200
-        transition-transform duration-500 ease-in-out
         ${isOpen ? "translate-y-0" : "translate-y-full"}
+        ${isDragging ? "" : "transition-all duration-300 ease-out"}
       `}
-      style={{ height: placeData?.review ? "450px" : "300px" }}
+      style={{ height: `${currentHeight}px` }}
     >
-      {/* 상단 핸들 */}
-      <div className="w-full flex justify-center py-2">
-        <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+      {/* 상단 핸들 - 드래그 영역 */}
+      <div
+        className={`w-full flex justify-center py-2 select-none ${
+          canDrag ? "cursor-grab active:cursor-grabbing" : ""
+        }`}
+        onPointerDown={handlePointerDown}
+        style={{ touchAction: "none" }}
+      >
+        <div
+          className={`w-12 h-1 rounded-full ${
+            canDrag ? "bg-gray-400" : "bg-gray-300"
+          }`}
+        ></div>
       </div>
+
       {/* 컨텐츠 영역 */}
       <div className="px-6 pt-6 flex flex-col justify-between h-[240px]">
         <div className="flex justify-between items-start">
@@ -110,9 +206,9 @@ const PlaceInfo = ({ place }: Props) => {
                   </span>
                 )}
 
-                {place?.address_name && (
+                {place?.road_address_name && (
                   <span className="text-sm text-gray-600 flex-1">
-                    {place.address_name}
+                    {place.road_address_name}
                   </span>
                 )}
               </div>
@@ -155,7 +251,7 @@ const PlaceInfo = ({ place }: Props) => {
                         const data: PlaceReivewData = {
                           placeName: place?.place_name,
                           placeGroupName: place?.category_group_name,
-                          placeAddressName: place?.address_name,
+                          placeAddressName: place?.road_address_name,
                           ...placeData.review,
                         };
 
@@ -238,21 +334,52 @@ const PlaceInfo = ({ place }: Props) => {
                 ))}
               </div>
               <div className="flex gap-2">
-                {placeData.review.reviewPhotoList.map((item) => (
-                  <div
-                    key={item.reviewPhotoId}
-                    className="w-25 h-25 overflow-hidden rounded-2xl"
-                  >
-                    <Image
-                      src={item.reviewPhotoUrl.replace(/&amp;/g, "&")}
-                      alt={item.reviewPhotoCaption ?? "음식"}
-                      width={100}
-                      height={100}
-                      unoptimized={true}
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                ))}
+                {placeData.review.reviewPhotoList.map((item, index) => {
+                  if (index > 2) return;
+
+                  if (
+                    index == 2 &&
+                    placeData.review &&
+                    placeData.review.reviewPhotoList.length > 3
+                  ) {
+                    return (
+                      <div
+                        key={item.reviewPhotoId}
+                        className="w-25 h-25 overflow-hidden rounded-2xl relative"
+                      >
+                        <Image
+                          src={item.reviewPhotoUrl.replace(/&amp;/g, "&")}
+                          alt={item.reviewPhotoCaption ?? "음식"}
+                          width={100}
+                          height={100}
+                          unoptimized={true}
+                          className="object-cover w-full h-full"
+                        />
+                        <div className="flex absolute items-center justify-center w-25 h-25 bg-black/50 top-0">
+                          <span className="text-white">
+                            +{placeData.review.reviewPhotoList.length - 3}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={item.reviewPhotoId}
+                      className="w-25 h-25 overflow-hidden rounded-2xl"
+                    >
+                      <Image
+                        src={item.reviewPhotoUrl.replace(/&amp;/g, "&")}
+                        alt={item.reviewPhotoCaption ?? "음식"}
+                        width={100}
+                        height={100}
+                        unoptimized={true}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  );
+                })}
               </div>
               <p className="p-2">{placeData.review.reviewContent}</p>
             </div>

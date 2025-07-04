@@ -5,6 +5,7 @@ export interface Place {
   roadAddress: string;
   category: string;
   telePhone: string;
+  placeUrl: string;
   mapx: number;
   mapy: number;
 }
@@ -12,7 +13,6 @@ export interface Place {
 export interface ReviewRequest {
   place: Place;
   photos: string[];
-  score: number;
   content: string;
   recommendedMenus: string[];
   priceRange: number;

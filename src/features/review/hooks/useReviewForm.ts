@@ -18,7 +18,6 @@ interface Menu {
 const useReviewForm = () => {
   const [content, setContent] = useState<string>('');
   const [images, setImages] = useState<ImageFile[]>([]);
-  // const [score, setScore] = useState<string>("");
   const [menu, setMenu] = useState<string>("");
   const [menuList, setMenuList] = useState<Menu[]>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -128,10 +127,11 @@ const useReviewForm = () => {
         place: {
           placeId: selectedPlace.id,
           title: selectedPlace.place_name,
-          address: selectedPlace.address_name,
+          address: selectedPlace.address_name ?? "",
           roadAddress: selectedPlace.road_address_name,
-          category:selectedPlace.category_name,
-          telePhone: selectedPlace.phone,
+          placeUrl: selectedPlace.place_url,
+          category:selectedPlace.category_name ?? "",
+          telePhone: selectedPlace.phone ?? "",
           mapx: selectedPlace.x,
           mapy: selectedPlace.y,
         },
@@ -142,7 +142,6 @@ const useReviewForm = () => {
             return "";
           }
         }),
-        score: 4.5,
         content: content,
         recommendedMenus: menuList.map(menu => menu.name),
         priceRange: selectedPrice,
