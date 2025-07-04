@@ -35,10 +35,10 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased `}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
       >
         <Providers>
-          <main className="w-[390px] h-dvh mx-auto">{children}</main>
+          <div className="w-full max-w-sm h-screen mx-auto">{children}</div>
         </Providers>
         <Toaster />
       </body>
