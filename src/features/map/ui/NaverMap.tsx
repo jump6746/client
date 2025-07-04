@@ -15,6 +15,7 @@ interface Location {
 interface NaverMapProps {
   center?: Location; // 외부에서 받는 중심 위치
   place: KaokaoResponse | null;
+  setPlace: React.Dispatch<React.SetStateAction<KaokaoResponse | null>>;
   zoom?: number; // 줌 레벨
   width?: string; // 너비
   height?: string; // 높이
@@ -23,6 +24,7 @@ interface NaverMapProps {
 const NaverMap = ({
   center,
   place,
+  setPlace,
   zoom = 15,
   width = "100%",
   height = "100vh",
@@ -159,13 +161,27 @@ const NaverMap = ({
     if (map && data) {
       data.placeList.forEach((item) => {
         const marker = new window.naver.maps.Marker({
-          position: new window.naver.maps.LatLng(item.mapy, item.mapx),
+          position: new window.naver.maps.LatLng(
+            item.placeMapy,
+            item.placeMapx
+          ),
           map: map,
           icon: {
             content: `
             <div style="position: relative; text-align: center;">
               <!-- 마커 아이콘 -->
-              <img src="/icons/${markerTag[item.placeCategoryName]}.svg" 
+              <img src="/icons/${
+                markerTag[
+                  item.placeCategoryName as
+                    | "음식점"
+                    | "카페"
+                    | "술집"
+                    | "한식"
+                    | "일식"
+                    | "양식"
+                    | "중식"
+                ]
+              }.svg" 
                    style="width: 24px; height: 32px; display: block; margin: 0 auto;" 
                    alt="marker" />
               
@@ -193,7 +209,16 @@ const NaverMap = ({
         });
 
         window.naver.maps.Event.addListener(marker, "click", () => {
-          console.log("핀 클릭", item);
+          setPlace({
+            id: item.placeId,
+            place_name: item.placeName,
+            category_group_name: item.placeCategoryName,
+            x: item.placeMapx,
+            y: item.placeMapy,
+            place_url: item.placeUrl,
+            road_address_name: item.roadAddress,
+            distance: item.distance,
+          });
         });
       });
     }

@@ -4,15 +4,15 @@ interface KaokaoResponse {
   /** 장소명, 업체명 */
   place_name: string;
   /** 카테고리 이름 (예: "음식점 > 카페 > 커피전문점 > 스타벅스") */
-  category_name: string;
+  category_name?: string;
   /** 중요 카테고리만 그룹핑한 카테고리 그룹 코드 (예: "CE7") */
-  category_group_code: string;
+  category_group_code?: string;
   /** 중요 카테고리만 그룹핑한 카테고리 그룹명 (예: "카페") */
   category_group_name: string;
   /** 전화번호 */
-  phone: string;
+  phone?: string;
   /** 전체 지번 주소 */
-  address_name: string;
+  address_name?: string;
   /** 전체 도로명 주소 */
   road_address_name: string;
   /** X 좌표값, 경위도인 경우 longitude (경도) */
@@ -73,10 +73,13 @@ export interface TastePlace {
   tasteMapPlaceId: number,
   jjim: true;
   placeId: string;
+  roadAddress: string;
+  placeUrl: string;
   placeName: string;
-  placeCategoryName: "음식점" | "카페" | "술집" | "한식" | "일식" | "양식" | "중식";
-  mapy: number;
-  mapx: number;
+  // "음식점" | "카페" | "술집" | "한식" | "일식" | "양식" | "중식"
+  placeCategoryName: string;
+  placeMapy: number;
+  placeMapx: number;
   priceRange: number;
   distance: number;
 }

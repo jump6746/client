@@ -8,7 +8,10 @@ import { useGeolocation } from "@/features/map/hooks";
 
 const MapPage = () => {
   const { currentLocation, getCurrentLocation } = useGeolocation();
-  const [mapCenter, setMapCenter] = useState<{lat: number, lng:number} | null>(null);
+  const [mapCenter, setMapCenter] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const [place, setPlace] = useState<KaokaoResponse | null>(null);
 
   // 컴포넌트 마운트 시 현재 위치 가져오기
@@ -39,11 +42,12 @@ const MapPage = () => {
         onPlaceSelect={handlePlaceSelect}
       />
       {mapCenter && (
-          <NaverMap
-              place={place}
-              center={mapCenter}
-              zoom={16}
-          />
+        <NaverMap
+          place={place}
+          setPlace={setPlace}
+          center={mapCenter}
+          zoom={16}
+        />
       )}
       <PlaceInfo place={place} />
     </div>
