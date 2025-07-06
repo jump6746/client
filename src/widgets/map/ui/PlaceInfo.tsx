@@ -3,7 +3,7 @@
 import { KaokaoResponse } from "@/entities/map/model";
 import { getTasteMapThumbnailAPI } from "@/entities/review/api";
 import { PlaceThumbnail } from "@/entities/review/model";
-import { useReview } from "@/features/review/hooks";
+import { useReviewModify } from "@/features/review/hooks";
 import { isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
@@ -39,7 +39,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const router = useRouter();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
-  const { handleDeleteReview } = useReview({
+  const { handleDeleteReview } = useReviewModify({
     reviewId: placeData?.review?.reviewId,
   });
 

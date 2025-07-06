@@ -5,7 +5,7 @@ import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
 import { useRouter } from "next/navigation";
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 
 
 interface Menu {
@@ -13,7 +13,7 @@ interface Menu {
   recommendedMenuName: string;
 }
 
-const useReview = ({reviewId}:{reviewId?: number}) => {
+const useReviewModify = ({reviewId}:{reviewId?: number}) => {
   const router = useRouter();
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
@@ -54,40 +54,77 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
     }
   }
 
-  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const files = Array.from(e.target.files || []);
-    
+  // 공통 이미지 처리 함수
+  const processImages = async (files: File[]): Promise<void> => {
     for (const file of files) {
       if (file.type.startsWith('image/')) {
         try {
-          // 이미지를 WebP로 변환 (품질 1.0 = 100% 최고 품질)
           const webpFile = await convertToWebP(file, 1.0);
-          
-          // 변환된 WebP 파일의 미리보기 생성
-          const reader = new FileReader();
-          reader.onload = (e: ProgressEvent<FileReader>) => {
-            const result = e.target?.result;
-            if (typeof result === 'string') {
-              const newImage: ImageFile = {
-                id: Date.now() + Math.random(),
-                file: webpFile, // 변환된 WebP 파일 사용
-                preview: result,
-                name: webpFile.name
-              };
-              setImages(prev => [...prev, newImage]);
-            }
+        
+          // FileReader를 Promise로 감싸서 순차 처리
+          const preview = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const result = e.target?.result;
+              if (typeof result === 'string') {
+                resolve(result);
+              } else {
+                reject(new Error('파일 읽기 실패'));
+              }
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(webpFile);
+          });
+
+          const newImage: ImageFile = {
+            id: Date.now() + Math.random(),
+            file: webpFile,
+            preview,
+            name: webpFile.name || 'clipboard-image.webp'
           };
-          reader.readAsDataURL(webpFile);
+          
+          setImages(prev => [...prev, newImage]);
         } catch (error) {
           console.error('이미지 변환 오류:', error);
-          alert(`${file.name} 파일 변환에 실패했습니다.`);
+          alert(`${file.name || '클립보드 이미지'} 파일 변환에 실패했습니다.`);
         }
       }
-    }
-
+     }
+  };
+  
+  const handleImageUpload = async (e: ChangeEvent<HTMLInputElement>): Promise<void> => {
+    const files = Array.from(e.target.files || []);
+    await processImages(files);
+    
     // 파일 입력 초기화
     e.target.value = '';
-  }
+  };
+  
+  // 클립보드 붙여넣기 핸들러
+  const handlePaste = async (e: ClipboardEvent): Promise<void> => {
+    const items = e.clipboardData?.items;
+      
+    if (items) {
+      const files: File[] = [];
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) files.push(file);
+        }
+      }
+        
+      if (files.length > 0) {
+        await processImages(files);
+        customToast.success(`${files.length}개의 이미지가 클립보드에서 추가되었습니다!`);
+      }
+    }
+  };
+  
+  // 클립보드 이벤트 리스너 등록
+  useEffect(() => {
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, []);
 
   const removeImage = (imageId: number): void => {
     setImages(prev => prev.filter(img => img.id !== imageId));
@@ -218,4 +255,4 @@ const useReview = ({reviewId}:{reviewId?: number}) => {
   }
 }
 
-export default useReview;
+export default useReviewModify;
