@@ -1,6 +1,6 @@
 
 import { deleteReviewAPI, getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
-import { ImageFile, PatchReviewRequest } from "@/entities/review/model";
+import { ImageFile, PatchReviewRequest, ReviewPhoto } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
@@ -18,11 +18,13 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
   const [content, setContent] = useState<string>(reviewData?.reviewContent ?? "");
+  const [prevImages, setPrevImages] = useState<ReviewPhoto[]>([]);
   const [images, setImages] = useState<ImageFile[]>([]);
   const [menu, setMenu] = useState<string>("");
   const [menuList, setMenuList] = useState<Menu[]>(reviewData?.recommendedMenuList ?? []);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPrice, setSelectedPrice] = useState<number>(reviewData?.reviewPriceRange ?? -1);
+  const menuIndex = useRef<number>(-1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const priceOptions = [
     { id: 1, label: '~5,000원' },
@@ -34,6 +36,27 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     { id: 7, label: '~100,000원' },
     { id: 8, label: '100,000원 이상' },
   ]
+
+  useEffect(() => {
+    if(!reviewData) return;
+
+    setPrevImages(reviewData.reviewPhotoList);
+
+  },[reviewData, setPrevImages])
+
+  useEffect(() => {
+
+    if(!reviewData?.recommendedMenuList) return;
+
+    menuIndex.current = reviewData.recommendedMenuList[reviewData.recommendedMenuList.length - 1].recommendedMenuId;
+
+    console.log(menuIndex.current);
+
+  },[reviewData?.recommendedMenuList])
+
+  const removePrevImage = (imageId: number): void => {
+    setPrevImages(prev => prev.filter(img => img.reviewPhotoId !== imageId));
+  };
 
   const handleDeleteReview = async () => {
 
@@ -159,15 +182,17 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
       const patchData: PatchReviewRequest = {
         content,
         recommendedMenus: menuList.map((menu) => menu.recommendedMenuName),
-        photos: data.map((item) => {
+        photos: [...prevImages.map((item) => item.reviewPhotoS3Key) , ...data.map((item) => {
           if(isSuccessResponse(item)){
             return item.data.s3Key
           }else{
             return ""
           }
-        }),
+        })],
         priceRange: selectedPrice,
       }
+
+      console.log(patchData);
       
       const postResponse = await patchReviewAPI({reviewId:reviewData?.reviewId, data: patchData})
 
@@ -201,29 +226,51 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     console.log('선택된 가격대 id:', priceValue);
    };
 
-  const addMenu = () => {
-    if (menu.trim() === '') {
-      alert('메뉴 이름을 입력해주세요!');
-      return;
-    }
-    const newMenu: Menu = {
-      recommendedMenuId: Date.now(),
-      recommendedMenuName: menu.trim()
+  const addMenuInput = () => {
+    menuIndex.current += 1;
+    console.log(menuIndex.current);
+    const newInput:Menu = {
+      recommendedMenuId: menuIndex.current,
+      recommendedMenuName: ''
     };
-
-    setMenuList(prev => [...prev, newMenu]);
-    setMenu(''); // 입력 필드 초기화
+    setMenuList([...menuList, newInput]);
   };
 
-  const removeMenu = (id: number) => {
-    setMenuList(prev => prev.filter(menu => menu.recommendedMenuId !== id));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      addMenu();
+  const removeMenuInput = (id: number) => {
+    if (menuList.length > 1) {
+      setMenuList(menuList.filter(input => input.recommendedMenuId !== id));
     }
   };
+
+  const updateMenuInput = (id: number, value: string) => {
+    setMenuList(menuList.map(input => 
+      input.recommendedMenuId === id ? { ...input, recommendedMenuName: value } : input
+    ));
+  };
+
+  // const addMenu = () => {
+  //   if (menu.trim() === '') {
+  //     alert('메뉴 이름을 입력해주세요!');
+  //     return;
+  //   }
+  //   const newMenu: Menu = {
+  //     recommendedMenuId: Date.now(),
+  //     recommendedMenuName: menu.trim()
+  //   };
+
+  //   setMenuList(prev => [...prev, newMenu]);
+  //   setMenu(''); // 입력 필드 초기화
+  // };
+
+  // const removeMenu = (id: number) => {
+  //   setMenuList(prev => prev.filter(menu => menu.recommendedMenuId !== id));
+  // };
+
+  // const handleKeyPress = (e: React.KeyboardEvent) => {
+  //   if (e.key === 'Enter') {
+  //     addMenu();
+  //   }
+  // };
 
   
   return {
@@ -236,6 +283,8 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     isSubmitting,
     fileInputRef,
     priceOptions,
+    prevImages,
+    removePrevImage,
     setContent,
     setImages,
     setMenu,
@@ -246,12 +295,12 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     handleDeleteReview,
     handleImageUpload,
     handleFileInputClick,
-    handleKeyPress,
     handlePriceSelect,
     handleSubmit,
     removeImage,
-    removeMenu,
-    addMenu,
+    addMenuInput,
+    removeMenuInput,
+    updateMenuInput,
   }
 }
 

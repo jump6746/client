@@ -232,9 +232,9 @@ const useReviewForm = () => {
     }
   };
 
-  const updateMenuInput = (id: number, value: string) => {
+  const updateMenuInput = (id: number, name: string) => {
     setMenuList(menuList.map(input => 
-      input.id === id ? { ...input, value } : input
+      input.id === id ? { ...input, name } : input
     ));
   };
 
