@@ -1,6 +1,6 @@
 "use client";
 
-import { useReview } from "@/features/review/hooks";
+import { useReviewModify } from "@/features/review/hooks";
 import { Button } from "@/shared/ui/Button";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/Carousel";
 import Image from "next/image";
@@ -32,7 +32,7 @@ const ReviewModifyForm = () => {
     addMenu,
     removeImage,
     removeMenu,
-  } = useReview({});
+  } = useReviewModify({});
 
   if (!reviewData) return;
 

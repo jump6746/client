@@ -19,8 +19,9 @@ const useReviewForm = () => {
   const [content, setContent] = useState<string>('');
   const [images, setImages] = useState<ImageFile[]>([]);
   const [menu, setMenu] = useState<string>("");
-  const [menuList, setMenuList] = useState<Menu[]>([]);
+  const [menuList, setMenuList] = useState<Menu[]>([{id: 1, name: ""}]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const menuIndex = useRef<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedPlace = usePlaceStore((state) => state.selectedPlace);
   const priceOptions = [
@@ -36,14 +37,21 @@ const useReviewForm = () => {
 
   const [selectedPrice, setSelectedPrice] = useState<number>(-1);
 
-  // 공통 이미지 처리 함수
+  // 개선된 processImages (드래그 순서 보장)
   const processImages = async (files: File[]): Promise<void> => {
-    for (const file of files) {
-      if (file.type.startsWith('image/')) {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    
+    if (imageFiles.length === 0) return;
+    
+    try {
+      // 순차 처리로 드래그 순서 보장 (드래그 앤 드롭은 순서가 중요)
+      const processedImages: ImageFile[] = [];
+      
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
         try {
           const webpFile = await convertToWebP(file, 1.0);
-        
-          // FileReader를 Promise로 감싸서 순차 처리
+          
           const preview = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -59,18 +67,26 @@ const useReviewForm = () => {
           });
 
           const newImage: ImageFile = {
-            id: Date.now() + Math.random(),
+            id: Date.now() + Math.random() + i,
             file: webpFile,
             preview,
-            name: webpFile.name || 'clipboard-image.webp'
+            name: webpFile.name || `image-${i + 1}.webp`
           };
-        
-          setImages(prev => [...prev, newImage]);
+          
+          processedImages.push(newImage);
         } catch (error) {
-          console.error('이미지 변환 오류:', error);
-          alert(`${file.name || '클립보드 이미지'} 파일 변환에 실패했습니다.`);
+          console.error(`이미지 ${i + 1} 변환 오류:`, error);
+          alert(`${file.name} 파일 변환에 실패했습니다.`);
         }
       }
+      
+      if (processedImages.length > 0) {
+        setImages(prev => [...prev, ...processedImages]);
+      }
+      
+    } catch (error) {
+      console.error('이미지 처리 오류:', error);
+      alert('이미지 처리 중 오류가 발생했습니다.');
     }
   };
 
@@ -200,30 +216,45 @@ const useReviewForm = () => {
     console.log('선택된 가격대 id:', priceValue);
   };
 
-  const addMenu = () => {
-    if (menu.trim() === '') {
-      alert('메뉴 이름을 입력해주세요!');
-      return;
-    }
-
-    const newMenu: Menu = {
-      id: Date.now(),
-      name: menu.trim()
+  const addMenuInput = () => {
+    menuIndex.current += 1;
+    const newInput:Menu = {
+      id: menuIndex.current,
+      name: ''
     };
-
-    setMenuList(prev => [...prev, newMenu]);
-    setMenu(''); // 입력 필드 초기화
+    setMenuList([...menuList, newInput]);
   };
 
-  const removeMenu = (id: number) => {
-    setMenuList(prev => prev.filter(menu => menu.id !== id));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      addMenu();
+  const removeMenuInput = (id: number) => {
+    if (menuList.length > 1) {
+      setMenuList(menuList.filter(input => input.id !== id));
     }
   };
+
+  const updateMenuInput = (id: number, value: string) => {
+    setMenuList(menuList.map(input => 
+      input.id === id ? { ...input, value } : input
+    ));
+  };
+
+  // const addMenu = () => {
+  //   if (menu.trim() === '') {
+  //     alert('메뉴 이름을 입력해주세요!');
+  //     return;
+  //   }
+
+  //   const newMenu: Menu = {
+  //     id: Date.now(),
+  //     name: menu.trim()
+  //   };
+
+  //   setMenuList(prev => [...prev, newMenu]);
+  //   setMenu(''); // 입력 필드 초기화
+  // };
+
+  // const removeMenu = (id: number) => {
+  //   setMenuList(prev => prev.filter(menu => menu.id !== id));
+  // };
 
   return {
     content,
@@ -245,9 +276,9 @@ const useReviewForm = () => {
     isFormValid,
     setSelectedPrice,
     handlePriceSelect,
-    addMenu,
-    handleKeyPress,
-    removeMenu,
+    addMenuInput,
+    removeMenuInput,
+    updateMenuInput,
     // 새로 추가된 함수들
     handlePaste,
     processImages

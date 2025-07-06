@@ -252,9 +252,9 @@ const NaverMap = ({
 
         searchMarkerRef.current = searchMarker;
 
-        // 검색된 장소로 지도 중심 이동
-        map.setCenter(searchPosition);
-        console.log("선택된 장소로 이동", searchPosition);
+        // // 검색된 장소로 지도 중심 이동
+        // map.setCenter(searchPosition);
+        // console.log("선택된 장소로 이동", searchPosition);
       }
     }
   }, [map, place]);

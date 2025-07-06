@@ -16,9 +16,7 @@ const ReviewForm = () => {
     fileInputRef,
     priceOptions,
     selectedPrice,
-    menu,
     menuList,
-    setMenu,
     handlePriceSelect,
     setContent,
     // setIsSubmitting,
@@ -26,9 +24,9 @@ const ReviewForm = () => {
     removeImage,
     handleSubmit,
     // isFormValid,
-    addMenu,
-    handleKeyPress,
-    removeMenu,
+    addMenuInput,
+    removeMenuInput,
+    updateMenuInput,
   } = useReviewForm();
 
   const selectedPlace = usePlaceStore((state) => state.selectedPlace);
@@ -153,20 +151,32 @@ const ReviewForm = () => {
       </div>
       <div className="flex flex-col gap-2">
         <h3 className="font-bold text-2xl">추천 메뉴</h3>
-        <label htmlFor="">메뉴 이름</label>
-        <input
-          type="text"
-          value={menu}
-          onChange={(e) => {
-            setMenu(e.currentTarget.value);
-          }}
-          onKeyDown={handleKeyPress}
-          placeholder="예) 된장찌개"
-          className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
-        />
+        <span>메뉴 이름</span>
+        {menuList.map((menuItem, index) => (
+          <div key={menuItem.id} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={menuItem.name}
+              onChange={(e) => {
+                updateMenuInput(menuItem.id, e.currentTarget.value);
+              }}
+              placeholder={index > 0 ? `메뉴 이름` : "예) 된장찌개"}
+              className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
+            />
+            {menuList.length > 1 && (
+              <button
+                type="button"
+                onClick={() => removeMenuInput(menuItem.id)}
+                className="text-red-500 w-6 h-6 flex items-center justify-center"
+              >
+                ×
+              </button>
+            )}
+          </div>
+        ))}
         <button
           className="flex items-center gap-1"
-          onClick={addMenu}
+          onClick={addMenuInput}
           type="button"
         >
           <div className="text-gray-600 font-semibold bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center">
@@ -176,33 +186,6 @@ const ReviewForm = () => {
             메뉴 추가하기
           </span>
         </button>
-        {/* 추가된 메뉴 목록 */}
-        {menuList.length > 0 && (
-          <div className="flex flex-col gap-3 mt-4">
-            <h4 className="font-semibold text-lg text-gray-700">추가된 메뉴</h4>
-            <div className="flex gap-2">
-              {menuList.map((menu) => (
-                <div
-                  key={menu.id}
-                  className="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2 w-fit gap-2"
-                >
-                  <span className="font-medium text-gray-800">{menu.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => removeMenu(menu.id)}
-                    className="text-gray-60 rounded-full bg-gray-100 w-4 h-4 flex items-center justify-center text-xs transition-colors"
-                    title="메뉴 삭제"
-                  >
-                    x
-                  </button>
-                </div>
-              ))}
-            </div>
-            <div className="text-sm text-gray-500 mt-2">
-              총 {menuList.length}개의 메뉴가 추가되었습니다.
-            </div>
-          </div>
-        )}
       </div>
       <div className="flex flex-col gap-3">
         <h3 className="font-bold text-xl">1인당 가격이 어떻게 되나요?</h3>
