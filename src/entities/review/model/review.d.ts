@@ -73,12 +73,13 @@ export interface PlaceReviewThumbnail {
   reviewImgCount: number;
   reviewPriceRange: number;
   recommendedMenuList: {recommendedMenuName: string; recommendedMenuId: number}[];
-  reviewPhotoList: {
-    reviewPhotoId: number; 
-    reviewPhotoUrl: string; 
-    reviewPhotoS3Key: string; 
-    reviewPhotoOrderIndex: number; 
-    reviewPhotoCaption: string
-  }[];
+  reviewPhotoList: ReviewPhoto[];
 }
 
+export interface ReviewPhoto {
+  reviewPhotoId: number; 
+  reviewPhotoUrl: string; 
+  reviewPhotoS3Key: string; 
+  reviewPhotoOrderIndex: number; 
+  reviewPhotoCaption: string
+}

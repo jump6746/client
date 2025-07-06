@@ -12,26 +12,26 @@ const ReviewModifyForm = () => {
     reviewData,
     content,
     images,
-    menu,
     menuList,
     selectedPrice,
     // isSubmitting,
     fileInputRef,
     priceOptions,
+    prevImages,
+    removePrevImage,
     setContent,
-    setMenu,
     // setMenuList,
     // setIsSubmitting,
     // setSelectedPrice,
     clearReviewData,
     handleImageUpload,
     // handleFileInputClick,
-    handleKeyPress,
     handlePriceSelect,
     handleSubmit,
-    addMenu,
     removeImage,
-    removeMenu,
+    addMenuInput,
+    removeMenuInput,
+    updateMenuInput,
   } = useReviewModify({});
 
   if (!reviewData) return;
@@ -71,6 +71,34 @@ const ReviewModifyForm = () => {
       {/* 이미지 업로드 */}
       <Carousel>
         <CarouselContent className="pl-4">
+          {prevImages.map((image) => (
+            <CarouselItem
+              key={image.reviewPhotoId}
+              className="w-25 h-25 rounded-2xl overflow-hidden relative"
+            >
+              <Image
+                src={image.reviewPhotoUrl}
+                alt={"리뷰"}
+                width={100}
+                height={100}
+                className="object-cover w-full h-full"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  removePrevImage(image.reviewPhotoId);
+                }}
+                className="absolute w-4 h-4 bg-white flex justify-center items-center top-1.5 right-1.5 cursor-pointer rounded-full opacity-80"
+              >
+                <Image
+                  src="/icons/close_small.svg"
+                  alt="닫기"
+                  width={8}
+                  height={8}
+                />
+              </button>
+            </CarouselItem>
+          ))}
           {/* 이미지 프리뷰 */}
           {images.map((image) => (
             <CarouselItem
@@ -142,40 +170,38 @@ const ReviewModifyForm = () => {
       </div>
       <div className="flex flex-col gap-2">
         <h3 className="font-bold text-2xl">추천 메뉴</h3>
-        <label htmlFor="">메뉴 이름</label>
-        {/* 추가된 메뉴 목록 */}
-        {menuList.length > 0 &&
-          menuList.map((menu) => (
-            <div
-              key={menu.recommendedMenuId}
-              className="flex items-center justify-between border border-gray-200 rounded-lg px-3 py-2 w-fit gap-2"
-            >
-              <span className="font-medium text-gray-800">
-                {menu.recommendedMenuName}
-              </span>
+        <span>메뉴 이름</span>
+        {menuList.map((menuItem, index) => (
+          <div
+            key={menuItem.recommendedMenuId}
+            className="flex items-center gap-2"
+          >
+            <input
+              type="text"
+              value={menuItem.recommendedMenuName}
+              onChange={(e) => {
+                updateMenuInput(
+                  menuItem.recommendedMenuId,
+                  e.currentTarget.value
+                );
+              }}
+              placeholder={index > 0 ? `메뉴 이름` : "예) 된장찌개"}
+              className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
+            />
+            {menuList.length > 1 && (
               <button
                 type="button"
-                onClick={() => removeMenu(menu.recommendedMenuId)}
-                className="text-gray-60 rounded-full bg-gray-100 w-4 h-4 flex items-center justify-center text-xs transition-colors cursor-pointer"
-                title="메뉴 삭제"
+                onClick={() => removeMenuInput(menuItem.recommendedMenuId)}
+                className="text-red-500 w-6 h-6 flex items-center justify-center"
               >
-                x
+                ×
               </button>
-            </div>
-          ))}
-        <input
-          type="text"
-          value={menu}
-          onChange={(e) => {
-            setMenu(e.currentTarget.value);
-          }}
-          onKeyDown={handleKeyPress}
-          placeholder="예) 된장찌개"
-          className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
-        />
+            )}
+          </div>
+        ))}
         <button
           className="flex items-center gap-1"
-          onClick={addMenu}
+          onClick={addMenuInput}
           type="button"
         >
           <div className="text-gray-600 font-semibold bg-gray-200 rounded-full w-5 h-5 flex items-center justify-center">
