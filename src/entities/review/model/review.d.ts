@@ -27,7 +27,8 @@ export interface ReviewResponse {
 }
 
 export interface PatchReviewRequest {
-  photos: string[];
+  prevImages: string[];
+  newImages: string[];
   content: string;
   recommendedMenus: string[];
   priceRange: number;

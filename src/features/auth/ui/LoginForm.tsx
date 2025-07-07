@@ -9,16 +9,15 @@ const LoginForm = () => {
     email,
     password,
     isFormValid,
-    // isLoading,
+    isLoading,
     // isError,
-    // error,
     setEmail,
     setPassword,
-    handleLogin,
+    handleSubmit,
   } = useLogin();
 
   return (
-    <form onSubmit={handleLogin} className="w-full h-full flex flex-col gap-3">
+    <form onSubmit={handleSubmit} className="w-full h-full flex flex-col gap-3">
       <div className="flex flex-col gap-2">
         <label htmlFor="email">이메일(아이디)</label>
         <Input
@@ -48,7 +47,7 @@ const LoginForm = () => {
       <Button
         className="w-full bg-brand-primary-600 font-medium text-xl py-5 text-white cursor-pointer rounded-[10px] mt-auto disabled:cursor-default disabled:bg-gray-200 disabled:text-gray-400"
         type="submit"
-        disabled={isFormValid}
+        disabled={isFormValid || isLoading}
       >
         로그인
       </Button>

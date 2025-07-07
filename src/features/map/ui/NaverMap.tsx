@@ -6,6 +6,7 @@ import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import { getTasteMapAPI } from "@/entities/map/api";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+import useTasteMap from "@/entities/map/queries/useTasteMap";
 
 interface Location {
   lat: number;
@@ -51,6 +52,23 @@ const NaverMap = ({
     중식: "restaurant",
     양식: "restaurant",
   };
+
+  // 아이콘 프리로딩 (렌더링 문제 해결)
+  useEffect(() => {
+    const preloadIcons = () => {
+      const iconNames = Object.values(markerTag);
+
+      iconNames.forEach((iconName) => {
+        const img = new Image();
+        img.src = `/icons/${iconName}.svg`;
+
+        img.onload = () => console.log(`✅ Loaded: ${iconName}.svg`);
+        img.onerror = () => console.error(`❌ Failed to load: ${iconName}.svg`);
+      });
+    };
+
+    preloadIcons();
+  }, []);
 
   // 네이버 지도 초기화
   useEffect(() => {

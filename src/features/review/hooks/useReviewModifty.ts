@@ -182,13 +182,14 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
       const patchData: PatchReviewRequest = {
         content,
         recommendedMenus: menuList.map((menu) => menu.recommendedMenuName),
-        photos: [...prevImages.map((item) => item.reviewPhotoS3Key) , ...data.map((item) => {
+        prevImages: prevImages.map((item) => item.reviewPhotoS3Key),
+        newImages: data.map((item) => {
           if(isSuccessResponse(item)){
             return item.data.s3Key
           }else{
             return ""
           }
-        })],
+        }),
         priceRange: selectedPrice,
       }
 
@@ -247,31 +248,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
       input.recommendedMenuId === id ? { ...input, recommendedMenuName: value } : input
     ));
   };
-
-  // const addMenu = () => {
-  //   if (menu.trim() === '') {
-  //     alert('메뉴 이름을 입력해주세요!');
-  //     return;
-  //   }
-  //   const newMenu: Menu = {
-  //     recommendedMenuId: Date.now(),
-  //     recommendedMenuName: menu.trim()
-  //   };
-
-  //   setMenuList(prev => [...prev, newMenu]);
-  //   setMenu(''); // 입력 필드 초기화
-  // };
-
-  // const removeMenu = (id: number) => {
-  //   setMenuList(prev => prev.filter(menu => menu.recommendedMenuId !== id));
-  // };
-
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter') {
-  //     addMenu();
-  //   }
-  // };
-
   
   return {
     reviewData,
