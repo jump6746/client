@@ -16,7 +16,7 @@ export interface ReviewRequest {
   content: string;
   recommendedMenus: string[];
   priceRange: number;
-  tasteMapId: number;
+  tasteMapId: number | null;
 }
 
 export interface ReviewResponse {

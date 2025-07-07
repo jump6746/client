@@ -3,7 +3,7 @@ import { apiURL, clientFetch } from "@/shared/lib";
 import { ErrorResponse, ResponseDTO } from "@/shared/types/api-structure";
 
 interface Props {
-  tasteMapId: number;
+  tasteMapId: number | null;
   userMapx: number;
   userMapy: number;
 }
