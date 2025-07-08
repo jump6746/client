@@ -1,10 +1,12 @@
-"use client"
+"use client";
 
 import Image from "next/image";
-import {Button} from "@/shared/ui/Button";
-import {useEffect, useState} from "react";
-import {isSuccessResponse} from "@/shared/lib";
-import {getMyProfileAPI} from "@/entities/my/api";
+import { Button } from "@/shared/ui/Button";
+import { useEffect, useState } from "react";
+import { isSuccessResponse } from "@/shared/lib";
+import { getMyProfileAPI } from "@/entities/my/api";
+import { ProfileResponse } from "@/entities/my/model";
+import { HistoryItem } from "@/entities/my/model/my";
 
 const MyPage = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,7 +42,7 @@ const MyPage = () => {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
     fetchMyProfile();
   }, []);
@@ -57,14 +59,9 @@ const MyPage = () => {
     <div className="flex flex-col gap-8">
       {/* 헤더 */}
       <div className="flex justify-between items-center border-b-2 border-[#d9d9d9] py-5">
-        <div>
-        </div>
-        <div className="text-xl font-bold">
-          마이페이지
-        </div>
-        <div>
-          dd
-        </div>
+        <div></div>
+        <div className="text-xl font-bold">마이페이지</div>
+        <div>dd</div>
       </div>
 
       {/* 프로필 소개 1 */}
@@ -111,25 +108,37 @@ const MyPage = () => {
 
       {/* 프로필 수정, 프로필 공유 버튼 */}
       <div className="flex justify-center items-center gap-2 px-4">
-        <Button className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl">프로필 수정</Button>
-        <Button className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl">프로필 공유</Button>
+        <Button className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl">
+          프로필 수정
+        </Button>
+        <Button className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl">
+          프로필 공유
+        </Button>
       </div>
 
       {/* 신뢰도 평가 내역 */}
       <div className="flex flex-col px-4 gap-8">
         <div className="flex flex-col">
           {history.map((item) => (
-            <div key={item.id} className="flex items-center justify-between border-b border-[#d9d9d9] py-4">
+            <div
+              key={item.id}
+              className="flex items-center justify-between border-b border-[#d9d9d9] py-4"
+            >
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gray-300"/>
+                <div className="size-10 rounded-full bg-gray-300" />
                 <div className="flex flex-col">
                   <div className="text-sm">
-                    <span className="font-medium">{item.user}</span> 님이 {item.text}
+                    <span className="font-medium">{item.user}</span> 님이{" "}
+                    {item.text}
                   </div>
                   <div className="text-xs text-gray-400">{item.timeAgo}</div>
                 </div>
               </div>
-              <div className={`text-sm font-bold ${item.delta.startsWith("+") ? "text-blue-500" : "text-red-500"}`}>
+              <div
+                className={`text-sm font-bold ${
+                  item.delta.startsWith("+") ? "text-blue-500" : "text-red-500"
+                }`}
+              >
                 {item.delta}
               </div>
             </div>
@@ -137,9 +146,7 @@ const MyPage = () => {
         </div>
 
         {history.length > 5 && (
-          <button className="w-full text-lg">
-            더 보기
-          </button>
+          <button className="w-full text-lg">더 보기</button>
         )}
       </div>
     </div>

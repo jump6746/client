@@ -52,12 +52,14 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden h-dvh`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <div className="w-full max-w-sm h-screen mx-auto">{children}</div>
+          <div className="h-dvh overflow-hidden">
+            <div className="w-full max-w-sm h-screen mx-auto">{children}</div>
+            <Toaster />
+          </div>
         </Providers>
-        <Toaster />
       </body>
     </html>
   );

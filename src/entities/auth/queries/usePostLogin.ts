@@ -4,13 +4,11 @@ import { useRouter } from "next/navigation";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
-import { useUserStore } from "@/shared/stores";
 
 const usePostLogin = () => {
 
   const router = useRouter();
   const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
-  const setUser = useUserStore((state) => state.setUser);
 
   return useMutation({
     mutationFn: loginAPI,
@@ -22,14 +20,6 @@ const usePostLogin = () => {
 
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('sessionId', data.sessionId);
-        localStorage.setItem("userId", String(data.userId));
-
-        setUser({
-          userId: data.userId,
-          defaultTasteMapId: data.defaultTasteMapId,
-        })
-
-        console.log("Set User Data : ", data.userId, data.defaultTasteMapId);
 
         setGuestMode(false);
         
