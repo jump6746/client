@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getTasteMapThumbnailAPI } from "../api";
-import { useUserStore } from "@/shared/stores";
+import { useLoginInfo } from "@/entities/auth/queries";
 
 interface Props {
   id?: string;
@@ -8,11 +8,11 @@ interface Props {
 
 const useTasteMapThumbnail = (params: Props) => {
 
-  const userId = useUserStore((state) => state.userId);
+  const { userInfo } = useLoginInfo();
 
   return useSuspenseQuery({
-    queryKey: ["taste-map-thumbnail", params.id, userId],
-    queryFn: () => getTasteMapThumbnailAPI({...params, userId}),
+    queryKey: ["taste-map-thumbnail", params.id, userInfo?.userId],
+    queryFn: () => getTasteMapThumbnailAPI({...params, userId: userInfo?.userId}),
     staleTime: 1000 * 60 * 5,
   })
 }
