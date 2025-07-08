@@ -1,5 +1,5 @@
 
-import { deleteReviewAPI, getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
+import { getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
 import { ImageFile, PatchReviewRequest, ReviewPhoto } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
@@ -13,7 +13,7 @@ interface Menu {
   recommendedMenuName: string;
 }
 
-const useReviewModify = ({reviewId}:{reviewId?: number}) => {
+const useReviewModify = () => {
   const router = useRouter();
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
@@ -57,25 +57,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
   const removePrevImage = (imageId: number): void => {
     setPrevImages(prev => prev.filter(img => img.reviewPhotoId !== imageId));
   };
-
-  const handleDeleteReview = async () => {
-
-    if(!reviewId) return;
-
-    try{
-      const response = await deleteReviewAPI({reviewId});
-
-      if(isSuccessResponse(response)){
-        customToast.success("리뷰 삭제에 성공했습니다.");
-      }else{
-        customToast.error(response.message);
-      }
-
-    }catch(error){
-      console.error(error);
-      customToast.error(error instanceof Error ? error.message : "리뷰 삭제에 서버 에러가 발생했습니다.");
-    }
-  }
 
   // 공통 이미지 처리 함수
   const processImages = async (files: File[]): Promise<void> => {
@@ -182,13 +163,14 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
       const patchData: PatchReviewRequest = {
         content,
         recommendedMenus: menuList.map((menu) => menu.recommendedMenuName),
-        photos: [...prevImages.map((item) => item.reviewPhotoS3Key) , ...data.map((item) => {
+        prevImages: prevImages.map((item) => item.reviewPhotoS3Key),
+        newImages: data.map((item) => {
           if(isSuccessResponse(item)){
             return item.data.s3Key
           }else{
             return ""
           }
-        })],
+        }),
         priceRange: selectedPrice,
       }
 
@@ -247,31 +229,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
       input.recommendedMenuId === id ? { ...input, recommendedMenuName: value } : input
     ));
   };
-
-  // const addMenu = () => {
-  //   if (menu.trim() === '') {
-  //     alert('메뉴 이름을 입력해주세요!');
-  //     return;
-  //   }
-  //   const newMenu: Menu = {
-  //     recommendedMenuId: Date.now(),
-  //     recommendedMenuName: menu.trim()
-  //   };
-
-  //   setMenuList(prev => [...prev, newMenu]);
-  //   setMenu(''); // 입력 필드 초기화
-  // };
-
-  // const removeMenu = (id: number) => {
-  //   setMenuList(prev => prev.filter(menu => menu.recommendedMenuId !== id));
-  // };
-
-  // const handleKeyPress = (e: React.KeyboardEvent) => {
-  //   if (e.key === 'Enter') {
-  //     addMenu();
-  //   }
-  // };
-
   
   return {
     reviewData,
@@ -292,7 +249,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     setIsSubmitting,
     setSelectedPrice,
     clearReviewData,
-    handleDeleteReview,
     handleImageUpload,
     handleFileInputClick,
     handlePriceSelect,

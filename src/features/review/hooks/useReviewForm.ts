@@ -238,25 +238,6 @@ const useReviewForm = () => {
     ));
   };
 
-  // const addMenu = () => {
-  //   if (menu.trim() === '') {
-  //     alert('메뉴 이름을 입력해주세요!');
-  //     return;
-  //   }
-
-  //   const newMenu: Menu = {
-  //     id: Date.now(),
-  //     name: menu.trim()
-  //   };
-
-  //   setMenuList(prev => [...prev, newMenu]);
-  //   setMenu(''); // 입력 필드 초기화
-  // };
-
-  // const removeMenu = (id: number) => {
-  //   setMenuList(prev => prev.filter(menu => menu.id !== id));
-  // };
-
   return {
     content,
     images,

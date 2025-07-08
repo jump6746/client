@@ -11,10 +11,15 @@ const SignUpForm = () => {
     password,
     passwordConfirm,
     passwordCheck,
+
+    isEmailChecking,
+    isNicknameChecking,
+
     setEmail,
     setNickName,
     setPassword,
     setPasswordConfirm,
+
     handleSignUp,
     handleEmailCheck,
     handleNickNameCheck,
@@ -44,10 +49,14 @@ const SignUpForm = () => {
                 : "border-gray-300 text-gray-600"
             } cursor-pointer px-3 py-2.5 disabled:cursor-default`}
             onClick={handleEmailCheck}
-            disabled={!emailRegex.test(email)}
+            disabled={!emailRegex.test(email) || isEmailChecking}
             type="button"
           >
-            {emailCheck ? "사용가능" : "중복확인"}
+            {isEmailChecking
+              ? "확인 중..."
+              : emailCheck
+              ? "사용가능"
+              : "중복확인"}
           </Button>
         </div>
         {!emailRegex.test(email) && email.length > 2 ? (
@@ -76,10 +85,14 @@ const SignUpForm = () => {
                 : "border-gray-300 text-gray-600"
             } cursor-pointer px-3 py-2.5 disabled:cursor-default`}
             onClick={handleNickNameCheck}
-            disabled={nickname.length < 2}
+            disabled={nickname.length < 2 || isNicknameChecking}
             type="button"
           >
-            {nicknameCheck ? "사용가능" : "중복확인"}
+            {isNicknameChecking
+              ? "확인 중..."
+              : nicknameCheck
+              ? "사용가능"
+              : "중복확인"}
           </Button>
         </div>
         {nickname.length > 0 && nickname.length < 3 ? (

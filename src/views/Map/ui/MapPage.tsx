@@ -5,9 +5,11 @@ import { KaokaoResponse } from "@/entities/map/model";
 import { PlaceInfo, SearchComponent } from "@/widgets/map/ui";
 import { NaverMap } from "@/features/map";
 import { useGeolocation } from "@/features/map/hooks";
+import { customToast } from "@/shared/ui/CustomToast";
 
 const MapPage = () => {
-  const { currentLocation, getCurrentLocation } = useGeolocation();
+  const { currentLocation, getCurrentLocation, locationError } =
+    useGeolocation();
   const [mapCenter, setMapCenter] = useState<{
     lat: number;
     lng: number;
@@ -21,6 +23,11 @@ const MapPage = () => {
       setMapCenter({ lat: 37.5665, lng: 126.978 });
     });
   }, [getCurrentLocation]);
+
+  useEffect(() => {
+    if (!locationError) return;
+    customToast.error(locationError);
+  }, [locationError]);
 
   // 현재 위치가 변경되면 지도 중심도 업데이트
   useEffect(() => {
