@@ -1,5 +1,5 @@
 
-import { deleteReviewAPI, getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
+import { getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
 import { ImageFile, PatchReviewRequest, ReviewPhoto } from "@/entities/review/model";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
@@ -13,7 +13,7 @@ interface Menu {
   recommendedMenuName: string;
 }
 
-const useReviewModify = ({reviewId}:{reviewId?: number}) => {
+const useReviewModify = () => {
   const router = useRouter();
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
@@ -57,25 +57,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
   const removePrevImage = (imageId: number): void => {
     setPrevImages(prev => prev.filter(img => img.reviewPhotoId !== imageId));
   };
-
-  const handleDeleteReview = async () => {
-
-    if(!reviewId) return;
-
-    try{
-      const response = await deleteReviewAPI({reviewId});
-
-      if(isSuccessResponse(response)){
-        customToast.success("리뷰 삭제에 성공했습니다.");
-      }else{
-        customToast.error(response.message);
-      }
-
-    }catch(error){
-      console.error(error);
-      customToast.error(error instanceof Error ? error.message : "리뷰 삭제에 서버 에러가 발생했습니다.");
-    }
-  }
 
   // 공통 이미지 처리 함수
   const processImages = async (files: File[]): Promise<void> => {
@@ -268,7 +249,6 @@ const useReviewModify = ({reviewId}:{reviewId?: number}) => {
     setIsSubmitting,
     setSelectedPrice,
     clearReviewData,
-    handleDeleteReview,
     handleImageUpload,
     handleFileInputClick,
     handlePriceSelect,

@@ -32,7 +32,7 @@ const ReviewModifyForm = () => {
     addMenuInput,
     removeMenuInput,
     updateMenuInput,
-  } = useReviewModify({});
+  } = useReviewModify();
 
   if (!reviewData) return;
 

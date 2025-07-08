@@ -1,17 +1,21 @@
 "use client";
 
 import { KaokaoResponse } from "@/entities/map/model";
-import { getTasteMapThumbnailAPI } from "@/entities/review/api";
 import { PlaceThumbnail } from "@/entities/review/model";
 import { useReviewModify } from "@/features/review/hooks";
 import { isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 import { PlaceReivewData } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
+import {
+  useDeleteReview,
+  useTasteMapThumbnail,
+} from "@/entities/review/queries";
+import { useDragSheet } from "@/shared/hooks";
 
 interface Props {
   place: KaokaoResponse | null;
@@ -21,128 +25,57 @@ interface Props {
 const PlaceInfo = ({ place, setPlace }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  // 드래그 기능을 위한 state 추가
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragOffset, setDragOffset] = useState<number>(0);
-
-  // useRef로 드래그 상태 추적 (state 업데이트 지연 문제 해결)
-  const dragState = useRef({
-    isDragging: false,
-    startY: 0,
-    currentOffset: 0,
-  });
-
-  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const [placeData, setPlaceData] = useState<PlaceThumbnail | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const router = useRouter();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
-  const { handleDeleteReview } = useReviewModify({
-    reviewId: placeData?.review?.reviewId,
-  });
 
-  // 높이 계산 - 드래그 중일 때는 실시간 반영
-  const baseHeight = placeData?.review ? (isExpanded ? 750 : 450) : 300;
-  const currentHeight = isDragging
-    ? Math.max(300, Math.min(800, baseHeight + dragOffset * 0.7))
-    : baseHeight;
-  const canDrag = !!placeData?.review;
+  // 드래그 훅 사용 - 기존 복잡한 드래그 로직 대체
+  const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
+    useDragSheet(
+      {
+        canDrag: !!placeData?.review,
+        baseHeight: placeData?.review ? 450 : 300,
+        expandedHeight: 750,
+        minHeight: 300,
+        maxHeight: 800,
+        dragSensitivity: 0.7,
+        thresholds: {
+          expand: 50,
+          collapse: -50,
+          close: -100,
+        },
+      },
+      () => {
+        setIsOpen(false);
+        setPlace(null);
+      }
+    );
+
+  // 장소 리뷰 썸네일 불러오기
+  const { data } = useTasteMapThumbnail({ id: place?.id });
+
+  useEffect(() => {
+    if (isSuccessResponse(data)) {
+      setPlaceData(data.data);
+      setError(null);
+    } else {
+      setPlaceData(null);
+      setError("리뷰 관련 데이터를 불러오지 못했습니다.");
+    }
+  }, [data]);
 
   useEffect(() => {
     if (!place) return;
 
     if (place != null) {
       setIsOpen(true);
-      setIsExpanded(false); // 항상 450px로 시작
+      setIsExpanded(false); // 항상 기본 높이로 시작
     }
-
-    const fetchData = async () => {
-      const userId = localStorage.getItem("userId");
-
-      const data = await getTasteMapThumbnailAPI({ id: place.id, userId });
-      console.log(data);
-      if (isSuccessResponse(data)) {
-        setPlaceData(data.data);
-      } else {
-        setError("리뷰 관련 데이터를 불러오지 못했습니다.");
-      }
-    };
-
-    fetchData();
-  }, [place]);
-
-  // 드래그 시작
-  const startDrag = (clientY: number) => {
-    if (!canDrag) return;
-
-    console.log("Starting drag at:", clientY);
-    dragState.current = {
-      isDragging: true,
-      startY: clientY,
-      currentOffset: 0,
-    };
-    setIsDragging(true);
-    setDragOffset(0);
-  };
-
-  // 드래그 중
-  const updateDrag = (clientY: number) => {
-    if (!dragState.current.isDragging || !canDrag) return;
-
-    const deltaY = dragState.current.startY - clientY;
-    dragState.current.currentOffset = deltaY;
-    setDragOffset(deltaY);
-  };
-
-  // 드래그 종료
-  const endDrag = (clientY: number) => {
-    if (!dragState.current.isDragging || !canDrag) return;
-
-    console.log("Ending drag");
-    const deltaY = dragState.current.startY - clientY;
-
-    // 상태 리셋
-    dragState.current.isDragging = false;
-    setIsDragging(false);
-    setDragOffset(0);
-
-    // 30px 이상 드래그하면 상태 변경
-    if (deltaY > 50) {
-      setIsExpanded(true);
-    } else if (deltaY < -50 && deltaY >= -100) {
-      setIsExpanded(false);
-    } else if (deltaY < -100) {
-      setIsOpen(false);
-      setPlace(null);
-    }
-  };
-
-  // 통합 이벤트 핸들러
-  const handlePointerDown = (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    startDrag(e.clientY);
-
-    const handlePointerMove = (moveEvent: PointerEvent) => {
-      updateDrag(moveEvent.clientY);
-    };
-
-    const handlePointerUp = (upEvent: PointerEvent) => {
-      endDrag(upEvent.clientY);
-      document.removeEventListener("pointermove", handlePointerMove);
-      document.removeEventListener("pointerup", handlePointerUp);
-    };
-
-    document.addEventListener("pointermove", handlePointerMove);
-    document.addEventListener("pointerup", handlePointerUp);
-  };
-
-  // place가 null이고 isOpen이 false면 컴포넌트를 렌더링하지 않음
-  if (!place && !isOpen) {
-    return null;
-  }
+  }, [place, setIsExpanded]);
 
   const handleWriteReview = () => {
     if (isGuestMode) {
@@ -159,10 +92,23 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     router.push("/review/write");
   };
 
+  const deleteReview = useDeleteReview({ id: place?.id });
+
+  const handleDeleteReview = () => {
+    if (!placeData?.review?.reviewId) return;
+
+    deleteReview.mutate({ reviewId: placeData.review.reviewId });
+  };
+
+  // place가 null이고 isOpen이 false면 컴포넌트를 렌더링하지 않음
+  if (!place && !isOpen) {
+    return null;
+  }
+
   return (
     <div
       className={`
-        absolute w-full bottom-0 bg-white shadow-lg border-t h-full rounded-t-2xl overflow-hidden border-gray-200
+        absolute w-full bottom-0 bg-white shadow-lg border-t h-full rounded-t-2xl overflow-hidden border-gray-200 z-[1000]
         ${isOpen ? "translate-y-0" : "translate-y-full"}
         ${isDragging ? "" : "transition-all duration-300 ease-out"}
       `}
@@ -171,14 +117,14 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
       {/* 상단 핸들 - 드래그 영역 */}
       <div
         className={`w-full flex justify-center py-2 select-none ${
-          canDrag ? "cursor-grab active:cursor-grabbing" : ""
+          !!placeData?.review ? "cursor-grab active:cursor-grabbing" : ""
         }`}
         onPointerDown={handlePointerDown}
         style={{ touchAction: "none" }}
       >
         <div
           className={`w-12 h-1 rounded-full ${
-            canDrag ? "bg-gray-400" : "bg-gray-300"
+            !!placeData?.review ? "bg-gray-400" : "bg-gray-300"
           }`}
         ></div>
       </div>
