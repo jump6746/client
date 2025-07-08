@@ -12,9 +12,12 @@ const MyPage = () => {
   const router = useRouter();
   const history: HistoryItem[] = [];
 
-  console.log(data);
   if (isLoading) {
     return <div>로딩중...</div>;
+  }
+
+  if (error) {
+    return <div>오류가 발생했습니다: {error.message}</div>;
   }
 
   if (!data) {

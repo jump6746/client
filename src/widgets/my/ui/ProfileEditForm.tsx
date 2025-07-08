@@ -62,6 +62,10 @@ const ProfileEditForm = () => {
     return <div>로딩중...</div>;
   }
 
+  if (error) {
+    return <div>오류가 발생했습니다: {error.message}</div>;
+  }
+
   if (!data) {
     return <div>프로필 정보를 불러오지 못했습니다.</div>;
   }
