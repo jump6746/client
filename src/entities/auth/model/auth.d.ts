@@ -11,7 +11,11 @@ export interface LoginCredentials {
 export interface LoginResponse {
   sessionId: string;
   accessToken: string;
+}
+
+export interface MyInfoResponse {
   userId: number;
+  email: string;
   defaultTasteMapId: number;
 }
 

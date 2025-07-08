@@ -5,7 +5,7 @@ import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
-import { useUserStore } from "@/shared/stores";
+import { useLoginInfo } from "@/entities/auth/queries";
 
 interface Location {
   lat: number;
@@ -38,8 +38,7 @@ const NaverMap = ({
   const currentLocationMarkerRef = useRef<NaverMarker | null>(null); // 현재 위치 마커 참조
   const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
 
-  const defaultTasteMapId = useUserStore((state) => state.defaultTasteMapId);
-  // const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
+  const { userInfo } = useLoginInfo();
 
   // 맛지도 데이터 받아오는 Query
   const {
@@ -47,7 +46,7 @@ const NaverMap = ({
     // isLoading,
     // error,
   } = useTasteMap({
-    tasteMapId: defaultTasteMapId,
+    tasteMapId: userInfo?.defaultTasteMapId ?? 0,
     userMapx: center?.lng ?? 37.5665,
     userMapy: center?.lat ?? 126.978,
   });

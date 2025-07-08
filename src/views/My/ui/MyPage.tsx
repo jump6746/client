@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import {Button} from "@/shared/ui/Button";
@@ -105,17 +105,25 @@ const MyPage = () => {
       <div className="flex flex-col px-4 gap-8">
         <div className="flex flex-col">
           {history.map((item) => (
-            <div key={item.id} className="flex items-center justify-between border-b border-[#d9d9d9] py-4">
+            <div
+              key={item.id}
+              className="flex items-center justify-between border-b border-[#d9d9d9] py-4"
+            >
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gray-300"/>
+                <div className="size-10 rounded-full bg-gray-300" />
                 <div className="flex flex-col">
                   <div className="text-sm">
-                    <span className="font-medium">{item.user}</span> 님이 {item.text}
+                    <span className="font-medium">{item.user}</span> 님이{" "}
+                    {item.text}
                   </div>
                   <div className="text-xs text-gray-400">{item.timeAgo}</div>
                 </div>
               </div>
-              <div className={`text-sm font-bold ${item.delta.startsWith("+") ? "text-blue-500" : "text-red-500"}`}>
+              <div
+                className={`text-sm font-bold ${
+                  item.delta.startsWith("+") ? "text-blue-500" : "text-red-500"
+                }`}
+              >
                 {item.delta}
               </div>
             </div>
@@ -123,9 +131,7 @@ const MyPage = () => {
         </div>
 
         {history.length > 5 && (
-          <button className="w-full text-lg">
-            더 보기
-          </button>
+          <button className="w-full text-lg">더 보기</button>
         )}
       </div>
     </div>

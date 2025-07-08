@@ -2,7 +2,6 @@
 
 import { KaokaoResponse } from "@/entities/map/model";
 import { PlaceThumbnail } from "@/entities/review/model";
-import { useReviewModify } from "@/features/review/hooks";
 import { isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
@@ -48,6 +47,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
           collapse: -50,
           close: -100,
         },
+        allowCloseWhenNoDrag: true,
       },
       () => {
         setIsOpen(false);
@@ -116,17 +116,11 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     >
       {/* 상단 핸들 - 드래그 영역 */}
       <div
-        className={`w-full flex justify-center py-2 select-none ${
-          !!placeData?.review ? "cursor-grab active:cursor-grabbing" : ""
-        }`}
+        className="w-full flex justify-center py-2 select-none cursor-grab active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         style={{ touchAction: "none" }}
       >
-        <div
-          className={`w-12 h-1 rounded-full ${
-            !!placeData?.review ? "bg-gray-400" : "bg-gray-300"
-          }`}
-        ></div>
+        <div className={"w-12 h-1 rounded-full bg-gray-400"}></div>
       </div>
 
       {/* 컨텐츠 영역 */}
@@ -209,11 +203,10 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                         setReviewData(data);
 
                         setShowMoreMenu(false);
-                        router.push(
-                          `/review/modify/${placeData?.review?.reviewId}`
-                        );
+                        router.push(`/review/modify`);
                       }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg"
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg disabled:hover:bg-transparent disabled:text-gray-400"
+                      disabled={isGuestMode || !placeData?.review || !place}
                     >
                       수정하기
                     </button>
@@ -226,7 +219,8 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                         setShowMoreMenu(false);
                         handleDeleteReview();
                       }}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-red-600 rounded-b-lg"
+                      className="w-full px-4 py-2 text-left hover:bg-gray-50 text-red-600 rounded-b-lg disabled:hover:bg-transparent disabled:text-gray-400"
+                      disabled={isGuestMode || !placeData?.review || !place}
                     >
                       삭제하기
                     </button>

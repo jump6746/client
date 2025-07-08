@@ -6,7 +6,7 @@ const HomeLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <main className="flex-1 overflow-auto">{children}</main>
       <Navigation />
     </div>

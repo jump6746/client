@@ -4,7 +4,7 @@ import signUpAPI from "../api/signUpAPI";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
 
-export const usePostSignUp = () => {
+const usePostSignUp = () => {
   const router = useRouter();
   
   return useMutation({

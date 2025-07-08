@@ -12,6 +12,7 @@ interface DragSheetOptions {
     collapse: number;
     close: number;
   };
+  allowCloseWhenNoDrag: boolean;
 }
 
 interface DragSheetState {
@@ -37,7 +38,8 @@ const useDragSheet = (
     minHeight = 300,
     maxHeight = 800,
     dragSensitivity = 0.7,
-    thresholds = { expand: 50, collapse: -50, close: -100 }
+    thresholds = { expand: 50, collapse: -50, close: -100 },
+    allowCloseWhenNoDrag = false
   } = options;
 
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
@@ -53,11 +55,21 @@ const useDragSheet = (
   // 높이 계산
   const targetHeight = isExpanded ? expandedHeight : baseHeight;
   const currentHeight = isDragging
-    ? Math.max(minHeight, Math.min(maxHeight, targetHeight + dragOffset * dragSensitivity))
-    : targetHeight;
+  ? (() => {
+      const newHeight = targetHeight + dragOffset * dragSensitivity;
+      
+      // 위로 드래그할 때는 maxHeight까지
+      if (dragOffset > 0) {
+        return Math.min(maxHeight, newHeight);
+      }
+      
+      // 아래로 드래그할 때는 더 낮게 허용 (닫기 효과)
+      return Math.max(minHeight * 0.3, newHeight); // minHeight의 30%까지 허용
+    })()
+  : targetHeight;
 
   const startDrag = (clientY: number) => {
-    if (!canDrag) return;
+    if (!canDrag && !allowCloseWhenNoDrag) return;
 
     dragState.current = {
       isDragging: true,
@@ -69,7 +81,9 @@ const useDragSheet = (
   };
 
   const updateDrag = (clientY: number) => {
-    if (!dragState.current.isDragging || !canDrag) return;
+    if (!dragState.current.isDragging) return;
+
+    if (!canDrag && !allowCloseWhenNoDrag) return;
 
     const deltaY = dragState.current.startY - clientY;
     dragState.current.currentOffset = deltaY;
@@ -77,7 +91,10 @@ const useDragSheet = (
   };
 
   const endDrag = (clientY: number) => {
-    if (!dragState.current.isDragging || !canDrag) return;
+    if (!dragState.current.isDragging) return;
+
+    // canDrag가 false여도 닫기는 허용
+    if (!canDrag && !allowCloseWhenNoDrag) return;
 
     const deltaY = dragState.current.startY - clientY;
 
@@ -87,18 +104,22 @@ const useDragSheet = (
     setDragOffset(0);
 
     // 임계값에 따른 동작 결정
-    if (deltaY > thresholds.expand) {
+    if (canDrag && deltaY > thresholds.expand) {
       setIsExpanded(true);
-    } else if (deltaY < thresholds.collapse && deltaY >= thresholds.close) {
+    } else if (canDrag && deltaY < thresholds.collapse && deltaY >= thresholds.close) {
       setIsExpanded(false);
     } else if (deltaY < thresholds.close) {
-      onClose?.();
+      onClose?.(); // 리뷰 유무와 관계없이 닫기
     }
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // 닫기 허용이나 드래그 가능할 때만 시작
+    if (!canDrag && !allowCloseWhenNoDrag) return;
+
     startDrag(e.clientY);
 
     const handlePointerMove = (moveEvent: PointerEvent) => {

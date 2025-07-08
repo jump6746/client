@@ -8,7 +8,7 @@ interface Props {
   userMapy: number;
 }
 
-const useTasteMap = (params: Props) => {
+const useTasteMap = (params: Props) => {  
 
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
 
@@ -16,7 +16,7 @@ const useTasteMap = (params: Props) => {
     queryKey: ["taste-map", params.tasteMapId, params.userMapx, params.userMapy],
     queryFn: () => getTasteMapAPI(params),
     staleTime: 1000 * 60 * 10,
-    enabled: !isGuestMode,
+    enabled: !isGuestMode && params.tasteMapId != 0,
   })
 }
 
