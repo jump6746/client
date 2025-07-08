@@ -4,9 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KaokaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
-import { getTasteMapAPI } from "@/entities/map/api";
-import { useGuestModeStore } from "@/shared/stores";
-import { useUserStore } from "@/shared/stores";
+import useTasteMap from "@/entities/map/queries/useTasteMap";
+import { useLoginInfo } from "@/entities/auth/queries";
 
 interface Location {
   lat: number;
@@ -30,19 +29,27 @@ const NaverMap = ({
   width = "100%",
   height = "100%",
 }: NaverMapProps) => {
+  // 상태들
   const [map, setMap] = useState<NaverMapInstance | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
-  const defaultTasteMapId = useUserStore((state) => state.defaultTasteMapId);
+  const [data, setData] = useState<TasteMap | null>(null);
 
   const mapRef = useRef<HTMLDivElement>(null);
   const currentLocationMarkerRef = useRef<NaverMarker | null>(null); // 현재 위치 마커 참조
   const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
 
-  const [data, setData] = useState<TasteMap | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const { userInfo } = useLoginInfo();
+
+  // 맛지도 데이터 받아오는 Query
+  const {
+    data: response,
+    // isLoading,
+    // error,
+  } = useTasteMap({
+    tasteMapId: userInfo?.defaultTasteMapId ?? 0,
+    userMapx: center?.lng ?? 37.5665,
+    userMapy: center?.lat ?? 126.978,
+  });
 
   const markerTag = {
     음식점: "restaurant",
@@ -54,6 +61,23 @@ const NaverMap = ({
     양식: "restaurant",
   };
 
+  // 아이콘 프리로딩 (렌더링 문제 해결)
+  useEffect(() => {
+    const preloadIcons = () => {
+      const iconNames = Object.values(markerTag);
+
+      iconNames.forEach((iconName) => {
+        const img = new Image();
+        img.src = `/icons/${iconName}.svg`;
+
+        img.onload = () => console.log(`✅ Loaded: ${iconName}.svg`);
+        img.onerror = () => console.error(`❌ Failed to load: ${iconName}.svg`);
+      });
+    };
+
+    preloadIcons();
+  }, []);
+
   // 네이버 지도 초기화
   useEffect(() => {
     const initMap = async () => {
@@ -61,7 +85,11 @@ const NaverMap = ({
         // 커스텀 함수로 네이버 지도 API 로드
         await loadNaverMaps();
 
-        if (!mapRef.current) return;
+        // DOM이 준비될 때까지 대기
+        if (!mapRef.current) {
+          setTimeout(() => initMap(), 100);
+          return;
+        }
 
         // props로 받은 center가 있으면 사용, 없으면 서울 기본값
         const initialCenter = center || { lat: 37.5665, lng: 126.978 };
@@ -89,46 +117,14 @@ const NaverMap = ({
     initMap();
   }, []); // 초기화는 한 번만
 
+  // 맛지도 데이터
   useEffect(() => {
-    if (isGuestMode) {
-      console.log("게스트 모드");
-      return;
+    if (!response) return;
+
+    if (isSuccessResponse(response)) {
+      setData(response.data);
     }
-
-    const fetchTasteMap = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await getTasteMapAPI({
-          tasteMapId: defaultTasteMapId,
-          userMapx: center?.lng ?? 37.5665,
-          userMapy: center?.lat ?? 126.978,
-        });
-
-        if (isSuccessResponse(response)) {
-          console.log(response.data);
-
-          setData(response.data); // ResponseDTO의 data 부분
-        } else {
-          setError(response.message);
-        }
-
-        console.log(data);
-        console.log(loading);
-        console.log(error);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다."
-        );
-        console.error("API 호출 에러:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasteMap();
-  }, [center, isGuestMode]); // 의존성 배열
+  }, [response]);
 
   // 현재 위치 마커 생성 (center가 있을 때만)
   useEffect(() => {

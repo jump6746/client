@@ -1,13 +1,14 @@
 "use client";
 
 import { getPresignedUrls, uploadAllImages } from "@/entities/review/api";
-import postReviewAPI from "@/entities/review/api/postReviewAPI";
 import { ImageFile, ReviewRequest } from "@/entities/review/model";
+import { usePostReview } from "@/entities/review/queries";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import {usePlaceStore, useUserStore} from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useRef, useState, useEffect } from "react";
+import { toast } from "sonner";
 
 interface Menu {
   id: number;
@@ -129,31 +130,23 @@ const useReviewForm = () => {
     setImages(prev => prev.filter(img => img.id !== imageId));
   };
 
+  const postReviewMutation = usePostReview()
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     if(selectedPlace == null){
-      console.log("장소 정보가 없습니다.")
+      customToast.error("장소 정보가 없습니다.");
       return;
     }
-    
+    const loadingToastId = customToast.loading("글 등록 중...");
+
     try {
-      // 여기서 실제 API 호출을 수행
-      console.log('내용:', content);
-      console.log('이미지 개수:', images.length);
-      
       const response = await getPresignedUrls({imageFiles: images});
-      
       const data = await response;
 
-      console.log("presigned url 입력 성공", data);
-
       const uploadResponse = await uploadAllImages(images, data);
-      
-      const uplaodData = await uploadResponse;
-
-      console.log("이미지 업로드 성공", uplaodData);
+      await uploadResponse;
 
       const reviewData:ReviewRequest = {
         place: {
@@ -179,24 +172,24 @@ const useReviewForm = () => {
         priceRange: selectedPrice,
         tasteMapId: defaultTasteMapId,
       }
-      
-      const postResponse = await postReviewAPI({data: reviewData});
 
-      const postData = await postResponse;
-
-      console.log(postData);
-
-      customToast.success("글이 성공적으로 등록됐습니다!");
-
-      // 폼 초기화
-      setContent('');
-      setImages([]);
-      router.push("/home");
+      postReviewMutation.mutate({data: reviewData}, {
+        onSuccess: () => {
+          toast.dismiss(loadingToastId);
+          customToast.success("글이 성공적으로 등록됐습니다!");
+          setContent('');
+          setImages([]);
+          router.push("/home");
+        },
+        onError: (error) => {
+          toast.dismiss(loadingToastId);
+          customToast.error(error?.message || '글 등록 중 오류가 발생했습니다.');
+        },
+      });
     } catch (error) {
+      toast.dismiss(loadingToastId);
       console.error('글 등록 오류:', error);
       customToast.error('글 등록 중 오류가 발생했습니다.');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -237,25 +230,6 @@ const useReviewForm = () => {
       input.id === id ? { ...input, name } : input
     ));
   };
-
-  // const addMenu = () => {
-  //   if (menu.trim() === '') {
-  //     alert('메뉴 이름을 입력해주세요!');
-  //     return;
-  //   }
-
-  //   const newMenu: Menu = {
-  //     id: Date.now(),
-  //     name: menu.trim()
-  //   };
-
-  //   setMenuList(prev => [...prev, newMenu]);
-  //   setMenu(''); // 입력 필드 초기화
-  // };
-
-  // const removeMenu = (id: number) => {
-  //   setMenuList(prev => prev.filter(menu => menu.id !== id));
-  // };
 
   return {
     content,
