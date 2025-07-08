@@ -1,7 +1,6 @@
 import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {getMyProfileAPI} from "@/entities/my/api";
+import {getMyProfileAPI, patchMyProfileAPI} from "@/entities/my/api";
 import {isSuccessResponse} from "@/shared/lib";
-import patchMyProfileAPI from "@/entities/my/api/patchMyProfileAPI";
 
 const useMyProfile = () => {
   const getMyProfile = useQuery({

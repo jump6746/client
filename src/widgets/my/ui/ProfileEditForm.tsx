@@ -90,7 +90,7 @@ const ProfileEditForm = () => {
         <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-300">
           <Image
             alt="프로필 이미지"
-            src={profileImgUrl || ""}
+            src={profileImgUrl || "/default-profile.png"}
             fill
             className="object-cover"
           />

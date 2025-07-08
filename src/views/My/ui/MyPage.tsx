@@ -4,7 +4,7 @@ import Image from "next/image";
 import {Button} from "@/shared/ui/Button";
 import {HistoryItem} from "@/entities/my/model";
 import {useRouter} from "next/navigation";
-import useMyProfile from "@/entities/my/queries/useMyProfile";
+import {useMyProfile} from "@/entities/my/queries";
 
 const MyPage = () => {
   const {getMyProfile} = useMyProfile();
@@ -43,7 +43,7 @@ const MyPage = () => {
         {/* 프로필 사진 */}
         <div className="relative size-25 rounded-full overflow-hidden bg-gray-300">
           <Image
-            src={data.profileImgUrl||""}
+            src={data.profileImgUrl || ""}
             alt="프로필 이미지"
             fill
             className="object-cover"
@@ -110,7 +110,7 @@ const MyPage = () => {
               className="flex items-center justify-between border-b border-[#d9d9d9] py-4"
             >
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gray-300" />
+                <div className="size-10 rounded-full bg-gray-300"/>
                 <div className="flex flex-col">
                   <div className="text-sm">
                     <span className="font-medium">{item.user}</span> 님이{" "}
