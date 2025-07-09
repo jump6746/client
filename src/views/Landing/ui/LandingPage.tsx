@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import GuestButton from "@/views/Landing/ui/GuestButton";
+import OAuthLoginButton from "@/widgets/auth/ui/OAuthLoginButton";
 
 const LandingPage = () => {
   return (
@@ -28,13 +29,9 @@ const LandingPage = () => {
         <span className="font-bold text-lg">맛집 지도 공유</span>
       </section>
       <section className="flex flex-col mt-auto gap-3 w-full items-center">
-        <Link
-          href="/"
-          className="py-3 w-full bg-yellow-300 font-medium rounded-xl flex items-center justify-center gap-3"
-        >
-          <Image src="/icons/kakao.png" alt="카카오톡" width={46} height={46} />
-          <span>카카오 계정으로 계속하기</span>
-        </Link>
+        <section className="w-full max-w-md mx-auto">
+          <OAuthLoginButton />
+        </section>
         <Link
           href="/login"
           className="py-5 w-full bg-brand-primary-600 text-white font-medium rounded-xl flex items-center justify-center"
