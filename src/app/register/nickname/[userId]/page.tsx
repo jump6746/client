@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useState } from "react";
 import customToast from "@/shared/ui/CustomToast/customToast";
 import isSuccessResponse from "@/shared/lib/isSuccessResponse";
@@ -8,9 +8,9 @@ import { changeNicknameAPI } from "@/features/user/api/changeNicknameAPI";
 import { checkNickname } from "@/features/user/api/checkNicknameAPI"; // ✅ 닉네임 중복 확인 API
 
 const RegisterNicknamePage = () => {
-  const searchParams = useSearchParams();
+  const params = useParams();
   const router = useRouter();
-  const userId = searchParams.get("userId");
+  const userId = params.userId;
 
   const [nickname, setNickname] = useState("");
   const [isChecking, setIsChecking] = useState(false);
@@ -20,6 +20,7 @@ const RegisterNicknamePage = () => {
   const [error, setError] = useState("");
 
   const handleCheckDuplicate = async () => {
+    console.log(isChecked);
     setIsChecking(true);
     setIsChecked(false);
     setIsAvailable(false);
@@ -35,6 +36,7 @@ const RegisterNicknamePage = () => {
         setIsChecked(true);
       }
     } catch (err) {
+      console.error(err);
       customToast.error("중복 확인 중 오류 발생");
     } finally {
       setIsChecking(false);
@@ -58,7 +60,8 @@ const RegisterNicknamePage = () => {
       } else {
         customToast.error(response.message || "닉네임 등록 실패");
       }
-    } catch (err) {
+    } catch (error) {
+      console.error(error);
       setError("닉네임 등록 중 오류 발생");
     } finally {
       setLoading(false);
