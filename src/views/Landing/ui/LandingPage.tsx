@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import GuestButton from "@/views/Landing/ui/GuestButton";
 import OAuthLoginButton from "@/widgets/auth/ui/OAuthLoginButton";
