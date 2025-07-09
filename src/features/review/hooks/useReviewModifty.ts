@@ -1,11 +1,14 @@
-
-import { getPresignedUrls, patchReviewAPI, uploadAllImages } from "@/entities/review/api";
+import { useLoginInfo } from "@/entities/auth/queries";
+import { getPresignedUrls, uploadAllImages } from "@/entities/review/api";
 import { ImageFile, PatchReviewRequest, ReviewPhoto } from "@/entities/review/model";
+import { usePatchReview } from "@/entities/review/queries";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
 import { useReviewStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
-import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 
 interface Menu {
@@ -15,17 +18,23 @@ interface Menu {
 
 const useReviewModify = () => {
   const router = useRouter();
+  const params = useParams();
+  const queryClient = useQueryClient();
+  const { userInfo } = useLoginInfo();
+
   const reviewData = useReviewStore((state) => state.reviewData);
   const clearReviewData = useReviewStore((state) => state.clearReviewData);
+
   const [content, setContent] = useState<string>(reviewData?.reviewContent ?? "");
   const [prevImages, setPrevImages] = useState<ReviewPhoto[]>([]);
   const [images, setImages] = useState<ImageFile[]>([]);
   const [menu, setMenu] = useState<string>("");
   const [menuList, setMenuList] = useState<Menu[]>(reviewData?.recommendedMenuList ?? []);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedPrice, setSelectedPrice] = useState<number>(reviewData?.reviewPriceRange ?? -1);
+
   const menuIndex = useRef<number>(-1);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
   const priceOptions = [
     { id: 1, label: '~5,000원' },
     { id: 2, label: '~10,000원' },
@@ -36,6 +45,8 @@ const useReviewModify = () => {
     { id: 7, label: '~100,000원' },
     { id: 8, label: '100,000원 이상' },
   ]
+
+  const patchReviewMutation = usePatchReview();
 
   useEffect(() => {
     if(!reviewData) return;
@@ -49,8 +60,6 @@ const useReviewModify = () => {
     if(!reviewData?.recommendedMenuList) return;
 
     menuIndex.current = reviewData.recommendedMenuList[reviewData.recommendedMenuList.length - 1].recommendedMenuId;
-
-    console.log(menuIndex.current);
 
   },[reviewData?.recommendedMenuList])
 
@@ -136,29 +145,20 @@ const useReviewModify = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     if(reviewData?.reviewId == null){
       console.log("장소 정보가 없습니다.")
       return;
     }
 
-    try {
-      // 여기서 실제 API 호출을 수행
-      console.log('내용:', content);
-      console.log('이미지 개수:', images.length);
-      
+    const loadingToastId = customToast.loading("글 수정 중...");
+
+    try {    
       const response = await getPresignedUrls({imageFiles: images});
-      
       const data = await response;
 
-      console.log("presigned url 입력 성공", data);
-
       const uploadResponse = await uploadAllImages(images, data);
-      
-      const uplaodData = await uploadResponse;
-
-      console.log("이미지 업로드 성공", uplaodData);
+      await uploadResponse;
 
       const patchData: PatchReviewRequest = {
         content,
@@ -174,25 +174,31 @@ const useReviewModify = () => {
         priceRange: selectedPrice,
       }
 
-      console.log(patchData);
+      patchReviewMutation.mutate({reviewId:reviewData?.reviewId, data: patchData}, {
+        onSuccess: (response) => {
+          toast.dismiss(loadingToastId);
+          if(isSuccessResponse(response)){
+            customToast.success("리뷰 수정을 완료했습니다.");
+            queryClient.invalidateQueries({queryKey: ["taste-map-thumbnail", params.placeId, userInfo?.userId]});
+            // 폼 초기화
+            setContent('');
+            setImages([]);
+            router.push("/home");
+          }else{
+            customToast.error("리뷰 수정에 실패했습니다.");
+          } 
+        },
+        onError: (error) => {
+          toast.dismiss(loadingToastId);
+          console.log(error);
+          customToast.error(error?.message || "리뷰 수정 중 오류가 발생했습니다.");
+        }
+      })
       
-      const postResponse = await patchReviewAPI({reviewId:reviewData?.reviewId, data: patchData})
-
-
-      if(isSuccessResponse(postResponse)){
-        customToast.success("리뷰 수정을 완료했습니다.");
-      }else{
-        customToast.error("리뷰 수정에 실패했습니다.");
-      }
-      // 폼 초기화
-      setContent('');
-      setImages([]);
-      router.push("/home");
     } catch (error) {
+      toast.dismiss(loadingToastId);
       customToast.error("리뷰 수정에 실패했습니다.");
       console.error('글 등록 오류:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -237,7 +243,7 @@ const useReviewModify = () => {
     menu,
     menuList,
     selectedPrice,
-    isSubmitting,
+    isSubmitting : patchReviewMutation.isPending,
     fileInputRef,
     priceOptions,
     prevImages,
@@ -246,7 +252,6 @@ const useReviewModify = () => {
     setImages,
     setMenu,
     setMenuList,
-    setIsSubmitting,
     setSelectedPrice,
     clearReviewData,
     handleImageUpload,

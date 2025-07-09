@@ -16,7 +16,7 @@ export interface ReviewRequest {
   content: string;
   recommendedMenus: string[];
   priceRange: number;
-  tasteMapId: number | null;
+  tasteMapId?: number | null;
 }
 
 export interface ReviewResponse {
@@ -83,4 +83,14 @@ export interface ReviewPhoto {
   reviewPhotoS3Key: string; 
   reviewPhotoOrderIndex: number; 
   reviewPhotoCaption: string
+}
+
+export interface JjimRequest {
+  jjim: boolean;
+  place: Place;
+}
+
+export interface JjimResponse {
+  jjim: boolean;
+  tasteMapPlaceId: string;
 }

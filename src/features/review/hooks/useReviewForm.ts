@@ -1,12 +1,14 @@
-"use client";
 
+"use client";
+import { useQueryClient } from '@tanstack/react-query';
+import { useLoginInfo } from "@/entities/auth/queries";
 import { getPresignedUrls, uploadAllImages } from "@/entities/review/api";
 import { ImageFile, ReviewRequest } from "@/entities/review/model";
 import { usePostReview } from "@/entities/review/queries";
 import { convertToWebP, isSuccessResponse } from "@/shared/lib";
-import {usePlaceStore, useUserStore} from "@/shared/stores";
+import { usePlaceStore } from "@/shared/stores";
 import { customToast } from "@/shared/ui/CustomToast";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useRef, useState, useEffect } from "react";
 import { toast } from "sonner";
 
@@ -17,11 +19,14 @@ interface Menu {
 
 const useReviewForm = () => {
   const router = useRouter();
+  const params = useParams();
+  const queryClient = useQueryClient();
+
   const [content, setContent] = useState<string>('');
   const [images, setImages] = useState<ImageFile[]>([]);
   const [menu, setMenu] = useState<string>("");
   const [menuList, setMenuList] = useState<Menu[]>([{id: 1, name: ""}]);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [selectedPrice, setSelectedPrice] = useState<number>(-1);
   const menuIndex = useRef<number>(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const selectedPlace = usePlaceStore((state) => state.selectedPlace);
@@ -35,9 +40,9 @@ const useReviewForm = () => {
     { id: 100000, label: '~100,000원' },
     { id: 200000, label: '100,000원 이상' },
   ]
-  const defaultTasteMapId = useUserStore((state) => state.defaultTasteMapId);
-
-  const [selectedPrice, setSelectedPrice] = useState<number>(-1);
+  
+  const { userInfo } = useLoginInfo();
+  const postReviewMutation = usePostReview();
 
   // 개선된 processImages (드래그 순서 보장)
   const processImages = async (files: File[]): Promise<void> => {
@@ -130,7 +135,7 @@ const useReviewForm = () => {
     setImages(prev => prev.filter(img => img.id !== imageId));
   };
 
-  const postReviewMutation = usePostReview()
+  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -144,10 +149,8 @@ const useReviewForm = () => {
     try {
       const response = await getPresignedUrls({imageFiles: images});
       const data = await response;
-
       const uploadResponse = await uploadAllImages(images, data);
       await uploadResponse;
-
       const reviewData:ReviewRequest = {
         place: {
           placeId: selectedPlace.id,
@@ -170,26 +173,33 @@ const useReviewForm = () => {
         content: content,
         recommendedMenus: menuList.map(menu => menu.name),
         priceRange: selectedPrice,
-        tasteMapId: defaultTasteMapId,
+        tasteMapId: userInfo?.defaultTasteMapId,
       }
 
       postReviewMutation.mutate({data: reviewData}, {
-        onSuccess: () => {
+        onSuccess: (response) => {
           toast.dismiss(loadingToastId);
-          customToast.success("글이 성공적으로 등록됐습니다!");
-          setContent('');
-          setImages([]);
-          router.push("/home");
+
+          if(isSuccessResponse(response)){
+            customToast.success("리뷰가 성공적으로 등록됐습니다!");
+            setContent('');
+            setImages([]);
+            queryClient.invalidateQueries({queryKey: ["taste-map-thumbnail", params.placeId, userInfo?.userId]})
+            router.push("/home");
+          }else{
+            customToast.error("리뷰 등록에 실패했습니다.");
+          }
         },
         onError: (error) => {
           toast.dismiss(loadingToastId);
-          customToast.error(error?.message || '글 등록 중 오류가 발생했습니다.');
+          console.log(error);
+          customToast.error(error?.message || '리뷰 등록 중 오류가 발생했습니다.');
         },
       });
     } catch (error) {
       toast.dismiss(loadingToastId);
-      console.error('글 등록 오류:', error);
-      customToast.error('글 등록 중 오류가 발생했습니다.');
+      console.error('리뷰 등록 오류:', error);
+      customToast.error('리뷰 등록 중 오류가 발생했습니다.');
     }
   };
 
@@ -234,7 +244,7 @@ const useReviewForm = () => {
   return {
     content,
     images,
-    isSubmitting,
+    isSubmitting : postReviewMutation.isPending,
     fileInputRef,
     priceOptions,
     selectedPrice,
@@ -243,7 +253,6 @@ const useReviewForm = () => {
     setMenu,
     setContent,
     setImages,
-    setIsSubmitting,
     handleImageUpload,
     removeImage,
     handleSubmit,

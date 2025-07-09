@@ -5,3 +5,4 @@ export { default as postReviewAPI } from "./postReviewAPI";
 export { default as getTasteMapThumbnailAPI } from "./getTasteMapThumbnailAPI";
 export { default as deleteReviewAPI } from "./deleteReviewAPI";
 export { default as patchReviewAPI } from "./patchReviewAPI";
+export { default as patchJjimAPI } from "./patchJjimAPI";
