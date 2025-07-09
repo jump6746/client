@@ -1,1 +1,1 @@
-export type { Place, ReviewRequest, ReviewResponse, PatchReviewRequest, PlaceReivewData, PatchReviewResponse, PresignedUrlResponse, ImageFile, PlaceThumbnail, ReviewPhoto } from "./review"; 
+export type { Place, JjimRequest, JjimResponse, ReviewRequest, ReviewResponse, PatchReviewRequest, PlaceReivewData, PatchReviewResponse, PresignedUrlResponse, ImageFile, PlaceThumbnail, ReviewPhoto } from "./review"; 

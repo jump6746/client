@@ -12,7 +12,7 @@ const ReviewForm = () => {
   const {
     content,
     images,
-    // isSubmitting,
+    isSubmitting,
     fileInputRef,
     priceOptions,
     selectedPrice,
@@ -64,7 +64,8 @@ const ReviewForm = () => {
         </Button>
         <Button
           type="submit"
-          className="px-2 py-0.5 bg-brand-primary-600 text-white rounded-lg"
+          className="px-2 py-0.5 bg-brand-primary-600 text-white rounded-lg disabled:bg-gray-200 disabled:text-gray-400"
+          disabled={isSubmitting}
         >
           완료
         </Button>

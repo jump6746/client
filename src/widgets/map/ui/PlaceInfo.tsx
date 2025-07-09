@@ -8,13 +8,16 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
-import { PlaceReivewData } from "@/entities/review/model/review";
+import { Place, PlaceReivewData } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
 import {
   useDeleteReview,
+  usePatchJjim,
   useTasteMapThumbnail,
 } from "@/entities/review/queries";
 import { useDragSheet } from "@/shared/hooks";
+import { useLoginInfo } from "@/entities/auth/queries";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   place: KaokaoResponse | null;
@@ -29,8 +32,11 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
 
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
   const router = useRouter();
+  const queryClient = useQueryClient();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
+
+  const { userInfo } = useLoginInfo();
 
   // 드래그 훅 사용 - 기존 복잡한 드래그 로직 대체
   const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
@@ -89,21 +95,70 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     }
     console.log(place);
     setSelectedPlace(place);
-    router.push("/review/write");
+    router.push(`/review/write/${place.id}`);
   };
 
-  const deleteReview = useDeleteReview({ id: place?.id });
-
-  const handleDeleteReview = () => {
-    if (!placeData?.review?.reviewId) return;
-
-    deleteReview.mutate({ reviewId: placeData.review.reviewId });
-  };
+  const deleteReviewMutation = useDeleteReview({ id: place?.id });
+  const patchJjimMutation = usePatchJjim();
 
   // place가 null이고 isOpen이 false면 컴포넌트를 렌더링하지 않음
   if (!place && !isOpen) {
     return null;
   }
+
+  const handleDeleteReview = () => {
+    if (!placeData?.review?.reviewId) return;
+
+    deleteReviewMutation.mutate({ reviewId: placeData.review.reviewId });
+  };
+
+  const handlePatchJjim = () => {
+    if (!place) {
+      customToast.error("장소 정보가 없습니다.");
+      return;
+    }
+
+    const isJjim = placeData?.jjim;
+
+    const jjimPlaceData: Place = {
+      placeId: place.id,
+      title: place.place_name,
+      address: place.address_name ?? "",
+      roadAddress: place.road_address_name,
+      category: place.category_name ?? "",
+      telePhone: place.phone ?? "",
+      placeUrl: place.place_url,
+      mapx: place.x,
+      mapy: place.y,
+    };
+
+    patchJjimMutation.mutate(
+      {
+        tasteMapId: userInfo?.defaultTasteMapId,
+        placeId: place.id,
+        data: { jjim: !isJjim, place: jjimPlaceData },
+      },
+      {
+        onSuccess: (response) => {
+          if (isSuccessResponse(response)) {
+            console.log(!isJjim);
+            console.log("invalidate query", place.id, userInfo?.userId);
+            queryClient.invalidateQueries({
+              queryKey: ["taste-map-thumbnail", place.id, userInfo?.userId],
+            });
+            customToast.success(
+              isJjim ? "찜 해제되었습니다" : "찜 등록되었습니다"
+            );
+          } else {
+            customToast.error("찜 실패");
+          }
+        },
+        onError: (error) => {
+          customToast.error(error.message);
+        },
+      }
+    );
+  };
 
   return (
     <div
@@ -116,7 +171,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     >
       {/* 상단 핸들 - 드래그 영역 */}
       <div
-        className="w-full flex justify-center py-2 select-none cursor-grab active:cursor-grabbing"
+        className="w-full flex justify-center py-2 select-none cursor-grab active:cursor-grabbing bg-amber-100"
         onPointerDown={handlePointerDown}
         style={{ touchAction: "none" }}
       >
@@ -203,7 +258,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                         setReviewData(data);
 
                         setShowMoreMenu(false);
-                        router.push(`/review/modify`);
+                        router.push(`/review/modify/${place.id}`);
                       }}
                       className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg disabled:hover:bg-transparent disabled:text-gray-400"
                       disabled={isGuestMode || !placeData?.review || !place}
@@ -229,13 +284,8 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
               )}
             </div>
             <button
-              onClick={() => {
-                if (isGuestMode) {
-                  alert("로그인이 필요합니다.");
-                  return;
-                }
-              }}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col"
+              onClick={handlePatchJjim}
+              className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col items-center"
             >
               {placeData &&
                 (placeData.jjim ? (
