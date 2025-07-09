@@ -1,5 +1,5 @@
 export interface ProfileResponse {
-  imgUrl: string | null;
+  profileImgUrl: string | null;
   subscriberCount: number;
   pinCount: number;
   gourmetScore: number;
@@ -14,4 +14,10 @@ export interface HistoryItem {
   text: string;
   timeAgo: string;
   delta: string;
+}
+
+export interface ProfileUpdateRequest {
+  profileImgS3Key?: string;
+  nickname: string;
+  description: string;
 }
