@@ -7,7 +7,7 @@ interface NaverLoginUrlResponse {
 
 export const getNaverLoginUrl = async (): Promise<ResponseDTO<NaverLoginUrlResponse> | ErrorResponse> => {
   return await clientFetch<undefined, NaverLoginUrlResponse>({
-    url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/oauth2/naver`,
+    url: `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth2/google`,
     method: "GET"
   });
 };

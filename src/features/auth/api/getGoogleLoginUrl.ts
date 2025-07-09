@@ -7,7 +7,7 @@ interface GoogleLoginUrlResponse {
 
 export const getGoogleLoginUrl = async (): Promise<ResponseDTO<GoogleLoginUrlResponse> | ErrorResponse> => {
   return await clientFetch<undefined, GoogleLoginUrlResponse>({
-    url: `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/oauth2/google`,
+    url: `${process.env.NEXT_PUBLIC_API_URL}/auth/oauth2/google`,
     method: "GET"
   });
 };
