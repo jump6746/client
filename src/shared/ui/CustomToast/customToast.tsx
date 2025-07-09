@@ -43,6 +43,22 @@ const customToast = {
       </div>
     ));
   },
+
+  // 로딩만 처리하는 함수
+  loading: (message: string) => {
+    return toast.custom(() => (
+      <div className="relative bg-blue-50 border border-blue-200 rounded-lg p-4 pr-12 max-w-md shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div>
+            <p className="text-sm text-blue-700 mt-1">{message}</p>
+          </div>
+        </div>
+      </div>
+    ));
+  },
 };
 
 export default customToast;

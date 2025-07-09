@@ -1,7 +1,11 @@
 import { LoginPage } from "@/views";
 
 const Login = () => {
-  return <LoginPage />;
+  return (
+    <div className="h-full overflow-auto">
+      <LoginPage />
+    </div>
+  );
 };
 
 export default Login;

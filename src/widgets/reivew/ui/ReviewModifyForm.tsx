@@ -32,7 +32,7 @@ const ReviewModifyForm = () => {
     addMenuInput,
     removeMenuInput,
     updateMenuInput,
-  } = useReviewModify({});
+  } = useReviewModify();
 
   if (!reviewData) return;
 
@@ -81,6 +81,7 @@ const ReviewModifyForm = () => {
                 alt={"리뷰"}
                 width={100}
                 height={100}
+                loading="lazy"
                 className="object-cover w-full h-full"
               />
               <button
@@ -110,6 +111,7 @@ const ReviewModifyForm = () => {
                 alt={image.name}
                 width={100}
                 height={100}
+                loading="lazy"
                 className="object-cover w-full h-full"
               />
               <button
