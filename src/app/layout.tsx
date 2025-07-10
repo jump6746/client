@@ -16,11 +16,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "[오머먹] - 오늘 머 먹지?",
-  description: "위치 기반 음식 기록 공유 플랫폼",
+  description: "음식 기록 공유 플랫폼",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "My App",
+    title: "[오머먹] - 오늘 머 먹지?",
   },
   formatDetection: {
     telephone: false,
@@ -45,7 +45,6 @@ export default function RootLayout({
       <head>
         <link
           rel="stylesheet"
-          as="style"
           crossOrigin=""
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
         />
@@ -55,8 +54,10 @@ export default function RootLayout({
       >
         <Providers>
           <div className="h-dvh overflow-hidden">
-            <div className="w-full max-w-sm h-screen mx-auto">{children}</div>
-            <Toaster />
+            <div className="w-full max-w-lg h-dvh mx-auto relative">
+              {children}
+              <Toaster />
+            </div>
           </div>
         </Providers>
       </body>
