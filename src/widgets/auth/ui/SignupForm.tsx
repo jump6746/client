@@ -40,7 +40,7 @@ const SignUpForm = () => {
             }}
             id="email"
             type="email"
-            className="px-2 py-2 flex-1 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
+            className="px-2 py-2 flex-1 w-0 min-w-0 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
           ></Input>
           <Button
             className={`font-bold border text-sm shrink-0 ${
@@ -76,7 +76,7 @@ const SignUpForm = () => {
             }}
             id="nickname"
             type="text"
-            className="px-2 flex-1 py-2 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
+            className="px-2 py-2 flex-1 w-0 min-w-0 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
           ></Input>
           <Button
             className={`font-bold border text-sm shrink-0 ${
