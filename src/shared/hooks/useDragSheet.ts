@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface DragSheetOptions {
   canDrag: boolean;
-  baseHeight: number;
-  expandedHeight?: number;
-  minHeight?: number;
-  maxHeight?: number;
+  baseHeightRatio: number; // 0.3 = 30% of screen height
+  expandedHeightRatio?: number; // 0.8 = 80% of screen height
+  minHeightRatio?: number; // 0.2 = 20% of screen height
+  maxHeightRatio?: number; // 0.95 = 95% of screen height
   dragSensitivity?: number;
   thresholds?: {
     expand: number;
@@ -19,6 +19,7 @@ interface DragSheetState {
   isExpanded: boolean;
   isDragging: boolean;
   currentHeight: number;
+  screenHeight: number;
 }
 
 interface DragSheetActions {
@@ -33,10 +34,10 @@ const useDragSheet = (
 ): DragSheetState & DragSheetActions => {
   const {
     canDrag,
-    baseHeight,
-    expandedHeight = baseHeight + 300,
-    minHeight = 300,
-    maxHeight = 800,
+    baseHeightRatio,
+    expandedHeightRatio = Math.min(baseHeightRatio + 0.4, 0.9), // 기본값: base + 40%
+    minHeightRatio = 0.15, // 15%
+    maxHeightRatio = 0.95, // 95%
     dragSensitivity = 0.7,
     thresholds = { expand: 50, collapse: -50, close: -100 },
     allowCloseWhenNoDrag = false
@@ -45,6 +46,7 @@ const useDragSheet = (
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragOffset, setDragOffset] = useState<number>(0);
+  const [screenHeight, setScreenHeight] = useState<number>(0);
 
   const dragState = useRef({
     isDragging: false,
@@ -52,21 +54,47 @@ const useDragSheet = (
     currentOffset: 0,
   });
 
+  // 화면 높이 감지
+  useEffect(() => {
+    const updateScreenHeight = () => {
+      // dvh 우선, 지원하지 않으면 vh 사용
+      const height = window.visualViewport?.height || window.innerHeight;
+      setScreenHeight(height);
+    };
+
+    updateScreenHeight();
+    
+    // 화면 회전이나 키보드 등으로 인한 높이 변화 감지
+    window.addEventListener('resize', updateScreenHeight);
+    window.visualViewport?.addEventListener('resize', updateScreenHeight);
+
+    return () => {
+      window.removeEventListener('resize', updateScreenHeight);
+      window.visualViewport?.removeEventListener('resize', updateScreenHeight);
+    };
+  }, []);
+
+  // 비율을 픽셀로 변환
+  const baseHeight = screenHeight * baseHeightRatio;
+  const expandedHeight = screenHeight * expandedHeightRatio;
+  const minHeight = screenHeight * minHeightRatio;
+  const maxHeight = screenHeight * maxHeightRatio;
+
   // 높이 계산
   const targetHeight = isExpanded ? expandedHeight : baseHeight;
   const currentHeight = isDragging
-  ? (() => {
-      const newHeight = targetHeight + dragOffset * dragSensitivity;
-      
-      // 위로 드래그할 때는 maxHeight까지
-      if (dragOffset > 0) {
-        return Math.min(maxHeight, newHeight);
-      }
-      
-      // 아래로 드래그할 때는 더 낮게 허용 (닫기 효과)
-      return Math.max(minHeight * 0.3, newHeight); // minHeight의 30%까지 허용
-    })()
-  : targetHeight;
+    ? (() => {
+        const newHeight = targetHeight + dragOffset * dragSensitivity;
+        
+        // 위로 드래그할 때는 maxHeight까지
+        if (dragOffset > 0) {
+          return Math.min(maxHeight, newHeight);
+        }
+        
+        // 아래로 드래그할 때는 더 낮게 허용 (닫기 효과)
+        return Math.max(minHeight * 0.3, newHeight); // minHeight의 30%까지 허용
+      })()
+    : targetHeight;
 
   const startDrag = (clientY: number) => {
     if (!canDrag && !allowCloseWhenNoDrag) return;
@@ -144,6 +172,7 @@ const useDragSheet = (
     isExpanded,
     isDragging,
     currentHeight,
+    screenHeight,
     setIsExpanded,
     handlePointerDown,
     close,
