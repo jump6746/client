@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { getGoogleLoginUrl } from "@/features/auth/api/getGoogleLoginUrl";
 import { getKakaoLoginUrl } from "@/features/auth/api/getKakaoLoginUrl";
 import { getNaverLoginUrl } from "@/features/auth/api/getNaverLoginUrl";
@@ -9,7 +8,6 @@ import customToast from "@/shared/ui/CustomToast/customToast";
 import isSuccessResponse from "@/shared/lib/isSuccessResponse";
 
 const OAuthLoginButtons = () => {
-  const router = useRouter();
 
   const handleLogin = async (provider: "google" | "kakao" | "naver") => {
     try {
