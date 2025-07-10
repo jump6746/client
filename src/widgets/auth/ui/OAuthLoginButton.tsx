@@ -28,7 +28,7 @@ const OAuthLoginButtons = () => {
       }
 
       if (isSuccessResponse(response) && response.data.redirectUrl) {
-        router.push(response.data.redirectUrl);
+        window.location.href = response.data.redirectUrl;
       } else {
         customToast.error(response.message ?? `${provider} 로그인 URL을 가져오지 못했습니다.`);
       }
