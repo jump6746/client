@@ -177,7 +177,7 @@ const NaverMap = ({
                     | "중식"
                 ]
               }.svg" 
-                   style="width: 24px; height: 32px; display: block; margin: 0 auto;" 
+                   style="width: 24px !important; height: 32px !important; display: block; margin: 0 auto;" 
                    alt="marker" />
               
               <!-- 텍스트 라벨 -->
