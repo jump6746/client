@@ -43,7 +43,7 @@ const SignUpForm = () => {
             className="px-2 py-2 flex-1 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
           ></Input>
           <Button
-            className={`font-bold border text-sm ${
+            className={`font-bold border text-sm shrink-0 ${
               emailCheck
                 ? "border-green-300 text-green-600"
                 : "border-gray-300 text-gray-600"
@@ -79,7 +79,7 @@ const SignUpForm = () => {
             className="px-2 flex-1 py-2 placeholder:font-bold placeholder:text-gray-400 border border-gray-300 rounded-sm h-fit"
           ></Input>
           <Button
-            className={`font-bold border text-sm ${
+            className={`font-bold border text-sm shrink-0 ${
               nicknameCheck
                 ? "border-green-300 text-green-600"
                 : "border-gray-300 text-gray-600"
