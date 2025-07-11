@@ -7,7 +7,7 @@ const OAuthCallbackPage = () => {
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login/my-info`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login/my-info`, {
         credentials: "include", // ✅ 쿠키 포함
       });
 
