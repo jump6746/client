@@ -3,7 +3,6 @@ import { clientFetch } from "@/shared/lib";
 import { ResponseDTO, ErrorResponse } from "@/shared/types/api-structure";
 
 interface ChangeNicknameRequest {
-  userId: number;
   nickname: string;
 }
 

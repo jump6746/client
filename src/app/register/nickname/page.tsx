@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import customToast from "@/shared/ui/CustomToast/customToast";
 import isSuccessResponse from "@/shared/lib/isSuccessResponse";
@@ -8,9 +8,7 @@ import { changeNicknameAPI } from "@/features/user/api/changeNicknameAPI";
 import { checkNickname } from "@/features/user/api/checkNicknameAPI"; // ✅ 닉네임 중복 확인 API
 
 const RegisterNicknamePage = () => {
-  const params = useParams();
   const router = useRouter();
-  const userId = params.userId;
 
   const [nickname, setNickname] = useState("");
   const [isChecking, setIsChecking] = useState(false);
@@ -50,7 +48,6 @@ const RegisterNicknamePage = () => {
 
     try {
       const response = await changeNicknameAPI({
-        userId: Number(userId),
         nickname,
       });
 
@@ -67,8 +64,6 @@ const RegisterNicknamePage = () => {
       setLoading(false);
     }
   };
-
-  if (!userId) return <p>잘못된 접근입니다.</p>;
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
