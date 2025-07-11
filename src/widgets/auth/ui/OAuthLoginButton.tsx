@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const OAuthLoginButtons = () => {
   const handleLogin = (provider: "google" | "kakao" | "naver") => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    const baseUrl = process.env.NEXT_AUTH_API_URL;
     window.location.href = `${baseUrl}/oauth2/authorization/${provider}`;
   };
 
