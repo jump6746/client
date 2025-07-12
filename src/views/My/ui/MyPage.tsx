@@ -46,7 +46,7 @@ const MyPage = () => {
         {/* 프로필 사진 */}
         <div className="relative size-25 rounded-full overflow-hidden bg-gray-300">
           <Image
-            src={data.profileImgUrl || ""}
+            src={data.profileImg.presignedUrl || ""}
             alt="프로필 이미지"
             fill
             className="object-cover"
