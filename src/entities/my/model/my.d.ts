@@ -1,5 +1,7 @@
+import {PresignedUrlResponse} from "@/entities/review/model";
+
 export interface ProfileResponse {
-  profileImgUrl: string | null;
+  profileImg: PresignedUrlResponse;
   subscriberCount: number;
   pinCount: number;
   gourmetScore: number;

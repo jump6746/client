@@ -4,7 +4,7 @@ import {ProfileUpdateRequest} from "@/entities/my/model";
 
 const patchMyProfileAPI = async (data: ProfileUpdateRequest): Promise<ResponseDTO<null> | ErrorResponse> => {
   return await clientFetch<ProfileUpdateRequest, null>({
-    url: apiURL(`/users/profile`),
+    url: apiURL(`/users/me`),
     method: "PATCH",
     data,
   })

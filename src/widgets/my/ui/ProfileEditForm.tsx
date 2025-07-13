@@ -22,12 +22,17 @@ const ProfileEditForm = () => {
     if (data) {
       setNickname(data.nickname);
       setDescription(data.description);
-      setProfileImgUrl(data.profileImgUrl || "");
+      setProfileImgUrl(data.profileImg.presignedUrl || "");
     }
   }, [data]);
 
   const handleUpdateProfile = async () => {
-    let profileImgS3Key;
+    if (!data) {
+      alert("프로필 정보를 불러오지 못했습니다.");
+      return;
+    }
+
+    let profileImgS3Key: string | null = data.profileImg.s3Key;
 
     if (selectedFile) {
       profileImgS3Key = await uploadProfileImage(selectedFile);
