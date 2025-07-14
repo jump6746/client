@@ -1,14 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
 import { loginAPI } from "../api";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
 
 const usePostLogin = () => {
 
+  const searchParams = useSearchParams();
   const router = useRouter();
   const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
+  const redirectTo = searchParams.get("redirect") || "/home";
 
   return useMutation({
     mutationFn: loginAPI,
@@ -24,7 +26,7 @@ const usePostLogin = () => {
         setGuestMode(false);
         
         customToast.success("로그인 성공");
-        router.push("/home");
+        router.push(redirectTo);
 
       }else{
         customToast.error(response.message);

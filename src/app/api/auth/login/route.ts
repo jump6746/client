@@ -36,10 +36,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
 
     const data = await response.json();
     console.log("응답 데이터: ", data);
-    const { accessToken, userId, defaultTasteMapId } = data.data;
+    const { accessToken } = data.data;
     
     const setCookieHeader = response.headers.get("set-cookie");
 
+    // refreshToken 받았는지 판별
     let refreshToken = null;
 
     if (setCookieHeader) {
@@ -50,8 +51,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
 
     console.log("받은 리프레쉬 토큰: ", refreshToken);
 
+    // refreshToken 없다면 401 response
     if (!refreshToken) {
-
       const errorResponse: ErrorResponse = {
         status: 401,
         name: "LOGIN_FAILED",
@@ -64,20 +65,25 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     
     const sessionId = nanoid();
 
+    // redis 가져오기
     const redis = getRedisClient();
+
+    // redis에 담을 정보
     const sessionData = {
       accessToken,
       refreshToken
     }
+
+    // redis에 저장
     await redis.setex(sessionId, 60 * 60 * 24 * 7, JSON.stringify(sessionData));
 
+    // 로그인시 내려줄 응답
     const loginData = {
       sessionId: sessionId,
       accessToken: accessToken,
-      userId: userId,
-      defaultTasteMapId: defaultTasteMapId
     }
 
+    // 성공 200 response
     const successResponse: ResponseDTO<LoginResponse> = {
       status: 200,
       message: "로그인 성공",
@@ -87,22 +93,23 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
 
     const nextRes = NextResponse.json(successResponse);
 
-    nextRes.cookies.set("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: "strict",
-      maxAge: 60 * 20,
-      path: "/"
-    })
-
-    
+    // 로그인 성공 response 내려줄 때 쿠키에 sessionId 저장
     nextRes.cookies.set("sessionId", sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "strict",
-      maxAge: 60 * 20,
+      maxAge:  60 * 60 * 24 * 30,
       path: "/"
     })
+
+    // 로그인 성공 후 백엔드에서 받은 refreshToken 쿠키를 즉시 제거
+    // nextRes.cookies.set("refreshToken", "", {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: "strict",
+    //   maxAge: 0, // 즉시 만료시켜서 삭제
+    //   path: "/"
+    // })
 
     return nextRes;
 
