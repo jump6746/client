@@ -6,7 +6,8 @@ const loginAPI = async (credentials: LoginCredentials): Promise<ResponseDTO<Logi
   return await clientFetch<LoginCredentials, LoginResponse>({
     url: "/api/auth/login",
     method: "POST",
-    data: credentials
+    data: credentials,
+    credentials: 'same-origin',
   });
 }
 

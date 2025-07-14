@@ -6,7 +6,7 @@ import Link from "next/link";
 const Navigation = () => {
   return (
     <nav className="flex justify-between w-full py-2 px-4 items-center">
-      <Link href="/" className="flex flex-col gap-1 items-center">
+      <Link href="/subscribe" className="flex flex-col gap-1 items-center">
         <Image
           src="/icons/compass_icon.svg"
           alt="나침반"

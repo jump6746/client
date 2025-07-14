@@ -1,0 +1,1 @@
+export { default as getSubscriptionsAPI } from "./getSubscriptionsAPI";
