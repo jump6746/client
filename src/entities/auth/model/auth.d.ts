@@ -37,3 +37,11 @@ export interface SignUpRequest {
     marketing: boolean;
   }
 }
+
+export interface NicknameChangeRequest {
+  nickname: string;
+}
+
+export interface NicknameChangeResponse {
+  nickname: string;
+}
