@@ -3,3 +3,4 @@ export { default as useCheckNickname } from "./useCheckNickname";
 export { default as usePostLogin } from "./usePostLogin";
 export { default as useLoginInfo } from "./useLoginInfo";
 export { default as usePostSignUp } from "./usePostSignUp";
+export { default as usePatchNickname } from "./usePatchNickname";

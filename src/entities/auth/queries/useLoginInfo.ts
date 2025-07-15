@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { postLoginInfoAPI } from "../api";
+import { getLoginInfoAPI } from "../api";
 import { useGuestModeStore } from "@/shared/stores";
 import { isSuccessResponse } from "@/shared/lib";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ const useLoginInfo = () => {
 
   const {data: response, ...rest} = useQuery({
     queryKey: ["user-info"],
-    queryFn: () => postLoginInfoAPI(),
+    queryFn: () => getLoginInfoAPI(),
     staleTime: Infinity,
     enabled: !isGuestMode,
   });

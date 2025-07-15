@@ -28,7 +28,8 @@ export async function GET(request: NextRequest){
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json"
-      }
+      },
+      method: "GET",
     });
 
     if(!userInfoResponse.ok){
