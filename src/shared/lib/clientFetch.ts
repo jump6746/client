@@ -52,8 +52,9 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
 
         const responseData: ErrorResponse = await response.json();
 
-        if(responseData.status == 401 && retryCount === 0){
+        if((responseData.status == 401 || response.status == 401) && retryCount === 0){
           // refresh 로직
+          console.log("401에러 로직 시도");
 
           const refreshSuccess = await refreshToken();
 
