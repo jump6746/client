@@ -13,6 +13,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     console.log("토큰 refresh 요청");
     // 쿠키에서 session id 가져오기
     const sessionId = request.cookies.get("sessionId")?.value;
+    console.log("SessionID from Cookie: ", sessionId);
 
     // 쿠키에 session id 미존재시
     if (!sessionId) {
@@ -26,7 +27,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     }
 
     const redis = getRedisClient();
-    const sessionDataStr: string | null = await redis.get(sessionId);
+    const sessionDataStr: SessionData | null = await redis.get(sessionId);
+    console.log("SessionDataStr: ", sessionDataStr);
 
     // Redis에 저장된 session id가 없을시
     if (!sessionDataStr) {
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       return NextResponse.json(errorResponse, { status: 401 });
     }
 
-    const sessionData: SessionData = JSON.parse(sessionDataStr);
+    const sessionData: SessionData = sessionDataStr;
 
     // Redis에서 가져온 refreshToken 확인
     if (!sessionData.refreshToken) {
