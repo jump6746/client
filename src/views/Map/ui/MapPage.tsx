@@ -1,20 +1,33 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { KaokaoResponse } from "@/entities/map/model";
+import { KakaoResponse } from "@/entities/map/model";
 import { PlaceInfo, SearchComponent } from "@/widgets/map/ui";
 import { NaverMap } from "@/features/map";
-import { useGeolocation } from "@/features/map/hooks";
+import { useGeolocation, useMapURL } from "@/features/map/hooks";
 import { customToast } from "@/shared/ui/CustomToast";
 
 const MapPage = () => {
+  // url 관리
+  const {
+    getLocationFromURL,
+    getPlaceIdFromURL,
+    updateLocation,
+    updatePlaceId,
+    updateMapState,
+    hasMapState,
+  } = useMapURL();
+
+  // 현재 위치
   const { currentLocation, getCurrentLocation, locationError } =
     useGeolocation();
+
   const [mapCenter, setMapCenter] = useState<{
     lat: number;
     lng: number;
   } | null>(null);
-  const [place, setPlace] = useState<KaokaoResponse | null>(null);
+
+  const [place, setPlace] = useState<KakaoResponse | null>(null);
 
   // 컴포넌트 마운트 시 현재 위치 가져오기
   useEffect(() => {
@@ -24,6 +37,7 @@ const MapPage = () => {
     });
   }, [getCurrentLocation]);
 
+  // 현재 위치 가져오는 중 에러
   useEffect(() => {
     if (!locationError) return;
     customToast.error(locationError);
@@ -37,10 +51,19 @@ const MapPage = () => {
   }, [currentLocation]);
 
   // 장소 선택 핸들러
-  const handlePlaceSelect = useCallback((place: KaokaoResponse) => {
-    console.log("선택된 장소:", place);
-    setPlace(place);
-  }, []);
+  const handlePlaceSelect = useCallback(
+    (place: KakaoResponse) => {
+      setPlace(place);
+
+      const newCenter = {
+        lat: place.y,
+        lng: place.x,
+      };
+
+      updateMapState(newCenter.lat, newCenter.lng, place.id);
+    },
+    [updateMapState]
+  );
 
   return (
     <div className="w-full h-full relative">

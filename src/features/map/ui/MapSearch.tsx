@@ -21,7 +21,6 @@ const MapSearch = ({
   });
 
   const handlePlaceSelect = (place: KaokaoResponse) => {
-    console.log("장소 선택: ", place);
     onPlaceSelect(place);
     setSearch(""); // 선택 후 검색어 초기화
     setIsOpen(false);

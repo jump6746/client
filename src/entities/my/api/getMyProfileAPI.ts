@@ -4,7 +4,7 @@ import {ProfileResponse} from "@/entities/my/model";
 
 const getMyProfileAPI = async (): Promise<ResponseDTO<ProfileResponse> | ErrorResponse> => {
   return await clientFetch<undefined, ProfileResponse>({
-    url: apiURL(`/users/profile`),
+    url: apiURL(`/users/me`),
     method: "GET",
   })
 }

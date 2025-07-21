@@ -31,11 +31,13 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const [error, setError] = useState<string | null>(null);
 
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
 
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  // 유저 정보
   const { userInfo } = useLoginInfo();
 
   // 비율 기반 드래그 훅 사용
@@ -90,10 +92,10 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     }
 
     if (!place) {
-      console.log("데이터 없음");
+      customToast.error("장소 데이터 누락");
       return;
     }
-    console.log(place);
+
     setSelectedPlace(place);
     router.push(`/review/write/${place.id}`);
   };
@@ -105,11 +107,13 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     return null;
   }
 
+  // 리뷰 삭제 handler
   const handleDeleteReview = () => {
     if (!placeData?.review?.reviewId) return;
     deleteReviewMutation.mutate({ reviewId: placeData.review.reviewId });
   };
 
+  // 찜 등록 handler
   const handlePatchJjim = () => {
     if (!place) {
       customToast.error("장소 정보가 없습니다.");
