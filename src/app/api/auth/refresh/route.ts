@@ -71,6 +71,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       console.log('refreshToken 갱신 실패, 세션 삭제');
       await redis.del(sessionId); // 실패한 세션 삭제
       
+      console.log("response error: ", response.text);
+      console.log("response status: ", response.status);
+      console.log("response json: ", response.json);
+
       const errorResponse: ErrorResponse = {
         status: 401,
         name: "REFRESH_FAILED",
