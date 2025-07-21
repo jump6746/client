@@ -10,6 +10,7 @@ interface RefreshResponseData {
 export async function POST(request: NextRequest): Promise<NextResponse<ResponseDTO<RefreshResponseData> | ErrorResponse>> {
   try{
 
+    console.log("토큰 refresh 요청");
     // 쿠키에서 session id 가져오기
     const sessionId = request.cookies.get("sessionId")?.value;
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     }
 
     const redis = getRedisClient();
-    const sessionDataStr:string | null = await redis.get(sessionId);
+    const sessionDataStr: SessionData | null = await redis.get(sessionId);
 
     // Redis에 저장된 session id가 없을시
     if (!sessionDataStr) {
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       return NextResponse.json(errorResponse, { status: 401 });
     }
 
-    const sessionData: SessionData = JSON.parse(sessionDataStr);
+    const sessionData: SessionData = sessionDataStr;
 
     // Redis에서 가져온 refreshToken 확인
     if (!sessionData.refreshToken) {

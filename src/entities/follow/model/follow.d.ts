@@ -19,3 +19,26 @@ export interface SearchUserScorllResponse {
 export interface UserFollowResponse {
   resultMessage: string;
 }
+
+export interface FollowerReview {
+  reviewId: number;
+  reviewImg: {
+    presignedUrl: string;
+  };
+  reviewPlaceName: string;
+  reviewCreatedAt: string;
+  distance: number;
+  placeLongtitude: number;
+  placeLatitude: number;
+  placeId: number;
+  avatarThumbnail: {
+    presignedUrl: string;
+  };
+  nickname: string;
+}
+
+export interface FollowerReviewsResponse {
+  items: FollowerReview[];
+  nextCursor: string | null;
+  hasNext: boolean;
+}
