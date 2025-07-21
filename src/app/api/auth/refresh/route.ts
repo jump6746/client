@@ -26,7 +26,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     }
 
     const redis = getRedisClient();
-    const sessionDataStr: SessionData | null = await redis.get(sessionId);
+    const sessionDataStr: string | null = await redis.get(sessionId);
 
     // Redis에 저장된 session id가 없을시
     if (!sessionDataStr) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       return NextResponse.json(errorResponse, { status: 401 });
     }
 
-    const sessionData: SessionData = sessionDataStr;
+    const sessionData: SessionData = JSON.parse(sessionDataStr);
 
     // Redis에서 가져온 refreshToken 확인
     if (!sessionData.refreshToken) {
