@@ -65,6 +65,12 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const { data } = useTasteMapThumbnail({ id: place?.id });
 
   useEffect(() => {
+    if (!isGuestMode && !userInfo) {
+      router.push("/login");
+    }
+  }, [isGuestMode, userInfo, router]);
+
+  useEffect(() => {
     if (isSuccessResponse(data)) {
       setPlaceData(data.data);
       setError(null);
