@@ -24,6 +24,7 @@ const ReviewModifyForm = () => {
     // setSelectedPrice,
     clearReviewData,
     handleImageUpload,
+    handleKeyDown,
     // handleFileInputClick,
     handlePriceSelect,
     handleSubmit,
@@ -168,6 +169,7 @@ const ReviewModifyForm = () => {
           onChange={(e) => {
             setContent(e.currentTarget.value);
           }}
+          onKeyDown={handleKeyDown}
         />
       </div>
       <div className="flex flex-col gap-2">
@@ -187,6 +189,7 @@ const ReviewModifyForm = () => {
                   e.currentTarget.value
                 );
               }}
+              onKeyDown={handleKeyDown}
               placeholder={index > 0 ? `메뉴 이름` : "예) 된장찌개"}
               className="border-2 rounded-lg placeholder:font-semibold border-gray-200 w-fit px-2 py-2"
             />

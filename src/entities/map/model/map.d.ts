@@ -83,3 +83,21 @@ export interface TastePlace {
   priceRange: number;
   distance: number;
 }
+
+export interface RecommendTasteMap {
+  contents: TasteMapContent[];
+  nextCursor: string;
+  hasNext: boolean;
+}
+
+export interface TasteMapContent {
+  tasteMapId: number;
+  tasteMapUserId: number;
+  tasteMapUserNickname: string;
+  tasteMapUserThumbnailUrl: string;
+  tasteMapTitle: string;
+  nearCnt: number;
+  gourmetScore: number;
+  tasteMapThumbnailUrls: {url: string; key:string}[];
+  createdAt: string;
+}

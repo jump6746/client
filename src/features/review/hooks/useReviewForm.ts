@@ -135,6 +135,11 @@ const useReviewForm = () => {
     setImages(prev => prev.filter(img => img.id !== imageId));
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if(e.key === "Enter"){
+      e.preventDefault();
+    }
+  }
   
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -257,6 +262,7 @@ const useReviewForm = () => {
     removeImage,
     handleSubmit,
     handleFileInputClick,
+    handleKeyDown,
     isFormValid,
     setSelectedPrice,
     handlePriceSelect,
