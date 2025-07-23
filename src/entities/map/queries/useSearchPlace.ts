@@ -1,9 +1,9 @@
-import { KaokaoResponse, SearchOptions } from "../model";
+import { KakaoResponse, SearchOptions } from "../model";
 import { useCallback, useState } from "react";
 import { searchPlacesAPI } from "../api";
 
 const useSearchPlaces = () => {
-  const [places, setPlaces] = useState<KaokaoResponse[]>([]);
+  const [places, setPlaces] = useState<KakaoResponse[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 

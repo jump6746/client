@@ -1,4 +1,4 @@
-interface KaokaoResponse {
+export interface KakaoResponse {
   /** 장소 ID */
   id: string;
   /** 장소명, 업체명 */

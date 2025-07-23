@@ -5,9 +5,11 @@ import { PlaceThumbnail } from "../model";
 interface Props {
   id?: string;
   userId?: number | null;
+  userMapx: number;
+  userMapy: number;
 }
 
-const getTasteMapThumbnailAPI = async ({id, userId}: Props): Promise<ResponseDTO<PlaceThumbnail> | ErrorResponse> => {
+const getTasteMapThumbnailAPI = async ({id, userId, userMapx, userMapy}: Props): Promise<ResponseDTO<PlaceThumbnail> | ErrorResponse> => {
 
   if(!id){
     return {
@@ -18,17 +20,9 @@ const getTasteMapThumbnailAPI = async ({id, userId}: Props): Promise<ResponseDTO
     }
   };
 
-  if(!userId){
-    return {
-      status: 400,
-      name: "유저 ID 값 누락",
-      message: "유저 ID 값이 없습니다.",
-      timestamp: new Date().toDateString()
-    }
-  }
-
   return await clientFetch<undefined, PlaceThumbnail>({
-    url: userId ? apiURL(`/places/${id}/preview?ownerId=${userId}`) : apiURL(`/places/${id}/preview`),
+    url: userId ? apiURL(`/places/${id}/preview?ownerId=${userId}&userMapx=${userMapx}&userMapy=${userMapy}`) 
+    : apiURL(`/places/${id}/preview?userMapx=${userMapx}&userMapy=${userMapy}`),
     method: "GET"
   });
 }
