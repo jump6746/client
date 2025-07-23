@@ -7,6 +7,7 @@ import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
 import { useLoginInfo } from "@/entities/auth/queries";
 import { useMapURL } from "../hooks";
+import { useTasteMapThumbnail } from "@/entities/review/queries";
 
 interface Location {
   lat: number;
@@ -42,7 +43,10 @@ const NaverMap = ({
   const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
 
   const { userInfo } = useLoginInfo();
-  const { updatePlaceId } = useMapURL();
+  const { updatePlaceId, getPlaceIdFromURL } = useMapURL();
+  const { data: placeURLData } = useTasteMapThumbnail({
+    id: getPlaceIdFromURL() ?? "-1",
+  });
 
   // 맛지도 데이터 받아오는 Query
   const {
@@ -235,10 +239,28 @@ const NaverMap = ({
         searchMarkerRef.current = null;
       }
 
-      // place가 있을 때만 새로운 마커 생성
+      const placePosition: { y: number | null; x: number | null } = {
+        y: null,
+        x: null,
+      };
+
       if (place) {
+        placePosition.y = place.y;
+        placePosition.x = place.x;
+      } else {
+        if (placeURLData && isSuccessResponse(placeURLData)) {
+          placePosition.y = placeURLData.data.mapy;
+          placePosition.x = placeURLData.data.mapx;
+        }
+      }
+
+      // place가 있을 때만 새로운 마커 생성
+      if (placePosition.x && placePosition.y) {
         // 새로운 검색 마커 생성 (빨간색 핀)
-        const searchPosition = new window.naver.maps.LatLng(place.y, place.x);
+        const searchPosition = new window.naver.maps.LatLng(
+          placePosition.y,
+          placePosition.x
+        );
 
         const searchMarker = new window.naver.maps.Marker({
           position: searchPosition,
@@ -255,12 +277,19 @@ const NaverMap = ({
 
         searchMarkerRef.current = searchMarker;
 
-        // // 검색된 장소로 지도 중심 이동
-        // map.setCenter(searchPosition);
-        // console.log("선택된 장소로 이동", searchPosition);
+        // 지도 scale에 따라서 offsetY 크기 바꿔야함
+        const offsetY = 0.002;
+        const centerPosition = new window.naver.maps.LatLng(
+          placePosition.y - offsetY,
+          placePosition.x
+        );
+
+        // 검색된 장소로 지도 중심 이동
+        map.setCenter(centerPosition);
+        console.log("선택된 장소로 이동", searchPosition);
       }
     }
-  }, [map, place]);
+  }, [map, place, placeURLData]);
 
   // 컴포넌트 언마운트 시 마커 정리
   useEffect(() => {

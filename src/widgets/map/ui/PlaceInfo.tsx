@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useGuestModeStore } from "@/shared/stores";
-import { Place, PlaceReivewData } from "@/entities/review/model/review";
+import { Place } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
 import {
   useDeleteReview,
@@ -105,13 +105,36 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
       return;
     }
 
-    if (!place) {
+    if (!place && !placeData) {
       customToast.error("장소 데이터 누락");
       return;
     }
 
-    setSelectedPlace(place);
-    router.push(`/review/write/${place.id}`);
+    let placeDataForReview = null;
+
+    if (place && !placeData) {
+      placeDataForReview = place;
+    } else if (!place && placeData) {
+      placeDataForReview = {
+        id: String(placeData.placeId),
+        place_name: placeData.title,
+        category_group_name: placeData.category,
+        address_name: placeData.address,
+        road_address_name: placeData.roadAddress,
+        phone: placeData.telePhone,
+        place_url: placeData.placeUrl,
+        x: placeData.mapx,
+        y: placeData.mapy,
+        distance: placeData.distance,
+      };
+    }
+
+    if (!placeDataForReview) {
+      return;
+    }
+
+    setSelectedPlace(placeDataForReview);
+    router.push(`/review/write/${place?.id || placeData?.placeId}`);
   };
 
   const deleteReviewMutation = useDeleteReview({ id: place?.id });
@@ -289,26 +312,46 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                             return;
                           }
 
-                          if (!placeData?.review || !place) {
+                          if (!placeData?.review || (!place && !placeData)) {
                             customToast.error(
                               "리뷰 혹은 장소 정보가 없습니다."
                             );
+                            console.log(placeData);
                             return;
                           }
 
-                          const data: PlaceReivewData = {
-                            placeName: place?.place_name,
-                            placeGroupName: place?.category_group_name,
-                            placeAddressName: place?.road_address_name,
-                            ...placeData.review,
-                          };
+                          let placeReviewData = null;
 
-                          setReviewData(data);
+                          if (place) {
+                            placeReviewData = {
+                              placeName: place?.place_name,
+                              placeGroupName: place?.category_group_name,
+                              placeAddressName: place?.road_address_name,
+                              ...placeData.review,
+                            };
+                          } else if (!place && placeData) {
+                            placeReviewData = {
+                              placeName: placeData.title,
+                              placeGroupName: placeData.category,
+                              placeAddressName: placeData.roadAddress,
+                              ...placeData.review,
+                            };
+                          }
+
+                          if (!placeReviewData) return;
+
+                          setReviewData(placeReviewData);
                           setShowMoreMenu(false);
-                          router.push(`/review/modify/${place.id}`);
+                          router.push(
+                            `/review/modify/${place?.id || placeData.placeId}`
+                          );
                         }}
                         className="w-full px-4 py-2 text-left hover:bg-gray-50 rounded-t-lg disabled:hover:bg-transparent disabled:text-gray-400"
-                        disabled={isGuestMode || !placeData?.review || !place}
+                        disabled={
+                          isGuestMode ||
+                          !placeData?.review ||
+                          (!place && !placeData)
+                        }
                       >
                         수정하기
                       </button>
