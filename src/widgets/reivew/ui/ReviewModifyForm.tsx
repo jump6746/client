@@ -40,6 +40,16 @@ const ReviewModifyForm = () => {
       action=""
       className="flex flex-col w-full h-full gap-5 p-4 overflow-auto"
       onSubmit={handleSubmit}
+      onKeyDown={(e)=>{
+        if (e.key === "Enter") {
+          // 조건: Enter를 눌렀고, input에서 누른 것만 처리
+          const target = e.target as HTMLElement;
+          if (target.tagName === "INPUT") {
+            e.preventDefault(); // 기본 submit 방지
+            addMenuInput(); // 추천 메뉴 추가
+          }
+        }
+      }}
     >
       {/* 버튼란 */}
       <div className="w-full flex justify-between">
