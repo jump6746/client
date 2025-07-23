@@ -21,6 +21,7 @@ interface NaverMapProps {
   zoom?: number; // 줌 레벨
   width?: string; // 너비
   height?: string; // 높이
+  onMapClick?: () => void;
 }
 
 const NaverMap = ({
@@ -30,6 +31,7 @@ const NaverMap = ({
   zoom = 15,
   width = "100%",
   height = "100%",
+  onMapClick,
 }: NaverMapProps) => {
   // 상태들
   const [map, setMap] = useState<NaverMapInstance | null>(null);
@@ -297,6 +299,19 @@ const NaverMap = ({
       }
     };
   }, []);
+
+  // 지도 클릭 시 placeInfo 닫기
+  useEffect(() => {
+    if (!map || !onMapClick) return;
+
+    const listener = window.naver.maps.Event.addListener(map, "click", ()=>{
+      onMapClick?.();
+    });
+
+    return () => {
+      window.naver.maps.Event.removeListener(listener);
+    };
+  }, [map, onMapClick]);
 
   return (
     <div style={{ width, height }} className="relative">

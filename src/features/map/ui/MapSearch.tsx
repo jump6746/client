@@ -35,7 +35,7 @@ const MapSearch = ({
         <label htmlFor="map-search" className="sr-only">
           장소 검색
         </label>
-        <div className="flex gap-3 px-3 items-center">
+        <div className="flex gap-3 py-2 px-3 items-center">
           <button
             className="cursor-pointer"
             onClick={() => {
@@ -55,7 +55,7 @@ const MapSearch = ({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="음식점, 메뉴, 장소 검색"
-            className="w-full py-2 font-medium"
+            className="font-medium"
           />
         </div>
       </form>

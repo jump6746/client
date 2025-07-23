@@ -13,6 +13,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     console.log("토큰 refresh 요청");
     // 쿠키에서 session id 가져오기
     const sessionId = request.cookies.get("sessionId")?.value;
+    console.log("SessionID from Cookie: ", sessionId);
 
     // 쿠키에 session id 미존재시
     if (!sessionId) {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
 
     const redis = getRedisClient();
     const sessionDataStr: SessionData | null = await redis.get(sessionId);
+    console.log("SessionDataStr: ", sessionDataStr);
 
     // Redis에 저장된 session id가 없을시
     if (!sessionDataStr) {
@@ -69,6 +71,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       console.log('refreshToken 갱신 실패, 세션 삭제');
       await redis.del(sessionId); // 실패한 세션 삭제
       
+      console.log("response error: ", response.text);
+      console.log("response status: ", response.status);
+      console.log("response json: ", response.json);
+
       const errorResponse: ErrorResponse = {
         status: 401,
         name: "REFRESH_FAILED",

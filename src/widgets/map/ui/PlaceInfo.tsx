@@ -7,7 +7,7 @@ import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+import { useGuestModeStore } from "@/shared/stores";
 import { Place } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
 import {
@@ -40,7 +40,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const { getPlaceIdFromURL, clearURL } = useMapURL();
 
   // 유저 정보
-  const { userInfo } = useLoginInfo();
+  const { userInfo, isLoading } = useLoginInfo();
 
   // 비율 기반 드래그 훅 사용
   const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
@@ -72,6 +72,12 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const { data } = useTasteMapThumbnail({ id: placeId });
 
   useEffect(() => {
+    if (!isGuestMode && !isLoading && !userInfo) {
+      router.push("/login");
+    }
+  }, [isLoading, isGuestMode, userInfo, router]);
+
+  useEffect(() => {
     if (!data) return;
 
     if (isSuccessResponse(data)) {
@@ -84,12 +90,13 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   }, [data]);
 
   useEffect(() => {
-    if (!placeId) return;
-
-    if (placeId != null) {
-      setIsOpen(true);
-      setIsExpanded(false);
+    if (!placeId || !place) {
+      // 둘 다 없으면 닫음
+      setIsOpen(false);
+      return;
     }
+    setIsOpen(true);
+    setIsExpanded(false);
   }, [placeId, setIsExpanded]);
 
   const handleWriteReview = () => {
@@ -190,14 +197,19 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     );
   };
 
+  if (!isOpen || !place) return null;
+
   return (
     <div
       className={`
         absolute w-full bottom-0 bg-white shadow-lg border-t h-full rounded-t-2xl overflow-hidden border-gray-200 z-[800]
         ${isOpen ? "translate-y-0" : "translate-y-full"}
         ${isDragging ? "" : "transition-all duration-300 ease-out"}
+        ${!isOpen ? "pointer-events-none" : ""}
       `}
-      style={{ height: `${currentHeight}px` }}
+      style={{
+        height: `${currentHeight}px`,
+      }}
     >
       {/* 상단 핸들 - 드래그 영역 */}
       <div

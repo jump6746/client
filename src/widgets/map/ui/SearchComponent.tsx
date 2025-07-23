@@ -33,7 +33,7 @@ const SearchComponent = ({ currentLocation, onPlaceSelect }: Props) => {
             setIsOpen(true);
           }}
         >
-          <Image src="/icons/arrow.svg" alt="돋보기" width={24} height={24} />
+          <Image src="/icons/search.svg" alt="돋보기" width={24} height={24} />
           <span className="text-gray-500 font-medium">
             음식점, 메뉴, 장소 검색
           </span>
