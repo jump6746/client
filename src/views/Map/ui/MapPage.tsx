@@ -53,6 +53,12 @@ const MapPage = () => {
     [updatePlaceId]
   );
 
+  // 지도 클릭 시 PlaceInfo 닫기
+  const handleMapClick = useCallback(() => {
+    setPlace(null);
+    updatePlaceId(null); // URL에서 placeId 제거
+  }, [updatePlaceId]);
+
   return (
     <div className="w-full h-full relative">
       <SearchComponent
@@ -65,6 +71,7 @@ const MapPage = () => {
           setPlace={setPlace}
           center={mapCenter}
           zoom={16}
+          onMapClick={handleMapClick}
         />
       )}
       <PlaceInfo place={place} setPlace={setPlace} />
