@@ -35,13 +35,12 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
 
-  const { userInfo, isLoading } = useLoginInfo();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { getPlaceIdFromURL, clearURL } = useMapURL();
 
   // 유저 정보
-  const { userInfo } = useLoginInfo();
+  const { userInfo, isLoading } = useLoginInfo();
 
   // 비율 기반 드래그 훅 사용
   const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
