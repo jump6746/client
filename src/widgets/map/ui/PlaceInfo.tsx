@@ -7,7 +7,7 @@ import { usePlaceStore, useReviewStore } from "@/shared/stores";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import useGuestModeStore from "@/shared/stores/useGuestModeStore";
+import { useGuestModeStore } from "@/shared/stores";
 import { Place, PlaceReivewData } from "@/entities/review/model/review";
 import { customToast } from "@/shared/ui/CustomToast";
 import {
@@ -36,7 +36,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
 
-  const { userInfo } = useLoginInfo();
+  const { userInfo, isLoading } = useLoginInfo();
 
   // 비율 기반 드래그 훅 사용
   const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
@@ -65,10 +65,10 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const { data } = useTasteMapThumbnail({ id: place?.id });
 
   useEffect(() => {
-    if (!isGuestMode && !userInfo) {
+    if (!isGuestMode && !isLoading && !userInfo) {
       router.push("/login");
     }
-  }, [isGuestMode, userInfo, router]);
+  }, [isLoading, isGuestMode, userInfo, router]);
 
   useEffect(() => {
     if (isSuccessResponse(data)) {
