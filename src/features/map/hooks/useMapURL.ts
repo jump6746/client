@@ -22,6 +22,7 @@ const useMapURL = () => {
     }
 
     return null;
+    
   },[searchParams]);
 
   // url에서 placeid 가져오기

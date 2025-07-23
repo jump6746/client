@@ -1,6 +1,6 @@
-import { KaokaoResponse, SearchOptions } from "@/entities/map/model";
+import { KakaoResponse, SearchOptions } from "@/entities/map/model";
 
-const searchPlacesAPI = async (options: SearchOptions): Promise<KaokaoResponse[]> => {
+const searchPlacesAPI = async (options: SearchOptions): Promise<KakaoResponse[]> => {
   const { query, lat, lng, size = 15 } = options;
 
   if (!query.trim()) return [];

@@ -1,7 +1,7 @@
 import { searchPlacesAPI } from "@/entities/map/api";
 import { useDebounce } from "@/shared/hooks";
 import { useState } from "react";
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 interface useSearchOptions {
   currentLocation?: {

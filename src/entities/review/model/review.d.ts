@@ -59,6 +59,16 @@ export interface ImageFile {
 
 export interface PlaceThumbnail {
   jjim: boolean;
+  placeId: number;
+  title: string;
+  address: string;
+  roadAddress: string;
+  category: string;
+  telePhone: string;
+  placeUrl: string;
+  mapx: number;
+  mapy: number;
+  distance: number;
   review: PlaceReviewThumbnail | null;
 }
 

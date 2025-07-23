@@ -9,14 +9,7 @@ import { customToast } from "@/shared/ui/CustomToast";
 
 const MapPage = () => {
   // url 관리
-  const {
-    getLocationFromURL,
-    getPlaceIdFromURL,
-    updateLocation,
-    updatePlaceId,
-    updateMapState,
-    hasMapState,
-  } = useMapURL();
+  const { updatePlaceId } = useMapURL();
 
   // 현재 위치
   const { currentLocation, getCurrentLocation, locationError } =
@@ -55,14 +48,9 @@ const MapPage = () => {
     (place: KakaoResponse) => {
       setPlace(place);
 
-      const newCenter = {
-        lat: place.y,
-        lng: place.x,
-      };
-
-      updateMapState(newCenter.lat, newCenter.lng, place.id);
+      updatePlaceId(place.id);
     },
-    [updateMapState]
+    [updatePlaceId]
   );
 
   return (

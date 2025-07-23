@@ -1,9 +1,9 @@
-import { KaokaoResponse } from "@/entities/map/model";
+import { KakaoResponse } from "@/entities/map/model";
 import { create } from "zustand";
 
 interface Props {
-  selectedPlace: KaokaoResponse | null;
-  setSelectedPlace: (place: KaokaoResponse) => void;
+  selectedPlace: KakaoResponse | null;
+  setSelectedPlace: (place: KakaoResponse) => void;
   clearSelectedPlace: () => void;
 }
 

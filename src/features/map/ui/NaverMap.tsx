@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
-import { KaokaoResponse, TasteMap } from "@/entities/map/model";
+import { KakaoResponse, TasteMap } from "@/entities/map/model";
 import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
 import { useLoginInfo } from "@/entities/auth/queries";
+import { useMapURL } from "../hooks";
 
 interface Location {
   lat: number;
@@ -14,8 +15,8 @@ interface Location {
 
 interface NaverMapProps {
   center?: Location; // 외부에서 받는 중심 위치
-  place: KaokaoResponse | null;
-  setPlace: React.Dispatch<React.SetStateAction<KaokaoResponse | null>>;
+  place: KakaoResponse | null;
+  setPlace: React.Dispatch<React.SetStateAction<KakaoResponse | null>>;
   zoom?: number; // 줌 레벨
   width?: string; // 너비
   height?: string; // 높이
@@ -39,6 +40,7 @@ const NaverMap = ({
   const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
 
   const { userInfo } = useLoginInfo();
+  const { updatePlaceId } = useMapURL();
 
   // 맛지도 데이터 받아오는 Query
   const {
@@ -214,10 +216,11 @@ const NaverMap = ({
             road_address_name: item.roadAddress,
             distance: item.distance,
           });
+          updatePlaceId(item.placeId);
         });
       });
     }
-  }, [map, data]);
+  }, [map, data, updatePlaceId]);
 
   // 검색된 장소 마커 생성/업데이트
   useEffect(() => {
