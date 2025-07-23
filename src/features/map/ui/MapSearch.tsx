@@ -1,13 +1,13 @@
 "use client";
 
 import { Input } from "@/shared/ui/Input";
-import { KaokaoResponse } from "@/entities/map/model";
+import { KakaoResponse } from "@/entities/map/model";
 import { usePlaceSearch } from "../hooks";
 import Image from "next/image";
 
 interface MapSearchProps {
   currentLocation: { lat: number; lng: number } | null;
-  onPlaceSelect: (place: KaokaoResponse) => void;
+  onPlaceSelect: (place: KakaoResponse) => void;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -20,8 +20,7 @@ const MapSearch = ({
     currentLocation: currentLocation || undefined,
   });
 
-  const handlePlaceSelect = (place: KaokaoResponse) => {
-    console.log("장소 선택: ", place);
+  const handlePlaceSelect = (place: KakaoResponse) => {
     onPlaceSelect(place);
     setSearch(""); // 선택 후 검색어 초기화
     setIsOpen(false);

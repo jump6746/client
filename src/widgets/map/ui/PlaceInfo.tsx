@@ -1,6 +1,6 @@
 "use client";
 
-import { KaokaoResponse } from "@/entities/map/model";
+import { KakaoResponse } from "@/entities/map/model";
 import { PlaceThumbnail } from "@/entities/review/model";
 import { isSuccessResponse } from "@/shared/lib";
 import { usePlaceStore, useReviewStore } from "@/shared/stores";
@@ -18,10 +18,11 @@ import {
 import { useDragSheet } from "@/shared/hooks";
 import { useLoginInfo } from "@/entities/auth/queries";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMapURL } from "@/features/map/hooks";
 
 interface Props {
-  place: KaokaoResponse | null;
-  setPlace: React.Dispatch<React.SetStateAction<KaokaoResponse | null>>;
+  place: KakaoResponse | null;
+  setPlace: React.Dispatch<React.SetStateAction<KakaoResponse | null>>;
 }
 
 const PlaceInfo = ({ place, setPlace }: Props) => {
@@ -31,12 +32,16 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   const [error, setError] = useState<string | null>(null);
 
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const setSelectedPlace = usePlaceStore((state) => state.setSelectedPlace);
   const setReviewData = useReviewStore((state) => state.setReviewData);
 
   const { userInfo, isLoading } = useLoginInfo();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { getPlaceIdFromURL, clearURL } = useMapURL();
+
+  // 유저 정보
+  const { userInfo } = useLoginInfo();
 
   // 비율 기반 드래그 훅 사용
   const { isDragging, currentHeight, setIsExpanded, handlePointerDown } =
@@ -58,11 +63,14 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
       () => {
         setIsOpen(false);
         setPlace(null);
+        clearURL();
       }
     );
 
   // 장소 리뷰 썸네일 불러오기
-  const { data } = useTasteMapThumbnail({ id: place?.id });
+
+  const placeId = getPlaceIdFromURL() ?? place?.id;
+  const { data } = useTasteMapThumbnail({ id: placeId });
 
   useEffect(() => {
     if (!isGuestMode && !isLoading && !userInfo) {
@@ -71,6 +79,8 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   }, [isLoading, isGuestMode, userInfo, router]);
 
   useEffect(() => {
+    if (!data) return;
+
     if (isSuccessResponse(data)) {
       setPlaceData(data.data);
       setError(null);
@@ -81,13 +91,13 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   }, [data]);
 
   useEffect(() => {
-    if (!place) return;
+    if (!placeId) return;
 
-    if (place != null) {
+    if (placeId != null) {
       setIsOpen(true);
       setIsExpanded(false);
     }
-  }, [place, setIsExpanded]);
+  }, [placeId, setIsExpanded]);
 
   const handleWriteReview = () => {
     if (isGuestMode) {
@@ -96,10 +106,10 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     }
 
     if (!place) {
-      console.log("데이터 없음");
+      customToast.error("장소 데이터 누락");
       return;
     }
-    console.log(place);
+
     setSelectedPlace(place);
     router.push(`/review/write/${place.id}`);
   };
@@ -111,11 +121,13 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     return null;
   }
 
+  // 리뷰 삭제 handler
   const handleDeleteReview = () => {
     if (!placeData?.review?.reviewId) return;
     deleteReviewMutation.mutate({ reviewId: placeData.review.reviewId });
   };
 
+  // 찜 등록 handler
   const handlePatchJjim = () => {
     if (!place) {
       customToast.error("장소 정보가 없습니다.");
@@ -193,28 +205,44 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
               {/* 헤더 */}
               <div className="flex justify-between items-start">
                 <h3 className="text-2xl font-semibold text-gray-900 flex-1">
-                  {place?.place_name}
+                  {place?.place_name || placeData?.title}
                 </h3>
               </div>
 
               {/* 정보 리스트 */}
               <div className="flex flex-col gap-2">
-                {place?.category_group_name && (
+                {place?.category_group_name ? (
                   <span className="text-gray-400">
                     {place.category_group_name}
                   </span>
+                ) : (
+                  placeData?.category && (
+                    <span className="text-gray-400">{placeData?.category}</span>
+                  )
                 )}
                 <div className="flex gap-2">
-                  {place?.distance && (
+                  {place?.distance ? (
                     <span className="text-sm text-black font-semibold">
                       {(place.distance / 1000).toFixed(2)}km
                     </span>
+                  ) : (
+                    placeData?.distance && (
+                      <span className="text-sm text-black font-semibold">
+                        {(placeData?.distance / 1000).toFixed(2)}km
+                      </span>
+                    )
                   )}
 
-                  {place?.road_address_name && (
+                  {place?.road_address_name ? (
                     <span className="text-sm text-gray-600 flex-1">
                       {place.road_address_name}
                     </span>
+                  ) : (
+                    placeData?.roadAddress && (
+                      <span className="text-sm text-gray-600 flex-1">
+                        {placeData.roadAddress}
+                      </span>
+                    )
                   )}
                 </div>
               </div>

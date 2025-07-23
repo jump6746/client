@@ -15,20 +15,22 @@ const usePlaceSearch = (options: useSearchOptions = {}) => {
   const { currentLocation } = options;
   const [search, setSearch] = useState<string>("");
   const debouncedSearch = useDebounce(search, 500);
-
+  
   // TanStack Query로 데이터 관리
   const { 
     data: places = [], 
     isLoading, 
     error,
   } = useQuery({
-    queryKey: ['restaurant-search', debouncedSearch, currentLocation?.lat, currentLocation?.lng],
+    queryKey: ['place-search', debouncedSearch, currentLocation?.lat, currentLocation?.lng],
     queryFn: () => searchPlacesAPI({
       query: debouncedSearch,
       lat: currentLocation?.lat,
       lng: currentLocation?.lng,
     }),
     enabled: !!debouncedSearch.trim(),
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
   return {

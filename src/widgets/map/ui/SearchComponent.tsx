@@ -1,13 +1,13 @@
 "use client";
 
-import { KaokaoResponse } from "@/entities/map/model";
+import { KakaoResponse } from "@/entities/map/model";
 import { MapSearch } from "@/features/map/ui";
 import Image from "next/image";
 import { useState } from "react";
 
 interface Props {
   currentLocation: { lat: number; lng: number } | null;
-  onPlaceSelect: (place: KaokaoResponse) => void;
+  onPlaceSelect: (place: KakaoResponse) => void;
 }
 
 const SearchComponent = ({ currentLocation, onPlaceSelect }: Props) => {
