@@ -90,14 +90,14 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   }, [data]);
 
   useEffect(() => {
-    if (!placeId || !place) {
+    if (!placeId || (!place && !placeData)) {
       // 둘 다 없으면 닫음
       setIsOpen(false);
       return;
     }
     setIsOpen(true);
     setIsExpanded(false);
-  }, [placeId, setIsExpanded]);
+  }, [placeId, setIsExpanded, placeData]);
 
   const handleWriteReview = () => {
     if (isGuestMode) {
@@ -139,10 +139,6 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
 
   const deleteReviewMutation = useDeleteReview({ id: place?.id });
   const patchJjimMutation = usePatchJjim();
-
-  if (!place && !isOpen) {
-    return null;
-  }
 
   // 리뷰 삭제 handler
   const handleDeleteReview = () => {
@@ -197,7 +193,11 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     );
   };
 
-  if (!isOpen || !place) return null;
+  if (!isOpen && !place && !placeData) {
+    console.log(isOpen);
+    console.log(!place);
+    return null;
+  }
 
   return (
     <div

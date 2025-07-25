@@ -50,7 +50,7 @@ const ReviewForm = () => {
       action=""
       className="flex flex-col w-full h-full gap-5 p-4 overflow-auto"
       onSubmit={handleSubmit}
-      onKeyDown={(e)=>{
+      onKeyDown={(e) => {
         if (e.key === "Enter") {
           // 조건: Enter를 눌렀고, input에서 누른 것만 처리
           const target = e.target as HTMLElement;
@@ -95,14 +95,16 @@ const ReviewForm = () => {
           {images.map((image) => (
             <CarouselItem
               key={image.id}
-              className="w-25 h-25 rounded-2xl overflow-hidden relative"
+              className="w-24 h-24 rounded-2xl overflow-hidden relative"
             >
               <Image
                 src={image.preview}
                 alt={image.name}
-                width={100}
-                height={100}
+                width={96}
+                height={96}
                 className="object-cover w-full h-full"
+                priority={true}
+                quality={75}
               />
               <button
                 type="button"
