@@ -60,7 +60,7 @@ const MapPage = () => {
   }, [updatePlaceId]);
 
   return (
-    <div className="w-full h-full relative">
+    <div className="w-full h-full relative overflow-auto">
       <SearchComponent
         currentLocation={mapCenter}
         onPlaceSelect={handlePlaceSelect}

@@ -15,7 +15,7 @@ const Navigation = () => {
         />
         <span className="text-xs">구독 목록</span>
       </Link>
-      <Link href="/" className="flex flex-col gap-1 items-center">
+      <Link href="/home" className="flex flex-col gap-1 items-center">
         <Image src="/icons/map_icon.svg" alt="지도" width={24} height={24} />
         <span className="text-xs">내 지도</span>
       </Link>
