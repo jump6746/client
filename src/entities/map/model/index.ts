@@ -1,1 +1,1 @@
-export type { SearchOptions, SearchResponse, KakaoPlace, KakaoSearchResponse, TasteMap, KakaoResponse } from "./map.d";
+export type { SearchOptions, SearchResponse, KakaoPlace, KakaoSearchResponse, TasteMap, KakaoResponse, RecommendMap, InfinityRecommendMap } from "./map.d";

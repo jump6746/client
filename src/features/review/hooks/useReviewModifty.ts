@@ -183,7 +183,7 @@ const useReviewModify = () => {
             // 폼 초기화
             setContent('');
             setImages([]);
-            router.push("/home");
+            router.push(`/home?placeId=${params.placeId}`);
           }else{
             customToast.error("리뷰 수정에 실패했습니다.");
           } 
