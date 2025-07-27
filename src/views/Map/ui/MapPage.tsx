@@ -6,6 +6,7 @@ import { PlaceInfo, SearchComponent } from "@/widgets/map/ui";
 import { NaverMap } from "@/features/map";
 import { useGeolocation, useMapURL } from "@/features/map/hooks";
 import { customToast } from "@/shared/ui/CustomToast";
+import RecommendMap from "@/widgets/map/ui/RecommendMap";
 
 const MapPage = () => {
   // url 관리
@@ -60,7 +61,7 @@ const MapPage = () => {
   }, [updatePlaceId]);
 
   return (
-    <div className="w-full h-full relative overflow-auto">
+    <div className="w-full h-full relative overflow-hidden">
       <SearchComponent
         currentLocation={mapCenter}
         onPlaceSelect={handlePlaceSelect}
@@ -75,6 +76,7 @@ const MapPage = () => {
         />
       )}
       <PlaceInfo place={place} setPlace={setPlace} />
+      <RecommendMap />
     </div>
   );
 };

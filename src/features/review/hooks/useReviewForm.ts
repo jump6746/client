@@ -185,7 +185,7 @@ const useReviewForm = () => {
             setContent('');
             setImages([]);
             queryClient.invalidateQueries({queryKey: ["taste-map-thumbnail", params.placeId, userInfo?.userId]})
-            router.push("/home");
+            router.push(`/home?placeId=${params.placeId}`);
           }else{
             customToast.error("리뷰 등록에 실패했습니다.");
           }
