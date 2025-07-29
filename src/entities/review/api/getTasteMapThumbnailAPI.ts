@@ -3,7 +3,7 @@ import { ErrorResponse, ResponseDTO } from "@/shared/types/api-structure";
 import { PlaceThumbnail } from "../model";
 
 interface Props {
-  id?: string;
+  id?: string | null;
   userId?: number | null;
   userMapx: number;
   userMapy: number;

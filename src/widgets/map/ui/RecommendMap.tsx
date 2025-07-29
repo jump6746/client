@@ -121,7 +121,7 @@ const RecommendMap = () => {
         {/* 더 이상 데이터가 없을 때 */}
         {!hasNextPage && recommendData.length > 0 && (
           <div className="text-center py-8 text-gray-500 border-t-2 border-gray-400">
-            모든 리뷰를 불러왔습니다
+            모든 추천 지도를 불러왔습니다
           </div>
         )}
 

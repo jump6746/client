@@ -45,7 +45,7 @@ const NaverMap = ({
   const { userInfo } = useLoginInfo();
   const { updatePlaceId, getPlaceIdFromURL } = useMapURL();
   const { data: placeURLData } = useTasteMapThumbnail({
-    id: getPlaceIdFromURL() ?? "-1",
+    id: getPlaceIdFromURL(),
   });
 
   // 맛지도 데이터 받아오는 Query
@@ -304,7 +304,7 @@ const NaverMap = ({
   useEffect(() => {
     if (!map || !onMapClick) return;
 
-    const listener = window.naver.maps.Event.addListener(map, "click", ()=>{
+    const listener = window.naver.maps.Event.addListener(map, "click", () => {
       onMapClick?.();
     });
 

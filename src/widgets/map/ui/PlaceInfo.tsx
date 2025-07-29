@@ -84,8 +84,10 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
       setPlaceData(data.data);
       setError(null);
     } else {
-      setPlaceData(null);
-      setError("리뷰 관련 데이터를 불러오지 못했습니다.");
+      if (data.status != 404) {
+        setPlaceData(null);
+        setError("리뷰 관련 데이터를 불러오지 못했습니다.");
+      }
     }
   }, [data]);
 
@@ -97,7 +99,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
     }
     setIsOpen(true);
     setIsExpanded(false);
-  }, [placeId, setIsExpanded, placeData]);
+  }, [placeId, placeData, place, setIsExpanded, setIsOpen]);
 
   const handleWriteReview = () => {
     if (isGuestMode) {
@@ -194,8 +196,6 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   };
 
   if (!isOpen && !place && !placeData) {
-    console.log(isOpen);
-    console.log(!place);
     return null;
   }
 
