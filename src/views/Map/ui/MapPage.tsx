@@ -71,7 +71,7 @@ const MapPage = () => {
           place={place}
           setPlace={setPlace}
           center={mapCenter}
-          zoom={16}
+          zoom={25}
           onMapClick={handleMapClick}
         />
       )}

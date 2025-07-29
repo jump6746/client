@@ -1,11 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
 import { loadNaverMaps } from '@/shared/lib';
 import { MapOptions } from '@/shared/types/types';
-import { NaverMapInstance } from "@/shared/types/naver-maps";
 
 const useNaverMap = (options: MapOptions) => {
   const [mapElement, setMapElement] = useState<HTMLDivElement | null>(null);
-  const [map, setMap] = useState<NaverMapInstance | null>(null);
+  const [map, setMap] = useState<naver.maps.Map | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const mapCallbackRef = useCallback((element: HTMLDivElement | null) => {

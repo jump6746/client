@@ -3,11 +3,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KakaoResponse, TasteMap } from "@/entities/map/model";
-import { NaverMapInstance, NaverMarker } from "@/shared/types/naver-maps";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
 import { useLoginInfo } from "@/entities/auth/queries";
 import { useMapURL } from "../hooks";
 import { useTasteMapThumbnail } from "@/entities/review/queries";
+import { MARKER_ICONS, MARKER_STYLES, MarkerCategory } from "@/entities/map/ui";
 
 interface Location {
   lat: number;
@@ -28,19 +28,21 @@ const NaverMap = ({
   center,
   place,
   setPlace,
-  zoom = 15,
+  zoom = 20,
   width = "100%",
   height = "100%",
   onMapClick,
 }: NaverMapProps) => {
   // 상태들
-  const [map, setMap] = useState<NaverMapInstance | null>(null);
+  const [map, setMap] = useState<naver.maps.Map | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<TasteMap | null>(null);
 
   const mapRef = useRef<HTMLDivElement>(null);
-  const currentLocationMarkerRef = useRef<NaverMarker | null>(null); // 현재 위치 마커 참조
-  const searchMarkerRef = useRef<NaverMarker | null>(null); // 검색 마커 (빨간색)
+  const currentLocationMarkerRef = useRef<naver.maps.Marker | null>(null); // 현재 위치 마커 참조
+  const searchMarkerRef = useRef<naver.maps.Marker | null>(null); // 검색 마커 (빨간색)
+  const selectedMarkerIdRef = useRef<string | null>(null);
+  const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
 
   const { userInfo } = useLoginInfo();
   const { updatePlaceId, getPlaceIdFromURL } = useMapURL();
@@ -59,31 +61,25 @@ const NaverMap = ({
     userMapy: center?.lat ?? 126.978,
   });
 
-  const markerTag = {
-    음식점: "restaurant",
-    카페: "coffee",
-    술집: "wine",
-    한식: "restaurant",
-    일식: "restaurant",
-    중식: "restaurant",
-    양식: "restaurant",
-  };
-
-  // 아이콘 프리로딩 (렌더링 문제 해결)
+  // 스타일 주입 (한 번만 실행)
   useEffect(() => {
-    const preloadIcons = () => {
-      const iconNames = Object.values(markerTag);
+    if (!document.getElementById("nm-marker-styles")) {
+      const styleElement = document.createElement("style");
+      styleElement.id = "nm-marker-styles";
+      styleElement.textContent =
+        MARKER_STYLES.BASE +
+        MARKER_STYLES.ANIMATIONS +
+        MARKER_STYLES.CURRENT_LOCATION;
+      document.head.appendChild(styleElement);
+    }
 
-      iconNames.forEach((iconName) => {
-        const img = new Image();
-        img.src = `/icons/${iconName}.svg`;
-
-        img.onload = () => console.log(`✅ Loaded: ${iconName}.svg`);
-        img.onerror = () => console.error(`❌ Failed to load: ${iconName}.svg`);
-      });
+    return () => {
+      // 컴포넌트 언마운트 시 스타일 제거 (선택사항)
+      const styleElement = document.getElementById("nm-marker-styles");
+      if (styleElement) {
+        styleElement.remove();
+      }
     };
-
-    preloadIcons();
   }, []);
 
   // 네이버 지도 초기화
@@ -114,6 +110,7 @@ const NaverMap = ({
           mapRef.current,
           mapOptions
         );
+
         setMap(mapInstance);
         setIsLoading(false);
       } catch (error) {
@@ -123,7 +120,7 @@ const NaverMap = ({
     };
 
     initMap();
-  }, []); // 초기화는 한 번만
+  }, []);
 
   // 맛지도 데이터
   useEffect(() => {
@@ -134,7 +131,7 @@ const NaverMap = ({
     }
   }, [response]);
 
-  // 현재 위치 마커 생성 (center가 있을 때만)
+  // 현재 위치 마커 생성 (현재 위치 관련 useEffect)
   useEffect(() => {
     if (map && center) {
       console.log("현재 위치:", center);
@@ -150,7 +147,7 @@ const NaverMap = ({
           position: currentPosition,
           map: map,
           icon: {
-            content: `<div style="width:20px;height:20px;background:#4285f4;border:3px solid white;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>`,
+            content: `<div class="nm-current-location"></div>`,
             anchor: new window.naver.maps.Point(10, 10),
           },
         });
@@ -165,53 +162,53 @@ const NaverMap = ({
 
   useEffect(() => {
     if (map && data) {
+      // 기존 마커들 제거
+      markersRef.current.forEach((marker) => marker.setMap(null));
+      markersRef.current.clear();
+
       data.placeList.forEach((item) => {
-        const marker = new window.naver.maps.Marker({
-          position: new window.naver.maps.LatLng(item.mapy, item.mapx),
+        const markerId = `nm-marker-${item.placeId}`;
+        const iconName = MARKER_ICONS[item.placeCategoryName as MarkerCategory];
+
+        const marker = new naver.maps.Marker({
+          position: new naver.maps.LatLng(item.mapy, item.mapx),
           map: map,
           icon: {
             content: `
-            <div style="position: relative; text-align: center;">
-              <!-- 마커 아이콘 -->
-              <img src="/icons/${
-                markerTag[
-                  item.placeCategoryName as
-                    | "음식점"
-                    | "카페"
-                    | "술집"
-                    | "한식"
-                    | "일식"
-                    | "양식"
-                    | "중식"
-                ]
-              }.svg" 
-                   style="width: 24px !important; height: 32px !important; display: block; margin: 0 auto;" 
-                   alt="marker" />
-              
-              <!-- 텍스트 라벨 -->
-              <div style="
-                position: absolute;
-                top: 30px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: #000000;
-                padding: 2px 6px;
-                background-color: white;
-                font-size: 12px;
-                font-weight: 500;
-                white-space: nowrap;
-                font-family: pretendard ,sans-serif;
-                z-index: 10;
-              ">
-                ${item.placeName}
+              <div id="${markerId}" class="nm-marker-wrapper">
+                <div class="nm-marker-shape nm-marker-${iconName}">
+                  <img class="nm-marker-icon"
+                       src="/icons/${iconName}.svg"
+                       alt="${item.placeCategoryName}"
+                  />
+                </div>
+                <span class="nm-marker-label">
+                  ${item.placeName}
+                </span>
               </div>
-            </div>
-          `,
-            anchor: new window.naver.maps.Point(10, 10),
+            `,
+            anchor: new naver.maps.Point(16, 16),
           },
         });
 
-        window.naver.maps.Event.addListener(marker, "click", () => {
+        markersRef.current.set(item.placeId, marker);
+
+        naver.maps.Event.addListener(marker, "click", () => {
+          if (selectedMarkerIdRef.current) {
+            const prevElement = document.querySelector(
+              `#nm-marker-${selectedMarkerIdRef.current} .nm-marker-shape`
+            );
+            console.log("remove");
+            prevElement?.classList.remove("active");
+          }
+
+          const currentElement = document.querySelector(
+            `#${markerId} .nm-marker-shape`
+          );
+          currentElement?.classList.add("active");
+
+          selectedMarkerIdRef.current = item.placeId;
+
           setPlace({
             id: item.placeId,
             place_name: item.placeName,
@@ -222,11 +219,12 @@ const NaverMap = ({
             road_address_name: item.roadAddress,
             distance: item.distance,
           });
+
           updatePlaceId(item.placeId);
         });
       });
     }
-  }, [map, data, updatePlaceId]);
+  }, [map, data]);
 
   // 검색된 장소 마커 생성/업데이트
   useEffect(() => {
@@ -262,23 +260,23 @@ const NaverMap = ({
           placePosition.x
         );
 
-        const searchMarker = new window.naver.maps.Marker({
-          position: searchPosition,
-          map: map,
-          icon: {
-            content: `
-            <div style="position: relative;">
-              <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
-            </div>
-          `,
-            anchor: new window.naver.maps.Point(12, 32),
-          },
-        });
+        // const searchMarker = new window.naver.maps.Marker({
+        //   position: searchPosition,
+        //   map: map,
+        //   icon: {
+        //     content: `
+        //     <div style="position: relative;">
+        //       <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
+        //     </div>
+        //   `,
+        //     anchor: new window.naver.maps.Point(12, 32),
+        //   },
+        // });
 
-        searchMarkerRef.current = searchMarker;
+        // searchMarkerRef.current = searchMarker;
 
         // 지도 scale에 따라서 offsetY 크기 바꿔야함
-        const offsetY = 0.002;
+        const offsetY = 0.006;
         const centerPosition = new window.naver.maps.LatLng(
           placePosition.y - offsetY,
           placePosition.x
