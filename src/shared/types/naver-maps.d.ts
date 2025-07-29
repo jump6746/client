@@ -1,41 +1,41 @@
-declare global {
-  interface Window {
-    naver: {
-      maps: {
-        Map: new (element: HTMLElement, options: NaverMapOptions) => NaverMapInstance;
-        LatLng: new (lat: number, lng: number) => NaverLatLng;
-        Marker: new (options: NaverMarkerOptions) => NaverMarker;
-        Point: new (x: number, y: number) => NaverPoint;
-        Event: NaverMapsEvent; // Event 타입 추가
+// declare global {
+//   interface Window {
+//     naver: {
+//       maps: {
+//         Map: new (element: HTMLElement, options: NaverMapOptions) => NaverMapInstance;
+//         LatLng: new (lat: number, lng: number) => NaverLatLng;
+//         Marker: new (options: NaverMarkerOptions) => NaverMarker;
+//         Point: new (x: number, y: number) => NaverPoint;
+//         Event: NaverMapsEvent; // Event 타입 추가
         
-        // 추가적인 네이버 지도 상수들
-        MapTypeId?: {
-          NORMAL: string;
-          TERRAIN: string;
-          SATELLITE: string;
-          HYBRID: string;
-        };
+//         // 추가적인 네이버 지도 상수들
+//         MapTypeId?: {
+//           NORMAL: string;
+//           TERRAIN: string;
+//           SATELLITE: string;
+//           HYBRID: string;
+//         };
         
-        Position?: {
-          TOP_LEFT: string;
-          TOP_CENTER: string;
-          TOP_RIGHT: string;
-          LEFT_CENTER: string;
-          CENTER: string;
-          RIGHT_CENTER: string;
-          BOTTOM_LEFT: string;
-          BOTTOM_CENTER: string;
-          BOTTOM_RIGHT: string;
-        };
+//         Position?: {
+//           TOP_LEFT: string;
+//           TOP_CENTER: string;
+//           TOP_RIGHT: string;
+//           LEFT_CENTER: string;
+//           CENTER: string;
+//           RIGHT_CENTER: string;
+//           BOTTOM_LEFT: string;
+//           BOTTOM_CENTER: string;
+//           BOTTOM_RIGHT: string;
+//         };
         
-        ZoomControlStyle?: {
-          LARGE: string;
-          SMALL: string;
-        };
-      };
-    };
-  }
-}
+//         ZoomControlStyle?: {
+//           LARGE: string;
+//           SMALL: string;
+//         };
+//       };
+//     };
+//   }
+// }
 
 // 일반적인 이벤트 핸들러 타입들
 export type MapEventHandler = (event: NaverMapEvent) => void;

@@ -1,10 +1,9 @@
 // features/map/hooks/useMapMarkers.ts
 import { useRef, useCallback } from 'react';
-import { NaverMapInstance, NaverMarker } from '@/shared/types/naver-maps';
 
-const useMapMarkers = (map: NaverMapInstance | null) => {
+const useMapMarkers = (map: naver.maps.Map | null) => {
   // ref로 마커들 관리 (리렌더링 없이)
-  const naverMarkersRef = useRef<NaverMarker[]>([]);
+  const naverMarkersRef = useRef<naver.maps.Marker[]>([]);
 
   // 마커 추가
   const addMarker = useCallback((lat: number, lng: number, title: string) => {
