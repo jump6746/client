@@ -4,7 +4,7 @@ import { useLoginInfo } from "@/entities/auth/queries";
 import { useGeolocation } from "@/features/map/hooks";
 
 interface Props {
-  id?: string;
+  id?: string | null;
   ownerId?: number;
 }
 
@@ -20,6 +20,7 @@ const useTasteMapThumbnail = (params: Props) => {
     queryKey: ["taste-map-thumbnail", params.id, userInfo?.userId, mapX, mapY],
     queryFn: () => getTasteMapThumbnailAPI({id: params.id, userId: userInfo?.userId, userMapx: mapX, userMapy: mapY}),
     staleTime: 1000 * 60 * 5,
+    enabled: !!params.id
   })
 }
 
