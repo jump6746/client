@@ -178,10 +178,6 @@ const NaverMap = ({
       markersRef.current.clear();
 
       // 클릭 시점에 현재 URL에서 ownerId 가져오기
-      const currentOwnerId = new URLSearchParams(window.location.search).get(
-        "ownerId"
-      );
-
       const currentMapId = new URLSearchParams(window.location.search).get(
         "mapId"
       );
@@ -232,6 +228,10 @@ const NaverMap = ({
           currentElement?.classList.add("active");
 
           selectedMarkerIdRef.current = item.placeId;
+
+          const currentOwnerId = new URLSearchParams(
+            window.location.search
+          ).get("ownerId");
 
           setPlace({
             id: item.placeId,
