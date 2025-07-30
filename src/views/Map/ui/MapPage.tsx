@@ -10,7 +10,7 @@ import RecommendMap from "@/widgets/map/ui/RecommendMap";
 
 const MapPage = () => {
   // url 관리
-  const { updatePlaceId } = useMapURL();
+  const { updateURL, getZoomFromURL } = useMapURL();
 
   // 현재 위치
   const { currentLocation, getCurrentLocation, locationError } =
@@ -48,17 +48,17 @@ const MapPage = () => {
   const handlePlaceSelect = useCallback(
     (place: KakaoResponse) => {
       setPlace(place);
-
-      updatePlaceId(place.id);
+      updateURL({ placeId: place.id, zoom: "16" });
     },
-    [updatePlaceId]
+    [updateURL]
   );
 
   // 지도 클릭 시 PlaceInfo 닫기
   const handleMapClick = useCallback(() => {
+    console.log("null");
     setPlace(null);
-    updatePlaceId(null); // URL에서 placeId 제거
-  }, [updatePlaceId]);
+    updateURL({ placeId: null }); // URL에서 placeId 제거
+  }, [updateURL]);
 
   return (
     <div className="w-full h-full relative overflow-hidden">
@@ -71,7 +71,7 @@ const MapPage = () => {
           place={place}
           setPlace={setPlace}
           center={mapCenter}
-          zoom={25}
+          zoom={Number(getZoomFromURL()) || undefined}
           onMapClick={handleMapClick}
         />
       )}

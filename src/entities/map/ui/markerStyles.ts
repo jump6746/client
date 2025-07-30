@@ -30,6 +30,7 @@ export const MARKER_STYLES = {
     .nm-marker-restaurant { background: #FF6B6B; }
     .nm-marker-coffee { background: #F4A259; }
     .nm-marker-wine { background: #9A6AFF; }
+    .nm-marker-star { background: #23C340; }
     
     .nm-marker-shape.active {
       border-radius: 50% 50% 50% 0;
@@ -64,6 +65,11 @@ export const MARKER_STYLES = {
       z-index: 10;
       border-radius: 4px;
       transition: all 0.3s ease;
+      text-shadow: 
+        -2px -2px 0 white,
+        2px -2px 0 white,
+        -2px 2px 0 white,
+        2px 2px 0 white;
     }
     
     .nm-marker-shape.active + .nm-marker-label {
@@ -124,5 +130,35 @@ export const MARKER_ICONS = {
   양식: "restaurant",
 } as const;
 
+
+export const ZOOM_OFFSET = {
+  1: 3,
+  2: 3,
+  3: 3,
+  4: 3,
+  5: 3,
+  6: 3,
+  7: 1.5,
+  8: 0.8,
+  9: 0.4,
+  10: 0.2,
+  11: 0.1,
+  12: 0.048,
+  13: 0.024,
+  14: 0.011,
+  15: 0.006,
+  16: 0.003,
+  17: 0.0015,
+  18: 0.0008,
+  19: 0.0004,
+  20: 0.00018,
+  21: 0.0001,
+  22: 0.0001,
+  23: 0.0001,
+  24: 0.0001,
+  25: 0.0001,
+}
+
 // 타입 정의
 export type MarkerCategory = keyof typeof MARKER_ICONS;
+export type ZoomCategory = keyof typeof ZOOM_OFFSET;

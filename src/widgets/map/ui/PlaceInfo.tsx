@@ -37,7 +37,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
 
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { getPlaceIdFromURL, clearURL } = useMapURL();
+  const { getPlaceIdFromURL, updateURL } = useMapURL();
 
   // 유저 정보
   const { userInfo, isLoading } = useLoginInfo();
@@ -60,9 +60,16 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
         allowCloseWhenNoDrag: true,
       },
       () => {
+        if (place && place.id) {
+          const prevElement = document.querySelector(
+            `#nm-marker-${place.id} .nm-marker-shape`
+          );
+          prevElement?.classList.remove("active");
+        }
+
         setIsOpen(false);
         setPlace(null);
-        clearURL();
+        updateURL({ placeId: null });
       }
     );
 
