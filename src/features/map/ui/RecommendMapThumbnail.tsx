@@ -1,7 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 
 interface Props {
   title: string;
+  mapId: number;
   profileImg: string;
   nickname: string;
   mapImg: { presignedUrl: string; s3Key: string }[];
@@ -31,17 +33,19 @@ const RecommendMapThumbnail = (params: Props) => {
           먹부심 지수 {params.score}점
         </span>
       </div>
-      {params.mapImg.length > 0 ? (
-        <Image
-          src={params.mapImg[0].presignedUrl}
-          alt="맛지도"
-          width={100}
-          height={100}
-          className="w-25 h-25 object-contain"
-        />
-      ) : (
-        <div className="w-25 h-25 bg-gray-200"> </div>
-      )}
+      <Link href={`/home?mapId=${params.mapId}&zoom=16`}>
+        {params.mapImg.length > 0 ? (
+          <Image
+            src={params.mapImg[0].presignedUrl}
+            alt="맛지도"
+            width={100}
+            height={100}
+            className="w-25 h-25 object-contain"
+          />
+        ) : (
+          <div className="w-25 h-25 bg-gray-200"> </div>
+        )}
+      </Link>
     </div>
   );
 };

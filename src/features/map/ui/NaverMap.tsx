@@ -4,10 +4,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KakaoResponse, TasteMap } from "@/entities/map/model";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
-import { useLoginInfo } from "@/entities/auth/queries";
 import { useMapURL } from "../hooks";
 import { useTasteMapThumbnail } from "@/entities/review/queries";
-import { MARKER_ICONS, MARKER_STYLES, MarkerCategory } from "@/entities/map/ui";
+import {
+  MARKER_ICONS,
+  MARKER_STYLES,
+  MarkerCategory,
+  ZOOM_OFFSET,
+  ZoomCategory,
+} from "@/entities/map/ui";
 
 interface Location {
   lat: number;
@@ -28,7 +33,7 @@ const NaverMap = ({
   center,
   place,
   setPlace,
-  zoom = 20,
+  zoom = 16,
   width = "100%",
   height = "100%",
   onMapClick,
@@ -44,8 +49,7 @@ const NaverMap = ({
   const selectedMarkerIdRef = useRef<string | null>(null);
   const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
 
-  const { userInfo } = useLoginInfo();
-  const { updatePlaceId, getPlaceIdFromURL } = useMapURL();
+  const { updateURL, getPlaceIdFromURL, getOwnerIdFromURL } = useMapURL();
   const { data: placeURLData } = useTasteMapThumbnail({
     id: getPlaceIdFromURL(),
   });
@@ -56,7 +60,6 @@ const NaverMap = ({
     // isLoading,
     // error,
   } = useTasteMap({
-    tasteMapId: userInfo?.defaultTasteMapId ?? 0,
     userMapx: center?.lng ?? 37.5665,
     userMapy: center?.lat ?? 126.978,
   });
@@ -97,7 +100,7 @@ const NaverMap = ({
 
         // props로 받은 center가 있으면 사용, 없으면 서울 기본값
         const initialCenter = center || { lat: 37.5665, lng: 126.978 };
-
+        console.log("줌 레벨", zoom);
         const mapOptions = {
           center: new window.naver.maps.LatLng(
             initialCenter.lat,
@@ -128,6 +131,14 @@ const NaverMap = ({
 
     if (isSuccessResponse(response)) {
       setData(response.data);
+      // ownerId가 현재 URL에 없을 때만 설정
+      const currentOwnerId = getOwnerIdFromURL();
+      if (
+        !currentOwnerId ||
+        currentOwnerId !== String(response.data.tasteMapUserId)
+      ) {
+        updateURL({ ownerId: String(response.data.tasteMapUserId) });
+      }
     }
   }, [response]);
 
@@ -166,6 +177,15 @@ const NaverMap = ({
       markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current.clear();
 
+      // 클릭 시점에 현재 URL에서 ownerId 가져오기
+      const currentOwnerId = new URLSearchParams(window.location.search).get(
+        "ownerId"
+      );
+
+      const currentMapId = new URLSearchParams(window.location.search).get(
+        "mapId"
+      );
+
       data.placeList.forEach((item) => {
         const markerId = `nm-marker-${item.placeId}`;
         const iconName = MARKER_ICONS[item.placeCategoryName as MarkerCategory];
@@ -176,9 +196,13 @@ const NaverMap = ({
           icon: {
             content: `
               <div id="${markerId}" class="nm-marker-wrapper">
-                <div class="nm-marker-shape nm-marker-${iconName}">
+                <div class="nm-marker-shape nm-marker-${
+                  !currentMapId && item.jjim ? "star" : iconName
+                }">
                   <img class="nm-marker-icon"
-                       src="/icons/${iconName}.svg"
+                       src="/icons/${
+                         !currentMapId && item.jjim ? "star" : iconName
+                       }.svg"
                        alt="${item.placeCategoryName}"
                   />
                 </div>
@@ -220,7 +244,11 @@ const NaverMap = ({
             distance: item.distance,
           });
 
-          updatePlaceId(item.placeId);
+          updateURL({
+            placeId: item.placeId,
+            zoom: "16",
+            ownerId: currentOwnerId,
+          });
         });
       });
     }
@@ -260,23 +288,8 @@ const NaverMap = ({
           placePosition.x
         );
 
-        // const searchMarker = new window.naver.maps.Marker({
-        //   position: searchPosition,
-        //   map: map,
-        //   icon: {
-        //     content: `
-        //     <div style="position: relative;">
-        //       <div style="width: 24px; height: 32px; background: #dc2626; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>
-        //     </div>
-        //   `,
-        //     anchor: new window.naver.maps.Point(12, 32),
-        //   },
-        // });
-
-        // searchMarkerRef.current = searchMarker;
-
-        // 지도 scale에 따라서 offsetY 크기 바꿔야함
-        const offsetY = 0.006;
+        const currentZoom = map.getZoom();
+        const offsetY = ZOOM_OFFSET[currentZoom as ZoomCategory];
         const centerPosition = new window.naver.maps.LatLng(
           placePosition.y - offsetY,
           placePosition.x
@@ -303,6 +316,19 @@ const NaverMap = ({
     if (!map || !onMapClick) return;
 
     const listener = window.naver.maps.Event.addListener(map, "click", () => {
+      // 기존 활성화된 마커 비활성화
+      if (selectedMarkerIdRef.current) {
+        const prevElement = document.querySelector(
+          `#nm-marker-${selectedMarkerIdRef.current} .nm-marker-shape`
+        );
+        prevElement?.classList.remove("active");
+
+        // 선택된 마커 ID 초기화
+        selectedMarkerIdRef.current = null;
+      }
+
+      setPlace(null);
+
       onMapClick?.();
     });
 

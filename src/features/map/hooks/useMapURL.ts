@@ -19,30 +19,52 @@ const useMapURL = () => {
     return searchParams.get("ownerId");
   },[searchParams])
 
+  const getZoomFromURL = useCallback(() => {
+    return searchParams.get("zoom");
+  },[searchParams])
+
   // url 업데이트
-  const updateURL = useCallback((params: {placeId?: string | null, mapId?: string | null, ownerId?: string | null}) => {
+  const updateURL = useCallback((params: {placeId?: string | null, mapId?: string | null, ownerId?: string | null, zoom?: string | null}) => {
 
-    const current = new URLSearchParams(searchParams.toString());
+    const current = new URLSearchParams(window.location.search);
+    console.log(current.toString());
 
-    if(params.placeId !== undefined && params.placeId !== null){
-      current.set("placeId", params.placeId);
-    }else{
-      current.delete("placeId");
+    // undefined가 아닌 파라미터만 처리 (기존 파라미터 보존)
+    if(params.placeId !== undefined){
+      if(params.placeId !== null){
+        current.set("placeId", params.placeId);
+      } else {
+        current.delete("placeId");
+      }
+    }
+    // placeId가 undefined면 기존 값 그대로 유지
+
+    if(params.mapId !== undefined){
+      if(params.mapId !== null){
+        current.set("mapId", params.mapId);
+      } else {
+        current.delete("mapId");
+      }
     }
 
-    if(params.mapId !== undefined && params.mapId !== null){
-      current.set("mapId", params.mapId);
-    }else{
-      current.delete("mapId");
+    if(params.ownerId !== undefined){
+      if(params.ownerId !== null){
+        current.set("ownerId", params.ownerId);
+      } else {
+        current.delete("ownerId");
+      }
     }
 
-    if(params.ownerId !== undefined && params.ownerId !== null){
-      current.set("ownerId", params.ownerId);
-    }else{
-      current.delete("ownerId");
+    if(params.zoom !== undefined){
+      if(params.zoom !== null){
+        current.set("zoom", params.zoom);
+      } else {
+        current.delete("zoom");
+      }
     }
 
     const newURL = `${window.location.pathname}?${current.toString()}`;
+    console.log(newURL);
     router.replace(newURL);
 
   },[router, searchParams])
@@ -62,6 +84,10 @@ const useMapURL = () => {
     updateURL({ ownerId });
   }, [updateURL]);
 
+  const updateZoom = useCallback((zoom: string | null) => {
+    updateURL({ zoom });
+  },[updateURL])
+
   // URL 초기화
   const clearURL = useCallback(() => {
     router.replace(window.location.pathname);
@@ -76,11 +102,13 @@ const useMapURL = () => {
   return { 
     getPlaceIdFromURL,
     getMapIdFromURL,
-    getOwnerIdFromURL, 
+    getOwnerIdFromURL,
+    getZoomFromURL, 
     updateURL, 
     updateMapId,
     updatePlaceId,
     updateOwnerId,
+    updateZoom,
     clearURL, 
     hasMapState 
   }

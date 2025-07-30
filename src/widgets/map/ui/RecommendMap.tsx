@@ -97,6 +97,7 @@ const RecommendMap = () => {
         {recommendData.map((content) => (
           <RecommendMapThumbnail
             key={content.tasteMapId}
+            mapId={content.tasteMapId}
             title={content.title}
             mapImg={content.tasteMapThumbnails}
             nickname={content.nickname}
