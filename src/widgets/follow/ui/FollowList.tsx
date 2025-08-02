@@ -116,7 +116,7 @@ const FollowList = () => {
         {/* 검색 결과가 없을 때 */}
         {!hasNextPage && reviewResults.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">{`"작성된 리뷰가 없습니다`}</p>
+            <p className="text-gray-500">{`작성된 리뷰가 없습니다`}</p>
           </div>
         )}
       </section>

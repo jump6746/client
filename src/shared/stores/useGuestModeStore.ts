@@ -9,11 +9,23 @@ interface Props {
 const useGuestModeStore = create<Props>()(
   persist(
     (set) => ({
-      isGuestMode: false,
+      isGuestMode: true,
       setGuestMode: (value) => set({ isGuestMode: value }),
     }),
     {
-      name: 'guest-mode-store', // localStorage key
+      name: 'guest-mode-store', // sessionStorage key
+      storage: {
+        getItem: (name) => {
+          const value = sessionStorage.getItem(name);
+          return value ? JSON.parse(value) : null;
+        },
+        setItem: (name, value) => {
+          sessionStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          sessionStorage.removeItem(name);
+        }
+      }
     }
   )
 );

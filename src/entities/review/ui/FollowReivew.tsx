@@ -1,12 +1,16 @@
 import { FollowerReview } from "@/entities/follow/model";
+import getTimeAgo from "@/shared/lib/getTimeAgo";
 import { Button } from "@/shared/ui/Button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface Props {
   data: FollowerReview;
 }
 
 const FollowReview = ({ data }: Props) => {
+  const router = useRouter();
+
   return (
     <div className="flex flex-col w-full gap-5">
       <div className="flex justify-between items-center px-3">
@@ -32,12 +36,20 @@ const FollowReview = ({ data }: Props) => {
             <div className="flex gap-1 items-center">
               <span className="text-sm text-gray-400">{data.nickname}</span>
               <span className="text-sm text-gray-400">
-                {data.reviewCreatedAt}
+                {getTimeAgo(data.reviewCreatedAt)}
               </span>
             </div>
           </div>
         </div>
-        <Button type="button" onClick={() => {}} className="cursor-pointer">
+        <Button
+          type="button"
+          onClick={() => {
+            router.push(
+              `/home?placeId=${data.placeId}&zoom=16&ownerId=${data.reviewUserId}`
+            );
+          }}
+          className="cursor-pointer"
+        >
           지도에서 보기
         </Button>
       </div>

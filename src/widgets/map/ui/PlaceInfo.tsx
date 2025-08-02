@@ -76,7 +76,7 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   // 장소 리뷰 썸네일 불러오기
 
   const placeId = getPlaceIdFromURL() ?? place?.id;
-  const { data } = useTasteMapThumbnail({ id: placeId });
+  const { data, error: thumbnailError } = useTasteMapThumbnail({ id: placeId });
 
   useEffect(() => {
     if (!isGuestMode && !isLoading && !userInfo) {
@@ -85,18 +85,21 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
   }, [isLoading, isGuestMode, userInfo, router]);
 
   useEffect(() => {
-    if (!data) return;
-
-    if (isSuccessResponse(data)) {
-      setPlaceData(data.data);
-      setError(null);
-    } else {
-      if (data.status != 404) {
+    if (data) {
+      if (isSuccessResponse(data)) {
+        setPlaceData(data.data);
+        setError(null);
+      }
+    } else if (thumbnailError) {
+      if (thumbnailError.status != 404) {
         setPlaceData(null);
-        setError("리뷰 관련 데이터를 불러오지 못했습니다.");
+        setError("리뷰 데이터 불러오기에 실패했습니다.");
+      } else {
+        setPlaceData(null);
+        setError(null);
       }
     }
-  }, [data]);
+  }, [data, thumbnailError]);
 
   useEffect(() => {
     if (!placeId || (!place && !placeData)) {
@@ -385,8 +388,8 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                 onClick={handlePatchJjim}
                 className="p-2 hover:bg-gray-100 rounded-xl transition-colors duration-200 cursor-pointer flex flex-col items-center"
               >
-                {placeData &&
-                  (placeData.jjim ? (
+                {placeData ? (
+                  placeData.jjim ? (
                     <Image
                       src={"/icons/fill_star.svg"}
                       alt="찜"
@@ -400,7 +403,15 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
                       width={28}
                       height={28}
                     />
-                  ))}
+                  )
+                ) : (
+                  <Image
+                    src={"/icons/non_fill_star.svg"}
+                    alt="찜"
+                    width={28}
+                    height={28}
+                  />
+                )}
                 <span className="text-xs font-medium">찜</span>
               </button>
             </div>
@@ -487,7 +498,9 @@ const PlaceInfo = ({ place, setPlace }: Props) => {
               </div>
 
               {/* 리뷰 내용 */}
-              <p className="p-2">{placeData.review.reviewContent}</p>
+              <p className="p-2 whitespace-pre-wrap">
+                {placeData.review.reviewContent}
+              </p>
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
