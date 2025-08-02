@@ -35,6 +35,7 @@ export interface FollowerReview {
     presignedUrl: string;
   };
   nickname: string;
+  reviewUserId: string;
 }
 
 export interface FollowerReviewsResponse {

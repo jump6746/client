@@ -1,7 +1,7 @@
 "use client";
 
-import { ErrorResponse } from '../types/api-structure';
-import { ResponseDTO } from "../types/api-structure";
+import { useGuestModeStore } from "../stores";
+import { APIErrorResponse, ErrorResponse, ResponseDTO } from "../types/api-structure";
 import refreshToken from './refreshToken';
 
 interface FetchProps <T = undefined, H extends Record<string, string> = Record<string, never>>{
@@ -20,16 +20,17 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
   data,
   credentials,
   headers,
-}: FetchProps<T, H>):Promise<ResponseDTO<P> | ErrorResponse> => {
+}: FetchProps<T, H>):Promise<ResponseDTO<P>> => {
 
   const body = data ? JSON.stringify(data) : null;
+  const guestMode = useGuestModeStore.getState().isGuestMode;
   
   // 요청할 때마다 최신 accessToken 가져오기
   const getAccessToken = () => {
     return typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
   };
   
-  const performRequest = async (retryCount = 0): Promise<ResponseDTO<P> | ErrorResponse> => {
+  const performRequest = async (retryCount = 0): Promise<ResponseDTO<P>> => {
 
     try {
       const accessToken = getAccessToken();
@@ -52,7 +53,7 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
 
         const responseData: ErrorResponse = await response.json();
 
-        if((responseData.status == 401 || response.status == 401) && retryCount === 0){
+        if((responseData.status == 401 || response.status == 401) && !guestMode && retryCount === 0){
           // refresh 로직
           console.log("401에러 로직 시도");
 
@@ -68,7 +69,7 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
         }
 
         // 401이 아니거나 재시도 후에도 실패한 경우
-        const error = new Error(responseData.message) as Error & {status: number, name: string}
+        const error = new Error(responseData.message) as APIErrorResponse;
         error.status = responseData.status;
         error.name = responseData.name;
 
@@ -97,14 +98,13 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
 
       console.error(error);
 
-      const networkError: ErrorResponse = {
-        status: 500,
-        name: "NetworkError",
-        message: "예기치 못한 에러가 발생했습니다.",
-        timestamp: new Date().toString(),
-      }
+      // Error 객체로 생성
+      const networkError = new Error("예기치 못한 에러가 발생했습니다.") as APIErrorResponse;
+      networkError.status = 500;
+      networkError.name = "NetworkError";
+      networkError.timestamp = new Date().toISOString();
 
-      throw networkError
+      throw networkError;
     }
   }
 

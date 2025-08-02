@@ -11,3 +11,9 @@ export interface ErrorResponse {
   message: string;
   timestamp: string;
 }
+
+export interface APIErrorResponse extends Error {
+  status: number;
+  name: string;
+  timestamp: string;
+}

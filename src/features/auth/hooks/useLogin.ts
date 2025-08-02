@@ -6,7 +6,6 @@ import { customToast } from "@/shared/ui/CustomToast";
 import usePostLogin from "@/entities/auth/queries/usePostLogin";
 import { toast } from "sonner";
 
-
 const useLogin = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
