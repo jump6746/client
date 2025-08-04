@@ -1,44 +1,68 @@
 "use client";
 
 import Image from "next/image";
-import {Button} from "@/shared/ui/Button";
-import {HistoryItem} from "@/entities/my/model";
-import {useRouter} from "next/navigation";
-import {useMyProfile} from "@/entities/my/queries";
+import { Button } from "@/shared/ui/Button";
+import { HistoryItem } from "@/entities/my/model";
+import { useRouter } from "next/navigation";
+import { useMyProfile } from "@/entities/my/queries";
+import { useGuestModeStore } from "@/shared/stores";
+import Link from "next/link";
 
 const MyPage = () => {
-  const {getMyProfile} = useMyProfile();
-  const {data, isLoading, error} = getMyProfile;
+  const { getMyProfile } = useMyProfile();
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
+  const { data, isLoading, error } = getMyProfile;
   const router = useRouter();
   const history: HistoryItem[] = [];
 
+  if (isGuestMode) {
+    return (
+      <div className="flex flex-col h-full w-full items-center justify-center gap-4">
+        <span className="text-brand-primary-600">로그인이 필요합니다.</span>
+        <Link
+          href="/login"
+          className="bg-brand-primary-600 text-white px-2 py-1 rounded-lg"
+        >
+          로그인
+        </Link>
+      </div>
+    );
+  }
+
   if (isLoading) {
-    return <div>로딩중...</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        로딩중...
+      </div>
+    );
   }
 
   if (error) {
-    return <div>오류가 발생했습니다: {error.message}</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        <span>오류가 발생했습니다.</span>
+        <span>{error.message}</span>
+      </div>
+    );
   }
 
   if (!data) {
-    return <div>프로필 정보를 불러오지 못했습니다.</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        프로필 정보를 불러오지 못했습니다.
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col gap-8">
       {/* 헤더 */}
       <div className="flex justify-between text-center border-b-2 border-[#d9d9d9] py-5">
-        <div className="w-12 text-center">
-          {/* 왼쪽 공간 */}
-        </div>
+        <div className="w-12 text-center">{/* 왼쪽 공간 */}</div>
 
-        <div className="text-xl font-bold">
-          마이페이지
-        </div>
+        <div className="text-xl font-bold">마이페이지</div>
 
-        <div className="w-12 text-center">
-          {/* 오른쪽 공간 */}
-        </div>
+        <div className="w-12 text-center">{/* 오른쪽 공간 */}</div>
       </div>
 
       {/* 프로필 소개 1 */}
@@ -77,26 +101,21 @@ const MyPage = () => {
       {/* 프로필 소개 2 */}
       <div className="flex flex-col px-4">
         {/* 이름 */}
-        <div className="text-lg font-bold">
-          {data.nickname}
-        </div>
+        <div className="text-lg font-bold">{data.nickname}</div>
 
         {/* 아이디 */}
-        <div className="fond-bold text-gray-500">
-          {data.email}
-        </div>
+        <div className="fond-bold text-gray-500">{data.email}</div>
 
         {/* 자기소개 */}
-        <div>
-          {data.description}
-        </div>
+        <div>{data.description}</div>
       </div>
 
       {/* 프로필 수정, 프로필 공유 버튼 */}
       <div className="flex justify-center items-center gap-2 px-4">
         <Button
           onClick={() => router.push("/my/edit")}
-          className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl cursor-pointer">
+          className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl cursor-pointer"
+        >
           프로필 수정
         </Button>
         <Button className="w-40 bg-[#ff6b6b] text-white font-semibold py-2 rounded-xl cursor-pointer">
@@ -113,7 +132,7 @@ const MyPage = () => {
               className="flex items-center justify-between border-b border-[#d9d9d9] py-4"
             >
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-gray-300"/>
+                <div className="size-10 rounded-full bg-gray-300" />
                 <div className="flex flex-col">
                   <div className="text-sm">
                     <span className="font-medium">{item.user}</span> 님이{" "}

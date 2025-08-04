@@ -4,6 +4,8 @@ export {
   ZOOM_OFFSET,
 } from "./markerStyles";
 
+export { default as MapOwnerThumbnail } from "./MapOwnerThumbnail";
+
 export type {
   MarkerCategory,
   ZoomCategory

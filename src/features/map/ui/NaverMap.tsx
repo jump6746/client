@@ -7,6 +7,7 @@ import useTasteMap from "@/entities/map/queries/useTasteMap";
 import { useMapURL } from "../hooks";
 import { useTasteMapThumbnail } from "@/entities/review/queries";
 import {
+  MapOwnerThumbnail,
   MARKER_ICONS,
   MARKER_STYLES,
   MarkerCategory,
@@ -49,7 +50,8 @@ const NaverMap = ({
   const selectedMarkerIdRef = useRef<string | null>(null);
   const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
 
-  const { updateURL, getPlaceIdFromURL, getOwnerIdFromURL } = useMapURL();
+  const { updateURL, getPlaceIdFromURL, getMapIdFromURL, getOwnerIdFromURL } =
+    useMapURL();
   const { data: placeURLData } = useTasteMapThumbnail({
     id: getPlaceIdFromURL(),
   });
@@ -337,8 +339,16 @@ const NaverMap = ({
     };
   }, [map, onMapClick]);
 
+  const mapId = getMapIdFromURL();
+
   return (
     <div style={{ width, height }} className="relative">
+      {mapId && data && (
+        <MapOwnerThumbnail
+          userId={data.tasteMapUserId}
+          nickname={data.tasteMapUserNickname}
+        />
+      )}
       <div ref={mapRef} className="w-full h-full" />
 
       {isLoading && (
