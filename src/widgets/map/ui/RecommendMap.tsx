@@ -111,7 +111,7 @@ const RecommendMap = () => {
             {isFetchingNextPage ? (
               <div className="flex justify-center items-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-                <span>더 많은 리뷰를 불러오는 중...</span>
+                <span>더 많은 추천 지도를 불러오는 중...</span>
               </div>
             ) : (
               <div className="text-gray-500">스크롤해서 더 보기</div>
@@ -128,8 +128,8 @@ const RecommendMap = () => {
 
         {/* 검색 결과가 없을 때 */}
         {!hasNextPage && recommendData.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-500">{`"작성된 리뷰가 없습니다`}</p>
+          <div className="py-8 h-full flex items-center justify-center">
+            <p className="text-gray-500">{`추천 지도가 없습니다`}</p>
           </div>
         )}
       </div>

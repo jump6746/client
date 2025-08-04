@@ -1,15 +1,17 @@
-'use client';
+"use client";
 
 import Image from "next/image";
-import {Button} from "@/shared/ui/Button";
-import {useEffect, useRef, useState} from "react";
-import {useMyProfile, useProfileImageUpload} from "@/entities/my/queries";
-import {useRouter} from "next/navigation";
+import { Button } from "@/shared/ui/Button";
+import { useEffect, useRef, useState } from "react";
+import { useMyProfile, useProfileImageUpload } from "@/entities/my/queries";
+import { useRouter } from "next/navigation";
+import { useGuestModeStore } from "@/shared/stores";
+import Link from "next/link";
 
 const ProfileEditForm = () => {
-  const {getMyProfile, patchMyProfile} = useMyProfile();
-  const {data, isLoading, error} = getMyProfile;
-  const {uploadProfileImage} = useProfileImageUpload();
+  const { getMyProfile, patchMyProfile } = useMyProfile();
+  const { data, isLoading, error } = getMyProfile;
+  const { uploadProfileImage } = useProfileImageUpload();
   const [nickname, setNickname] = useState("");
   const [description, setDescription] = useState("");
   const [profileImgUrl, setProfileImgUrl] = useState("");
@@ -17,6 +19,7 @@ const ProfileEditForm = () => {
 
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
 
   useEffect(() => {
     if (data) {
@@ -45,11 +48,11 @@ const ProfileEditForm = () => {
     patchMyProfile.mutate({
       profileImgS3Key,
       nickname,
-      description
+      description,
     });
 
     router.push("/my");
-  }
+  };
 
   const handleImgUpload = () => {
     fileInputRef.current?.click();
@@ -63,33 +66,52 @@ const ProfileEditForm = () => {
     }
   };
 
+  if (isGuestMode) {
+    return (
+      <div className="flex flex-col h-full w-full items-center justify-center">
+        <span className="text-brand-primary-600">로그인이 필요합니다.</span>
+        <Link href="/login">로그인</Link>
+      </div>
+    );
+  }
+
   if (isLoading) {
-    return <div>로딩중...</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        로딩중...
+      </div>
+    );
   }
 
   if (error) {
-    return <div>오류가 발생했습니다: {error.message}</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        <span>오류가 발생했습니다.</span>
+        <span>{error.message}</span>
+      </div>
+    );
   }
 
   if (!data) {
-    return <div>프로필 정보를 불러오지 못했습니다.</div>;
+    return (
+      <div className="flex flex-col text-brand-primary-600 h-full w-full items-center justify-center">
+        프로필 정보를 불러오지 못했습니다.
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col bg-white">
       {/* 헤더 */}
       <div className="flex justify-between text-center border-b border-[#d9d9d9] py-4">
-        <div className="w-12 text-center">
-          {/* 왼쪽 공간 */}
-        </div>
+        <div className="w-12 text-center">{/* 왼쪽 공간 */}</div>
 
-        <div className="text-xl font-bold">
-          마이페이지
-        </div>
+        <div className="text-xl font-bold">마이페이지</div>
 
         <Button
           onClick={handleUpdateProfile}
-          className="w-12 text-center cursor-pointer">
+          className="w-12 text-center cursor-pointer"
+        >
           완료
         </Button>
       </div>
@@ -107,7 +129,8 @@ const ProfileEditForm = () => {
 
         <button
           onClick={handleImgUpload}
-          className="mt-2 text-sm font-medium text-red-500 hover:underline transition cursor-pointer">
+          className="mt-2 text-sm font-medium text-red-500 hover:underline transition cursor-pointer"
+        >
           사진 수정
         </button>
 

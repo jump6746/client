@@ -10,7 +10,7 @@ import RecommendMap from "@/widgets/map/ui/RecommendMap";
 
 const MapPage = () => {
   // url 관리
-  const { updateURL, getZoomFromURL } = useMapURL();
+  const { updateURL, getZoomFromURL, getMapIdFromURL } = useMapURL();
 
   // 현재 위치
   const { currentLocation, getCurrentLocation, locationError } =
@@ -22,6 +22,8 @@ const MapPage = () => {
   } | null>(null);
 
   const [place, setPlace] = useState<KakaoResponse | null>(null);
+
+  const mapId = getMapIdFromURL();
 
   // 컴포넌트 마운트 시 현재 위치 가져오기
   useEffect(() => {
@@ -62,10 +64,12 @@ const MapPage = () => {
 
   return (
     <div className="w-full h-full relative overflow-hidden">
-      <SearchComponent
-        currentLocation={mapCenter}
-        onPlaceSelect={handlePlaceSelect}
-      />
+      {!mapId && (
+        <SearchComponent
+          currentLocation={mapCenter}
+          onPlaceSelect={handlePlaceSelect}
+        />
+      )}
       {mapCenter && (
         <NaverMap
           place={place}
