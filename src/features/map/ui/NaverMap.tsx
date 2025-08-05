@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { isSuccessResponse, loadNaverMaps } from "@/shared/lib";
 import { KakaoResponse, TasteMap } from "@/entities/map/model";
 import useTasteMap from "@/entities/map/queries/useTasteMap";
@@ -14,6 +14,8 @@ import {
   ZOOM_OFFSET,
   ZoomCategory,
 } from "@/entities/map/ui";
+import { Button } from "@/shared/ui/Button";
+import Image from "next/image";
 
 interface Location {
   lat: number;
@@ -341,6 +343,17 @@ const NaverMap = ({
 
   const mapId = getMapIdFromURL();
 
+  const handleMoveToLocation = useCallback(() => {
+    if (map && center) {
+      const currentPosition = new window.naver.maps.LatLng(
+        center.lat,
+        center.lng
+      );
+
+      map.setCenter(currentPosition);
+    }
+  }, [map, center]);
+
   return (
     <div style={{ width, height }} className="relative">
       {mapId && data && (
@@ -350,6 +363,20 @@ const NaverMap = ({
         />
       )}
       <div ref={mapRef} className="w-full h-full" />
+
+      <Button
+        type="button"
+        onClick={handleMoveToLocation}
+        className="rounded-full cursor-pointer absolute z-[700] bottom-20 left-8"
+      >
+        <Image
+          src="/icons/map_location.svg"
+          alt="현재 위치로 가기"
+          width={50}
+          height={50}
+          className="w-12.5 h-12.5"
+        />
+      </Button>
 
       {isLoading && (
         <div className="absolute inset-0 bg-gray-100 flex items-center justify-center">
