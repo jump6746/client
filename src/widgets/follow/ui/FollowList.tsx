@@ -5,6 +5,7 @@ import { FollowReview } from "@/entities/review/ui";
 import { useGeolocation } from "@/features/map/hooks";
 import { isSuccessResponse } from "@/shared/lib";
 import { Button } from "@/shared/ui/Button";
+import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/Carousel";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
@@ -69,7 +70,7 @@ const FollowList = () => {
 
   return (
     <div>
-      <section className="flex justify-start w-full px-5 gap-3">
+      {/* <section className="flex justify-start w-full px-5 gap-3">
         {users.map((item) => {
           return (
             <div
@@ -77,7 +78,7 @@ const FollowList = () => {
               className="flex flex-col items-center gap-1"
             >
               <Image
-                src={item.targetUserImgUrl}
+                src={item.targetUserImgUrl || "icons/default_profile.svg"}
                 alt="프로필"
                 width={80}
                 height={80}
@@ -87,7 +88,28 @@ const FollowList = () => {
             </div>
           );
         })}
-      </section>
+      </section> */}
+      <Carousel>
+        <CarouselContent className="pl-5">
+          {users.map((item) => {
+            return (
+              <CarouselItem
+                key={item.targetUserId}
+                className="flex flex-col items-center gap-1"
+              >
+                <Image
+                  src={item.targetUserImgUrl || "icons/default_profile.svg"}
+                  alt="프로필"
+                  width={80}
+                  height={80}
+                  className="w-20 h-20 rounded-full object-cover"
+                />
+                <span className="font-semibold">{item.targetUserNickname}</span>
+              </CarouselItem>
+            );
+          })}
+        </CarouselContent>
+      </Carousel>
       <section className="flex flex-col gap-5">
         {reviewResults.map((item) => (
           <FollowReview key={item.reviewId} data={item} />

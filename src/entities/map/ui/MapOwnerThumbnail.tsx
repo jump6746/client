@@ -1,4 +1,6 @@
+import { useGuestModeStore } from "@/shared/stores";
 import { Button } from "@/shared/ui/Button";
+import { customToast } from "@/shared/ui/CustomToast";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -9,6 +11,15 @@ interface Props {
 
 const MapOwnerThumbnail = (props: Props) => {
   const router = useRouter();
+  const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
+
+  const handleSubscribe = () => {
+    if (isGuestMode) {
+      customToast.needLogin(() => {
+        router.push("/");
+      });
+    }
+  };
 
   return (
     <div className="flex justify-center items-center gap-5 bg-transparent w-full absolute z-[800] top-10">
@@ -30,7 +41,11 @@ const MapOwnerThumbnail = (props: Props) => {
         <span className="text-white font-semibold">
           {props.nickname}의 맛지도
         </span>
-        <Button className="py-0.5 px-1.5 rounded-xl bg-white cursor-pointer">
+        <Button
+          className="py-0.5 px-1.5 rounded-xl bg-white cursor-pointer"
+          type="button"
+          onClick={handleSubscribe}
+        >
           <span className="text-sm font-semibold">구독</span>
         </Button>
       </div>
