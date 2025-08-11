@@ -7,10 +7,13 @@ import { isSuccessResponse } from "@/shared/lib";
 import { Button } from "@/shared/ui/Button";
 import { Carousel, CarouselContent, CarouselItem } from "@/shared/ui/Carousel";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
 const FollowList = () => {
+  const router = useRouter();
+  const [sort, setSort] = useState<"latest" | "distance">("latest");
   const { data: response } = useGetSubscriptions();
   const { currentLocation } = useGeolocation();
   const {
@@ -19,7 +22,7 @@ const FollowList = () => {
     hasNextPage,
     isFetchingNextPage,
   } = useGetInfinityUserReview({
-    sort: "latest",
+    sort: sort,
     limit: 15,
     userMapx: currentLocation?.lat ?? 37.5665,
     userMapy: currentLocation?.lng ?? 126.9779,
@@ -70,32 +73,18 @@ const FollowList = () => {
 
   return (
     <div>
-      {/* <section className="flex justify-start w-full px-5 gap-3">
-        {users.map((item) => {
-          return (
-            <div
-              key={item.targetUserId}
-              className="flex flex-col items-center gap-1"
-            >
-              <Image
-                src={item.targetUserImgUrl || "icons/default_profile.svg"}
-                alt="프로필"
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-full object-cover"
-              />
-              <span className="font-semibold">{item.targetUserNickname}</span>
-            </div>
-          );
-        })}
-      </section> */}
       <Carousel>
         <CarouselContent className="pl-5">
           {users.map((item) => {
             return (
               <CarouselItem
                 key={item.targetUserId}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-1 cursor-pointer"
+                onClick={() => {
+                  router.push(
+                    `/home?mapId=${item.targetUserDefaultTasteMapId}`
+                  );
+                }}
               >
                 <Image
                   src={item.targetUserImgUrl || "icons/default_profile.svg"}
@@ -104,13 +93,45 @@ const FollowList = () => {
                   height={80}
                   className="w-20 h-20 rounded-full object-cover"
                 />
-                <span className="font-semibold">{item.targetUserNickname}</span>
+                <span className="font text-sm">
+                  {item.targetUserNickname.length > 5
+                    ? `${item.targetUserNickname.slice(0, 5)}...`
+                    : item.targetUserNickname}
+                </span>
               </CarouselItem>
             );
           })}
         </CarouselContent>
       </Carousel>
-      <section className="flex flex-col gap-5">
+      <section className="flex flex-col gap-5 mt-5">
+        <div className="flex gap-5">
+          <Button
+            className={`${
+              sort == "latest"
+                ? "bg-brand-primary-600 text-white"
+                : "bg-gray-200 text-gray-400"
+            } px-2 py-1 rounded-xl  font-medium cursor-pointer disabled:cursor-default`}
+            onClick={() => {
+              setSort("latest");
+            }}
+            disabled={sort == "latest"}
+          >
+            최신순
+          </Button>
+          <Button
+            className={`${
+              sort == "distance"
+                ? "bg-brand-primary-600 text-white"
+                : "bg-gray-200 text-gray-400"
+            } px-2 py-1 rounded-xl  font-medium cursor-pointer disabled:cursor-default`}
+            onClick={() => {
+              setSort("distance");
+            }}
+            disabled={sort == "distance"}
+          >
+            거리순
+          </Button>
+        </div>
         {reviewResults.map((item) => (
           <FollowReview key={item.reviewId} data={item} />
         ))}

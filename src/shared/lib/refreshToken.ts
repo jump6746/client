@@ -19,7 +19,7 @@ const refreshToken = async (): Promise<boolean> => {
     console.log("토큰 갱신 성공");
 
     if(data.data?.accessToken){
-      localStorage.setItem("accessToken", data.data.accessToken);
+      sessionStorage.setItem("accessToken", data.data.accessToken);
     }
 
     return true;

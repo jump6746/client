@@ -27,7 +27,7 @@ const clientFetch = async <T = undefined, P = unknown, H extends Record<string, 
   
   // 요청할 때마다 최신 accessToken 가져오기
   const getAccessToken = () => {
-    return typeof window !== 'undefined' ? localStorage.getItem("accessToken") : null;
+    return typeof window !== 'undefined' ? sessionStorage.getItem("accessToken") : null;
   };
   
   const performRequest = async (retryCount = 0): Promise<ResponseDTO<P>> => {

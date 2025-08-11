@@ -2,6 +2,7 @@ export interface FollowUser {
   targetUserId: number;
   targetUserNickname: string;
   targetUserImgUrl: string;
+  targetUserDefaultTasteMapId: string;
 }
 
 export interface SearchUser {
@@ -22,6 +23,8 @@ export interface UserFollowResponse {
 
 export interface FollowerReview {
   reviewId: number;
+  reviewerId: number;
+  reviewContent: string;
   reviewImg: {
     presignedUrl: string;
   };
@@ -35,7 +38,6 @@ export interface FollowerReview {
     presignedUrl: string;
   };
   nickname: string;
-  reviewUserId: string;
 }
 
 export interface FollowerReviewsResponse {
