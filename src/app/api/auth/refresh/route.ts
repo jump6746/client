@@ -105,7 +105,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       refreshToken: newRefreshToken
     };
 
-    await redis.setex(sessionId, 60 * 60 * 24 * 7, JSON.stringify(newSessionData));
+    await redis.setex(sessionId, 60 * 60 * 24, JSON.stringify(newSessionData));
     
     const successResponse: ResponseDTO<RefreshResponseData> = {
       status: 200,
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30,
+      maxAge: 60 * 60 * 24,
       path: "/"
     });
     

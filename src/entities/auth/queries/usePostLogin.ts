@@ -20,8 +20,7 @@ const usePostLogin = () => {
 
         const { data } = response;
 
-        localStorage.setItem('accessToken', data.accessToken);
-        localStorage.setItem('sessionId', data.sessionId);
+        sessionStorage.setItem('accessToken', data.accessToken);
 
         setGuestMode(false);
         

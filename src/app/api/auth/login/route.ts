@@ -75,7 +75,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
     }
 
     // redis에 저장
-    await redis.setex(sessionId, 60 * 60 * 24 * 7, JSON.stringify(sessionData));
+    await redis.setex(sessionId, 60 * 60 * 24, JSON.stringify(sessionData));
 
     // 로그인시 내려줄 응답
     const loginData = {
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ResponseD
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "strict",
-      maxAge:  60 * 60 * 24 * 30,
+      maxAge:  60 * 60 * 24,
       path: "/"
     })
 

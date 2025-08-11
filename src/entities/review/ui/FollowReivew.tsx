@@ -45,12 +45,19 @@ const FollowReview = ({ data }: Props) => {
           type="button"
           onClick={() => {
             router.push(
-              `/home?placeId=${data.placeId}&zoom=16&ownerId=${data.reviewUserId}`
+              `/home?placeId=${data.placeId}&zoom=16&ownerId=${data.reviewerId}`
             );
           }}
-          className="cursor-pointer"
+          className="cursor-pointer bg-brand-primary-600 px-2 py-1 text-white rounded-md flex gap-2 items-center"
         >
-          지도에서 보기
+          <Image
+            src="/icons/white_map_icon.svg"
+            alt="지도"
+            width={20}
+            height={20}
+            className="w-5 h-5"
+          />
+          <span>지도에서 보기</span>
         </Button>
       </div>
       {data.reviewImg.presignedUrl ? (

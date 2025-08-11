@@ -1,7 +1,7 @@
 "use client";
 
 import useGetInfinityRecommendMap from "@/entities/map/queries/useGetInfinityRecommendMap";
-import { useGeolocation } from "@/features/map/hooks";
+import { useGeolocation, useMapURL } from "@/features/map/hooks";
 import RecommendMapThumbnail from "@/features/map/ui/RecommendMapThumbnail";
 import { useDragSheet } from "@/shared/hooks";
 import { useEffect, useState } from "react";
@@ -9,6 +9,14 @@ import { useInView } from "react-intersection-observer";
 
 const RecommendMap = () => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
+
+  const { getPlaceIdFromURL } = useMapURL();
+
+  useEffect(() => {
+    if (getPlaceIdFromURL()) {
+      setIsOpen(false);
+    }
+  }, []);
 
   const {
     isDragging,

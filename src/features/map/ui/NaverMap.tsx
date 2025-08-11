@@ -137,9 +137,11 @@ const NaverMap = ({
       setData(response.data);
       // ownerId가 현재 URL에 없을 때만 설정
       const currentOwnerId = getOwnerIdFromURL();
+      const placeId = getPlaceIdFromURL();
       if (
-        !currentOwnerId ||
-        currentOwnerId !== String(response.data.tasteMapUserId)
+        (!currentOwnerId ||
+          currentOwnerId !== String(response.data.tasteMapUserId)) &&
+        !placeId
       ) {
         updateURL({ ownerId: String(response.data.tasteMapUserId) });
       }
