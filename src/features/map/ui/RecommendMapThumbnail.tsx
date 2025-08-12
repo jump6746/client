@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 
 interface Props {
   title: string;
@@ -8,11 +7,15 @@ interface Props {
   nickname: string;
   mapImg: { presignedUrl: string; s3Key: string }[];
   score: number;
+  onClick: () => void;
 }
 
 const RecommendMapThumbnail = (params: Props) => {
   return (
-    <div className="flex w-full justify-between p-5 items-start border-t-2 border-gray-400">
+    <div
+      className="flex w-full justify-between p-5 items-start border-t-2 border-gray-400 cursor-pointer"
+      onClick={params.onClick}
+    >
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {params.profileImg ? (
@@ -33,7 +36,7 @@ const RecommendMapThumbnail = (params: Props) => {
           먹부심 지수 {params.score}점
         </span>
       </div>
-      <Link href={`/home?mapId=${params.mapId}&zoom=16`}>
+      <div>
         {params.mapImg.length > 0 ? (
           <Image
             src={params.mapImg[0].presignedUrl}
@@ -45,7 +48,7 @@ const RecommendMapThumbnail = (params: Props) => {
         ) : (
           <div className="w-25 h-25 bg-gray-200"> </div>
         )}
-      </Link>
+      </div>
     </div>
   );
 };

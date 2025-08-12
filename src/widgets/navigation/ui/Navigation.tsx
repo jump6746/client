@@ -42,7 +42,7 @@ const Navigation = () => {
             href={item.href}
             className={`flex flex-col gap-1 py-2 px-1 items-center transition-colors duration-200 ${
               isActive
-                ? "border-t-3 border-brand-primary-600" // 활성화 상태 색상
+                ? "border-b-3 border-brand-primary-600" // 활성화 상태 색상
                 : "text-gray-600 hover:text-gray-800" // 비활성화 상태 색상
             }`}
           >

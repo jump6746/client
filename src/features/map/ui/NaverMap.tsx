@@ -362,6 +362,8 @@ const NaverMap = ({
         <MapOwnerThumbnail
           userId={data.tasteMapUserId}
           nickname={data.tasteMapUserNickname}
+          imgUrl={data.tasteMapUserProfileImg}
+          isSubscribed={data.isSubscribed}
         />
       )}
       <div ref={mapRef} className="w-full h-full" />
