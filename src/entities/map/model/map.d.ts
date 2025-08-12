@@ -65,6 +65,8 @@ export interface TasteMap {
   tasteMapId: number;
   tasteMapUserId: number;
   tasteMapUserNickname: string;
+  tasteMapUserProfileImg: string;
+  isSubscribed: boolean;
   tasteMapTitle: string;
   placeList: TastePlace[];
 }

@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 interface Props {
   userId: number;
   nickname: string;
+  imgUrl: string;
+  isSubscribed: boolean;
 }
 
 const MapOwnerThumbnail = (props: Props) => {
@@ -38,15 +40,26 @@ const MapOwnerThumbnail = (props: Props) => {
         />
       </Button>
       <div className="bg-black/70 px-4 py-1 rounded-full flex items-center gap-4">
+        <Image
+          src={props.imgUrl || "/icons/default_profile.svg"}
+          alt="프로필"
+          width={24}
+          height={24}
+          className="w-6 h-6 rounded-full object-contain bg-gray-200"
+        />
         <span className="text-white font-semibold">
           {props.nickname}의 맛지도
         </span>
         <Button
-          className="py-0.5 px-1.5 rounded-xl bg-white cursor-pointer"
+          className={`py-0.5 px-1.5 rounded-xl ${
+            props.isSubscribed ? "text-white" : "bg-white"
+          } cursor-pointer`}
           type="button"
           onClick={handleSubscribe}
         >
-          <span className="text-sm font-semibold">구독</span>
+          <span className="text-sm font-semibold">
+            {props.isSubscribed ? "구독 중" : "구독하기"}
+          </span>
         </Button>
       </div>
     </div>
