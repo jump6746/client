@@ -80,7 +80,7 @@ const MapPage = () => {
         />
       )}
       <PlaceInfo place={place} setPlace={setPlace} />
-      <RecommendMap />
+      <RecommendMap center={mapCenter} />
     </div>
   );
 };

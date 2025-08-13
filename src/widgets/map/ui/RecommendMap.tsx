@@ -1,14 +1,21 @@
 "use client";
 
 import useGetInfinityRecommendMap from "@/entities/map/queries/useGetInfinityRecommendMap";
-import { useGeolocation, useMapURL } from "@/features/map/hooks";
+import { useMapURL } from "@/features/map/hooks";
 import RecommendMapThumbnail from "@/features/map/ui/RecommendMapThumbnail";
 import { useDragSheet } from "@/shared/hooks";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 
-const RecommendMap = () => {
+interface Props {
+  center: {
+    lat: number;
+    lng: number;
+  } | null;
+}
+
+const RecommendMap = (props: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(true);
   const router = useRouter();
 
@@ -47,13 +54,11 @@ const RecommendMap = () => {
     }
   );
 
-  const { currentLocation } = useGeolocation();
-
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetInfinityRecommendMap({
       limit: 10,
-      userMapx: currentLocation?.lat ?? 37.5665,
-      userMapy: currentLocation?.lng ?? 126.9779,
+      userMapx: props.center?.lat || 37.5665,
+      userMapy: props.center?.lng || 126.978,
     });
 
   const { ref, inView } = useInView({

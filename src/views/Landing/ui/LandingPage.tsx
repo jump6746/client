@@ -1,6 +1,5 @@
 import Link from "next/link";
 import GuestButton from "@/views/Landing/ui/GuestButton";
-import OAuthLoginButton from "@/widgets/auth/ui/OAuthLoginButton";
 
 const LandingPage = () => {
   return (
@@ -28,7 +27,7 @@ const LandingPage = () => {
         <span className="font-bold text-lg">맛집 지도 공유</span>
       </section>
       <section className="flex flex-col mt-auto gap-3 w-full items-center">
-        <OAuthLoginButton />
+        {/* <OAuthLoginButton /> */}
 
         <Link
           href="/login"
