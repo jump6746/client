@@ -27,15 +27,9 @@ const RecommendMap = (props: Props) => {
     }
   }, []);
 
-  const {
-    isDragging,
-    currentHeight,
-    isExpanded,
-    setIsExpanded,
-    handlePointerDown,
-  } = useDragSheet(
+  const { isDragging, currentHeight, isExpanded, setIsExpanded } = useDragSheet(
     {
-      canDrag: true,
+      canDrag: false,
       baseHeightRatio: 0.5,
       expandedHeightRatio: 0.75,
       minHeightRatio: 0.3,
@@ -53,6 +47,18 @@ const RecommendMap = (props: Props) => {
       setIsExpanded(false);
     }
   );
+
+  const handleStageClick = () => {
+    if (!isOpen && !isExpanded) {
+      setIsOpen(true);
+      setIsExpanded(false);
+    } else if (isOpen && !isExpanded) {
+      setIsExpanded(true);
+    } else {
+      setIsOpen(false);
+      setIsExpanded(false);
+    }
+  };
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetInfinityRecommendMap({
@@ -77,7 +83,7 @@ const RecommendMap = (props: Props) => {
   return (
     <section
       className={`absolute w-full bottom-0 bg-white rounded-t-2xl overflow-hidden border-gray-200 z-[780]
-        ${isOpen ? "translate-y-0" : "translate-y-14/15"}
+        ${isOpen ? "translate-y-0" : "translate-y-12/13"}
         ${isDragging ? "" : "transition-transform duration-300 ease-out"}
       `}
       style={{
@@ -89,18 +95,17 @@ const RecommendMap = (props: Props) => {
     >
       {/* 상단 핸들 - 드래그 영역 */}
       <div
-        className="w-full flex justify-center py-2 select-none cursor-grab active:cursor-grabbing"
-        onPointerDown={handlePointerDown}
-        onClick={
-          !isOpen
-            ? () => {
-                setIsOpen(true);
-              }
-            : undefined
-        }
+        className="w-full flex justify-center py-2 select-none cursor-pointer hover:bg-gray-100"
+        onClick={handleStageClick}
         style={{ touchAction: "none" }}
       >
-        <div className={"w-12 h-1 rounded-full bg-brand-primary-600"}></div>
+        <div
+          className={
+            "w-12 text-[0.75rem] rounded-full bg-brand-primary-600 flex justify-center items-center"
+          }
+        >
+          <span>{isExpanded ? "▼" : "▲"}</span>
+        </div>
       </div>
 
       {isOpen ? (
@@ -108,7 +113,6 @@ const RecommendMap = (props: Props) => {
           className={`flex flex-col h-full py-5 gap-5 cursor-grab active:cursor-grabbing ${
             isExpanded ? "overflow-auto" : "overflow-hidden"
           }`}
-          onPointerDown={handlePointerDown}
         >
           <h2 className="text-xl font-semibold px-5">추천 지도</h2>
           <div

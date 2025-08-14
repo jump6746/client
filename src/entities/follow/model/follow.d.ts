@@ -24,6 +24,7 @@ export interface UserFollowResponse {
 export interface FollowerReview {
   reviewId: number;
   reviewerId: number;
+  reviewerDefaultTasteMapId: number;
   reviewContent: string;
   reviewImg: {
     presignedUrl: string;
