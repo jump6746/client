@@ -1,4 +1,4 @@
-const convertToWebP = (file: File, quality: number = 1.0): Promise<File> => {
+const convertToWebP = (file: File, quality: number = 0.6): Promise<File> => {
   return new Promise((resolve, reject) => {
     // 품질 값 유효성 검사
     if (quality < 0 || quality > 1) {

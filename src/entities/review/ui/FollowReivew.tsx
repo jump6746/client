@@ -45,7 +45,7 @@ const FollowReview = ({ data }: Props) => {
           type="button"
           onClick={() => {
             router.push(
-              `/home?placeId=${data.placeId}&zoom=16&ownerId=${data.reviewerId}`
+              `/home?placeId=${data.placeId}&zoom=16&ownerId=${data.reviewerId}&mapId=${data.reviewerDefaultTasteMapId}`
             );
           }}
           className="cursor-pointer bg-brand-primary-600 px-2 py-1 text-white rounded-md flex gap-2 items-center"
@@ -60,19 +60,28 @@ const FollowReview = ({ data }: Props) => {
           <span>지도에서 보기</span>
         </Button>
       </div>
-      {data.reviewImg.presignedUrl ? (
-        <Image
-          src={data.reviewImg.presignedUrl}
-          alt="리뷰"
-          width={400}
-          height={280}
-          className="w-full h-70 object-cover"
-        />
-      ) : (
-        <div className="w-full h-70 bg-gray-200 flex justify-center items-center">
-          <span className="text-gray-400">리뷰 이미지가 없습니다.</span>
+      <div className="flex flex-col gap-2">
+        {data.reviewImg.presignedUrl ? (
+          <Image
+            src={data.reviewImg.presignedUrl}
+            alt="리뷰"
+            width={400}
+            height={280}
+            className="w-full aspect-square object-cover"
+          />
+        ) : (
+          <div className="w-full aspect-square bg-gray-200 flex justify-center items-center">
+            <span className="text-gray-400">리뷰 이미지가 없습니다.</span>
+          </div>
+        )}
+        <div className="m-2 rounded-xl shadow-md">
+          <p className="p-4 whitespace-pre-wrap">
+            {data.reviewContent.length > 60
+              ? data.reviewContent.slice(0, 60) + "..."
+              : data.reviewContent}
+          </p>
         </div>
-      )}
+      </div>
     </div>
   );
 };
