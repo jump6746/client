@@ -1,5 +1,6 @@
 import { useLoginInfo } from "@/entities/auth/queries";
 import { FollowUser } from "@/entities/follow/model";
+import useDeleteUserFollow from "@/entities/follow/queries/useDeleteUserFollow";
 import useGetInfinityUserSearch from "@/entities/follow/queries/useGetInfinityUserSearch";
 import usePostUserFollow from "@/entities/follow/queries/usePostUserFollow";
 import { useDebounce } from "@/shared/hooks";
@@ -58,6 +59,7 @@ const UserSearch = ({ setIsOpen }: Props) => {
   });
 
   const postUserFollowMutation = usePostUserFollow();
+  const deleteUserFollowMutation = useDeleteUserFollow();
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -78,6 +80,13 @@ const UserSearch = ({ setIsOpen }: Props) => {
       {
         onSuccess: () => {
           customToast.success("팔로우에 성공했습니다.");
+          queryClient.invalidateQueries({
+            queryKey: ["subscriptions"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["user-review"],
+          });
+          setIsOpen(false);
         },
         onError: () => {
           customToast.error("팔로우에 실패했습니다.");
@@ -86,8 +95,29 @@ const UserSearch = ({ setIsOpen }: Props) => {
     );
   };
 
+  const handleDeleteFollow = (id: number) => {
+    deleteUserFollowMutation.mutate(
+      { targetUserId: id },
+      {
+        onSuccess: () => {
+          customToast.success("팔로우 취소에 성공했습니다.");
+          queryClient.invalidateQueries({
+            queryKey: ["subscriptions"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["user-review"],
+          });
+          setIsOpen(false);
+        },
+        onError: () => {
+          customToast.error("팔로우 취소에 실패했습니다.");
+        },
+      }
+    );
+  };
+
   return (
-    <section className="w-full h-full bg-amber-50 top-0 absolute py-5">
+    <section className="w-full h-full bg-white top-0 absolute py-5">
       {/* 검색어 입력창 */}
       <div className="flex justify-start items-center bg-white p-3 gap-5 rounded-lg shadow mx-5">
         <Button
@@ -118,7 +148,7 @@ const UserSearch = ({ setIsOpen }: Props) => {
                 className="flex gap-2 items-center w-full py-3 px-8 border-b border-gray-200"
               >
                 <Image
-                  src={user.avatarThumbnailUrl}
+                  src={user.avatarThumbnailUrl || "/icons/default_profile.svg"}
                   alt="프로필"
                   width={40}
                   height={40}
@@ -126,16 +156,24 @@ const UserSearch = ({ setIsOpen }: Props) => {
                 />
                 <span>{user.nickname}</span>
                 {isSubscribed ? (
-                  <span className="ml-auto">팔로우중</span>
+                  <Button
+                    type="button"
+                    className="ml-auto cursor-pointer"
+                    onClick={() => {
+                      handleDeleteFollow(user.id);
+                    }}
+                  >
+                    팔로우 취소
+                  </Button>
                 ) : (
                   <Button
                     type="button"
-                    className="ml-auto"
+                    className="ml-auto cursor-pointer"
                     onClick={() => {
                       handleFollow(user.id);
                     }}
                   >
-                    추가하기
+                    팔로우 하기
                   </Button>
                 )}
               </div>
