@@ -1,10 +1,14 @@
+import useDeleteUserFollow from "@/entities/follow/queries/useDeleteUserFollow";
+import usePostUserFollow from "@/entities/follow/queries/usePostUserFollow";
 import { useGuestModeStore } from "@/shared/stores";
 import { Button } from "@/shared/ui/Button";
 import { customToast } from "@/shared/ui/CustomToast";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface Props {
+  mapId: number;
   userId: number;
   nickname: string;
   imgUrl: string;
@@ -14,13 +18,54 @@ interface Props {
 const MapOwnerThumbnail = (props: Props) => {
   const router = useRouter();
   const isGuestMode = useGuestModeStore((state) => state.isGuestMode);
+  const postUserFollowMutation = usePostUserFollow();
+  const deleteUserFollowMutation = useDeleteUserFollow();
+  const queryClient = useQueryClient();
 
   const handleSubscribe = () => {
     if (isGuestMode) {
       customToast.needLogin(() => {
         router.push("/");
       });
+
+      return;
     }
+
+    postUserFollowMutation.mutate(
+      {
+        targetUserId: props.userId,
+      },
+      {
+        onSuccess: () => {
+          customToast.success("팔로우에 성공했습니다.");
+          queryClient.invalidateQueries({
+            queryKey: ["taste-map", props.mapId],
+          });
+        },
+        onError: () => {
+          customToast.error("팔로우에 실패했습니다.");
+        },
+      }
+    );
+  };
+
+  const handleUnsubscribe = () => {
+    deleteUserFollowMutation.mutate(
+      {
+        targetUserId: props.userId,
+      },
+      {
+        onSuccess: () => {
+          customToast.success("팔로우 취소에 성공했습니다.");
+          queryClient.invalidateQueries({
+            queryKey: ["taste-map", props.mapId],
+          });
+        },
+        onError: () => {
+          customToast.error("팔로우 취소에 실패했습니다.");
+        },
+      }
+    );
   };
 
   return (
@@ -48,19 +93,29 @@ const MapOwnerThumbnail = (props: Props) => {
           className="w-6 h-6 rounded-full object-contain bg-gray-200"
         />
         <span className="text-white font-semibold">
-          {props.nickname}의 맛지도
+          {props.nickname}님의 맛지도
         </span>
-        <Button
-          className={`py-0.5 px-1.5 rounded-xl ${
-            props.isSubscribed ? "text-white" : "bg-white"
-          } cursor-pointer`}
-          type="button"
-          onClick={handleSubscribe}
-        >
-          <span className="text-sm font-semibold">
-            {props.isSubscribed ? "구독 중" : "구독하기"}
-          </span>
-        </Button>
+        {props.isSubscribed ? (
+          <Button
+            className={`py-0.5 px-1.5 rounded-xl ${
+              props.isSubscribed ? "text-white" : "bg-white"
+            } cursor-pointer`}
+            type="button"
+            onClick={handleUnsubscribe}
+          >
+            <span className="text-sm font-semibold">구독 취소</span>
+          </Button>
+        ) : (
+          <Button
+            className={`py-0.5 px-1.5 rounded-xl ${
+              props.isSubscribed ? "text-white" : "bg-white"
+            } cursor-pointer`}
+            type="button"
+            onClick={handleSubscribe}
+          >
+            <span className="text-sm font-semibold">구독하기</span>
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -361,6 +361,7 @@ const NaverMap = ({
       {mapId && data && (
         <MapOwnerThumbnail
           userId={data.tasteMapUserId}
+          mapId={data.tasteMapId}
           nickname={data.tasteMapUserNickname}
           imgUrl={data.tasteMapUserProfileImg}
           isSubscribed={data.isSubscribed}
