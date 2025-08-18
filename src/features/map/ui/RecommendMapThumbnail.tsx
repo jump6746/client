@@ -11,6 +11,8 @@ interface Props {
 }
 
 const RecommendMapThumbnail = (params: Props) => {
+  const randomScore = Math.floor((Math.random() * 15 + 80) * 10) / 10;
+
   return (
     <div
       className="flex w-full justify-between p-5 items-start border-t-2 border-gray-400 cursor-pointer"
@@ -27,9 +29,9 @@ const RecommendMapThumbnail = (params: Props) => {
           />
           <span className="text-xs font-semibold">{params.nickname}</span>
         </div>
-        <h3 className="text-xl font-bold">{params.title}</h3>
+        <h3 className="text-xl font-bold">{params.nickname}님의 맛지도</h3>
         <span className="text-[0.5rem] bg-gray-600 text-white w-fit px-3 py-1.5 rounded-xl">
-          먹부심 지수 {params.score}점
+          먹부심 지수 {randomScore}점
         </span>
       </div>
       <div className="bg-gray-100">

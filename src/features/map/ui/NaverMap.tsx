@@ -51,6 +51,7 @@ const NaverMap = ({
   const searchMarkerRef = useRef<naver.maps.Marker | null>(null); // 검색 마커 (빨간색)
   const selectedMarkerIdRef = useRef<string | null>(null);
   const markersRef = useRef<Map<string, naver.maps.Marker>>(new Map());
+  const lastPlaceIdRef = useRef<string | null>(null);
 
   const { updateURL, getPlaceIdFromURL, getMapIdFromURL, getOwnerIdFromURL } =
     useMapURL();
@@ -262,50 +263,92 @@ const NaverMap = ({
 
   // 검색된 장소 마커 생성/업데이트
   useEffect(() => {
-    if (map) {
-      console.log("검색된 장소:", place);
+    if (!map) return;
 
-      // 기존 검색 마커 제거
+    if (!place) {
+      // place가 null 이면 마커 제거만
       if (searchMarkerRef.current) {
         searchMarkerRef.current.setMap(null);
         searchMarkerRef.current = null;
+        lastPlaceIdRef.current = null;
       }
+      return;
+    }
 
-      const placePosition: { y: number | null; x: number | null } = {
-        y: null,
-        x: null,
-      };
+    console.log("검색된 장소:", place);
 
-      if (place) {
-        placePosition.y = place.y;
-        placePosition.x = place.x;
-      } else {
-        if (placeURLData && isSuccessResponse(placeURLData)) {
-          placePosition.y = placeURLData.data.mapy;
-          placePosition.x = placeURLData.data.mapx;
-        }
-      }
+    const placePosition: { y: number; x: number } = {
+      y: 0,
+      x: 0,
+    };
 
-      // place가 있을 때만 새로운 마커 생성
-      if (placePosition.x && placePosition.y) {
-        // 새로운 검색 마커 생성 (빨간색 핀)
-        const searchPosition = new window.naver.maps.LatLng(
-          placePosition.y,
-          placePosition.x
-        );
-
-        const currentZoom = map.getZoom();
-        const offsetY = ZOOM_OFFSET[currentZoom as ZoomCategory];
-        const centerPosition = new window.naver.maps.LatLng(
-          placePosition.y - offsetY,
-          placePosition.x
-        );
-
-        // 검색된 장소로 지도 중심 이동
-        map.setCenter(centerPosition);
-        console.log("선택된 장소로 이동", searchPosition);
+    if (place) {
+      placePosition.y = place.y;
+      placePosition.x = place.x;
+    } else {
+      if (placeURLData && isSuccessResponse(placeURLData)) {
+        placePosition.y = placeURLData.data.mapy;
+        placePosition.x = placeURLData.data.mapx;
       }
     }
+
+    // (1) 같은 placeId면 마커 다시 만들지 않음
+    if (lastPlaceIdRef.current === place.id) {
+      return;
+    }
+
+    // (2) 기존 마커 제거
+    if (searchMarkerRef.current) {
+      searchMarkerRef.current.setMap(null);
+    }
+
+    const markerId = `nm-marker-${place.id}`;
+    const iconName = MARKER_ICONS[place.category_group_name as MarkerCategory];
+    const newPos = new naver.maps.LatLng(place.y, place.x);
+    let isExist = false;
+    markersRef.current.forEach((marker) => {
+      const pos = marker.getPosition(); // LatLng
+      // 좌표 비교 (정확하게 일치할 경우)
+      if (pos.equals(newPos)) {
+        isExist = true;
+      }
+    });
+    let marker = null;
+    if (!isExist) {
+      marker = new naver.maps.Marker({
+        position: newPos,
+        map: map,
+        icon: {
+          content: `
+              <div id="${markerId}" class="nm-marker-wrapper">
+                <div class="nm-marker-shape nm-marker-${iconName}">
+                  <img class="nm-marker-icon"
+                       src="/icons/${iconName}.svg"
+                       alt="${place.category_group_name}"
+                  />
+                </div>
+                <span class="nm-marker-label">
+                  ${place.place_name}
+                </span>
+              </div>
+            `,
+          anchor: new naver.maps.Point(16, 16),
+        },
+      });
+    }
+
+    searchMarkerRef.current = marker;
+    lastPlaceIdRef.current = place.id;
+
+    const currentZoom = map.getZoom();
+    const offsetY = ZOOM_OFFSET[currentZoom as ZoomCategory];
+    const centerPosition = new window.naver.maps.LatLng(
+      placePosition.y - offsetY,
+      placePosition.x
+    );
+
+    // 검색된 장소로 지도 중심 이동
+    map.setCenter(centerPosition);
   }, [map, place, placeURLData]);
 
   // 컴포넌트 언마운트 시 마커 정리
