@@ -1,15 +1,14 @@
 import { useMutation } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import useGuestModeStore from "@/shared/stores/useGuestModeStore";
 import { isSuccessResponse } from "@/shared/lib";
 import { customToast } from "@/shared/ui/CustomToast";
 import logoutAPI from "../api/logoutAPI";
 
 const usePostLogout = () => {
-  const searchParams = useSearchParams();
   const router = useRouter();
   const setGuestMode = useGuestModeStore((state) => state.setGuestMode);
-  const redirectTo = searchParams.get("redirect") || "/home";
+  const redirectTo = "/home";
 
   return useMutation({
     mutationFn: logoutAPI,
