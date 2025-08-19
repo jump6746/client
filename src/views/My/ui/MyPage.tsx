@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useMyProfile } from "@/entities/my/queries";
 import { useGuestModeStore } from "@/shared/stores";
 import Link from "next/link";
+import usePostLogout from "@/entities/auth/queries/usePostLogout";
 
 const MyPage = () => {
   const { getMyProfile } = useMyProfile();
@@ -14,6 +15,7 @@ const MyPage = () => {
   const { data, isLoading, error } = getMyProfile;
   const router = useRouter();
   const history: HistoryItem[] = [];
+  const postLogoutMutation = usePostLogout();
 
   if (isGuestMode) {
     return (
@@ -66,35 +68,46 @@ const MyPage = () => {
       </div>
 
       {/* 프로필 소개 1 */}
-      <div className="flex items-center px-4 gap-8">
+      <div className="flex items-center px-4 gap-8 w-full">
         {/* 프로필 사진 */}
-        <div className="relative size-25 rounded-full overflow-hidden bg-gray-300">
-          <Image
-            src={data.profileImg.presignedUrl || ""}
-            alt="프로필 이미지"
-            fill
-            className="object-cover"
-          />
-        </div>
-
-        <div className="flex justify-between gap-4">
-          {/* 구독자 */}
-          <div className="flex flex-col items-center">
-            <div className="font-bold text-xl">{data.subscriberCount}</div>
-            <div className="text-xs font-bold text-gray-400">구독자</div>
+        <div className="flex gap-8 items-center w-full">
+          <div className="relative size-25 rounded-full overflow-hidden bg-gray-300">
+            <Image
+              src={data.profileImg.presignedUrl || ""}
+              alt="프로필 이미지"
+              fill
+              className="object-cover"
+            />
           </div>
 
-          {/* 핀 */}
-          <div className="flex flex-col items-center">
-            <div className="font-bold text-xl">{data.pinCount}</div>
-            <div className="text-xs font-bold text-gray-400">나의 핀</div>
+          <div className="flex justify-between gap-4">
+            {/* 구독자 */}
+            <div className="flex flex-col items-center">
+              <div className="font-bold text-xl">{data.subscriberCount}</div>
+              <div className="text-xs font-bold text-gray-400">구독자</div>
+            </div>
+
+            {/* 핀 */}
+            <div className="flex flex-col items-center">
+              <div className="font-bold text-xl">{data.pinCount}</div>
+              <div className="text-xs font-bold text-gray-400">나의 핀</div>
+            </div>
+
+            {/* 먹부심 지수 */}
+            <div className="flex flex-col items-center">
+              <div className="font-bold text-xl">{data.gourmetScore}</div>
+              <div className="text-xs font-bold text-gray-400">먹부심 지수</div>
+            </div>
           </div>
 
-          {/* 먹부심 지수 */}
-          <div className="flex flex-col items-center">
-            <div className="font-bold text-xl">{data.gourmetScore}</div>
-            <div className="text-xs font-bold text-gray-400">먹부심 지수</div>
-          </div>
+          <Button
+            className="bg-red-600 px-4 py-1 text-white rounded-lg font-semibold mt-auto ml-auto cursor-pointer"
+            onClick={() => {
+              postLogoutMutation.mutate();
+            }}
+          >
+            로그아웃
+          </Button>
         </div>
       </div>
 
