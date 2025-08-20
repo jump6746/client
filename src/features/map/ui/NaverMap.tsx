@@ -190,6 +190,10 @@ const NaverMap = ({
       );
 
       data.placeList.forEach((item) => {
+        if (currentMapId && item.jjim) {
+          return;
+        }
+
         const markerId = `nm-marker-${item.placeId}`;
         const iconName = MARKER_ICONS[item.placeCategoryName as MarkerCategory];
 
