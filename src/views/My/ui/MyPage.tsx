@@ -22,7 +22,7 @@ const MyPage = () => {
       <div className="flex flex-col h-full w-full items-center justify-center gap-4">
         <span className="text-brand-primary-600">로그인이 필요합니다.</span>
         <Link
-          href="/login"
+          href="/"
           className="bg-brand-primary-600 text-white px-2 py-1 rounded-lg"
         >
           로그인
